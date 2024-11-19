@@ -1,9 +1,27 @@
 import { Text, View, TextInput, Button, StyleSheet } from "react-native";
 import { DataTable } from "react-native-paper";
 import { useState } from 'react';
+
+
+//import { Task } from "./task";
+
+
 const customData = require('./customData.json');
 
+class Task{
 
+   constructor(id, name, description, creator, dueDate){
+    this.id = id;
+    this.name = name;
+    this.description = description;
+    this.creator = creator;
+    this.dueDate = dueDate;
+   }
+
+   pushToSQL(){
+    //RETURN EQUIVALENT SQL CODE.
+   }
+}
 
 export default function Index() {
 //INIT STATES
@@ -12,13 +30,23 @@ export default function Index() {
   const[tNameValue, setTNameValue] = useState ('');
 
 
+  //SHOULD LOAD IN USER DATA FROM PREVIOUS PAGE / COOKIE.
+  const[userValue, setUserValue] = useState("Adam");
+
+  var id = 100;
+
 //BOILER FUNCTIONS
 
   //BOILER PLATE FUNCTION FOR HANDLING INPUT TASK. 
   //REPLACE WITH LOGIC TO HANDLE INPUT SQL STRING.
-  function getTaskFunction({inputTask}){
+  function getTaskFunction(inputTask){
     var toRet = [inputTask["id"], inputTask["name"], inputTask["description"], inputTask["creator"], inputTask["dueDate"]];
     return toRet;
+  }
+
+  function getTaskID(){
+    //MAKE SOMETHING UNIQUE FOR EACH TASK ID.
+    return ++id;
   }
 
 
@@ -28,7 +56,7 @@ export default function Index() {
   }
 
   //Use method created below, custom table thing.
-  function appendToTable({tableToAppend, task}){
+  function appendToTable(tableToAppend, task){
 
   }
 
@@ -39,7 +67,7 @@ export default function Index() {
     //TODO -- FILTER BY USER
     for(var i = 0; i < customData["tasks"].length; i++){
       var counter = getTaskFunction(customData["tasks"][i]);
-      
+
     }
 
     //DISPLAY DATA FROM FILE.
@@ -56,22 +84,32 @@ export default function Index() {
   //____________________________________
   }
 
-
+//GET TASK ID FROM SQL OR CREATE SOME UNIQUE ID VIA SOME METHOD (TIMESTAMP PLUE USERID?)
   function saveTaskFunction(){
-    //Get info from text boxes
-    
+    getTaskID();
+
+    var t = new Task(
+      id,
+      descValue, 
+      tNameValue,
+      userValue,
+      "0-0-0"
+    )
     //convert to equivalent SQL / whatever
+    //DUMMY FUNCTION
+    t.pushToSQL(null);
 
-    //push to server
 
-
-
+    
+    
+    
+    
+    
     //TEST DATA BELOW THIS LINE
     //____________________________________
-
-    console.log(descValue);
-    console.log(tNameValue);
+    console.log(JSON.stringify(t));
   }
+
 
 
 //MAKE VIEW / WHATEVER
