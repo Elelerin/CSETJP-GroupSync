@@ -1,30 +1,36 @@
-[
-    {
-      "_id": "5973782bdb9a930533b05cb2",
-      "isActive": true,
-      "balance": "$1,446.35",
-      "age": 32,
-      "eyeColor": "green",
-      "name": "Logan Keller",
-      "gender": "male",
-      "company": "ARTIQ",
-      "email": "logankeller@artiq.com",
-      "phone": "+1 (952) 533-2258",
-      "friends": [
-        {
-          "id": 0,
-          "name": "Colon Salazar"
-        },
-        {
-          "id": 1,
-          "name": "French Mcneil"
-        },
-        {
-          "id": 2,
-          "name": "Carol Martin"
-        }
-      ],
-      "favoriteFruit": "banana"
-    }
-  ]
+{
+    "tasks":[
+      {
+        "id": 0,
+        "name": "Task 0",
+        "description" : "Complete 0",
+        "creator" : "Adam",
+        "dueDate" : "0-0-0"
+      },
+      {
+        "id": 1,
+        "name": "Task 1",
+        "description" : "Complete 1",
+        "creator" : "Adam",
+        "dueDate" : "0-0-0"
+      },
+      {
+        "id": 2,
+        "name": "Task 2",
+        "description" : "Complete 2",
+        "creator" : "Adam",
+        "dueDate" : "0-0-0"
+      },
+      {
+        "id": 3,
+        "name": "Task 3",
+        "description" : "Complete 3",
+        "creator" : "Adam",
+        "dueDate" : "0-0-0"
+      }
+    ]
+
+
+  }
+  
   

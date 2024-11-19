@@ -1,4 +1,5 @@
 import { Text, View, TextInput, Button, StyleSheet } from "react-native";
+import { DataTable } from "react-native-paper";
 import { useState } from 'react';
 const customData = require('./customData.json');
 
@@ -12,10 +13,47 @@ export default function Index() {
 
 
 //BOILER FUNCTIONS
+
+  //BOILER PLATE FUNCTION FOR HANDLING INPUT TASK. 
+  //REPLACE WITH LOGIC TO HANDLE INPUT SQL STRING.
+  function getTaskFunction({inputTask}){
+    var toRet = [inputTask["id"], inputTask["name"], inputTask["description"], inputTask["creator"], inputTask["dueDate"]];
+    return toRet;
+  }
+
+
+   //Create Table
+  function createTable(){
+
+  }
+
+  //Use method created below, custom table thing.
+  function appendToTable({tableToAppend, task}){
+
+  }
+
   function loadTasksFunction(){
-    //Load Tasks from File
-    const v = JSON.stringify(customData);
-    setParsedValue(v);
+    var toParse = customData;
+
+    console.log(toParse.tasks);
+    //TODO -- FILTER BY USER
+    for(var i = 0; i < customData["tasks"].length; i++){
+      var counter = getTaskFunction(customData["tasks"][i]);
+      
+    }
+
+    //DISPLAY DATA FROM FILE.
+    //Draw Table
+    var n = createTable();
+    for(var k = 0; k < customData["tasks"].length; k++){
+      //Append each task to the table.
+      appendToTable(null, getTaskFunction(customData["tasks"][k]));
+    }
+
+    //Ensure table is drawn
+
+  //TEST DATA BELOW THIS LINE
+  //____________________________________
   }
 
 
@@ -113,8 +151,10 @@ function TaskList({TasksToDisplay}){
 
 }
 
-function TaskRow({Name, Date, Creator}){
+function TaskRow({id, name, desc, creator, dueDate}){
+  //QUESTION: SHOULD WE HAVE A CUSTOM DATA STRUCTURE, AND PASS THAT IN FROM THE MIDDLEWARE, JS, STORE IN BROWSER, ETC? WHAT DO?
 
+  //TODO: CREATE TASK ROW.
 }
 
 const styles = StyleSheet.create({
