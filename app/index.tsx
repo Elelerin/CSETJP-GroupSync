@@ -42,7 +42,7 @@ export default function Index() {
       {
         id: 3,
         title: "Hire Minions",
-        description: "Consider increating pay and giving them a health plan this time.",
+        description: "Consider increasing pay and giving them a health plan this time.",
         dueDate: new Date("2025-1-18"),
         complete: false,
       },
@@ -85,7 +85,11 @@ export default function Index() {
       <PillButton icon={"download"} onPress={onLoad}/>
       <PillButton icon={"delete"} onPress={remove}/>
       <PillLink href={"/newtask"} icon={"add"} />
-      <FlatList style={styles.tasksContainer} data={tasks} renderItem={({item}) => <TaskView task={item}/>}/>
+      <FlatList 
+        style={styles.tasksContainer} 
+        data={tasks} 
+        renderItem={({item}) => <TaskView task={item}/>}
+        showsHorizontalScrollIndicator={false}/>
     </View>
   )
 }
@@ -99,6 +103,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   tasksContainer: {
-    width: '100%'
+    width: '100%',
   }
 });
