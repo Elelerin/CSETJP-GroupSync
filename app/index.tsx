@@ -1,205 +1,104 @@
-import { Text, View, TextInput, Button, StyleSheet } from "react-native";
-import { DataTable } from "react-native-paper";
-import { useState } from 'react';
+import { FlatList, View, StyleSheet } from "react-native";
+import { useState, useEffect } from 'react';
 
-
-//import { Task } from "./task";
-
-
-const customData = require('./customData.json');
-
-class Task{
-
-   constructor(id, name, description, creator, dueDate){
-    this.id = id;
-    this.name = name;
-    this.description = description;
-    this.creator = creator;
-    this.dueDate = dueDate;
-   }
-
-   pushToSQL(){
-    //RETURN EQUIVALENT SQL CODE.
-   }
-}
+import * as Tasks from '@/services/tasks'
+import PillLink from '@/components/PillLink'
+import PillButton from '@/components/PillButton'
+import TaskView from "@/components/TaskView";
+import Colors from '@/constants/Colors'
 
 export default function Index() {
-//INIT STATES
-  const[parsedValue, setParsedValue] = useState('');
-  const[descValue, setDescValue] = useState ('');
-  const[tNameValue, setTNameValue] = useState ('');
+  const [tasks, setTasks] = useState<Tasks.Task[]>([]);
 
-
-  //SHOULD LOAD IN USER DATA FROM PREVIOUS PAGE / COOKIE.
-  const[userValue, setUserValue] = useState("Adam");
-
-  var id = 100;
-
-//BOILER FUNCTIONS
-
-  //BOILER PLATE FUNCTION FOR HANDLING INPUT TASK. 
-  //REPLACE WITH LOGIC TO HANDLE INPUT SQL STRING.
-  function getTaskFunction(inputTask){
-    var toRet = [inputTask["id"], inputTask["name"], inputTask["description"], inputTask["creator"], inputTask["dueDate"]];
-    return toRet;
-  }
-
-  function getTaskID(){
-    //MAKE SOMETHING UNIQUE FOR EACH TASK ID.
-    return ++id;
-  }
-
-
-   //Create Table
-  function createTable(){
-
-  }
-
-  //Use method created below, custom table thing.
-  function appendToTable(tableToAppend, task){
-
-  }
-
-  function loadTasksFunction(){
-    var toParse = customData;
-
-    console.log(toParse.tasks);
-    //TODO -- FILTER BY USER
-    for(var i = 0; i < customData["tasks"].length; i++){
-      var counter = getTaskFunction(customData["tasks"][i]);
-
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const tasks = await Tasks.getTasks()
+        setTasks(tasks);
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+      }
     }
 
-    //DISPLAY DATA FROM FILE.
-    //Draw Table
-    var n = createTable();
-    for(var k = 0; k < customData["tasks"].length; k++){
-      //Append each task to the table.
-      appendToTable(null, getTaskFunction(customData["tasks"][k]));
+    fetchTasks();
+  }, []);
+
+  const onLoad = async () => {
+    const fillerTasks = [
+      {
+        id: 1,
+        title: "Water plants",
+        description: "Water the plants in the foyer. The spider plant needs two cups of water.",
+        dueDate: new Date("2024-11-26"),
+        complete: false,
+      },
+      {
+        id: 2,
+        title: "Buy holiday gifts",
+        description: "Peter wants a novelty spoon. Maria wants a go kart. Chet wants a portrait of his dog.",
+        dueDate: new Date("2024-12-17"),
+        complete: false,
+      },
+      {
+        id: 3,
+        title: "Hire Minions",
+        description: "Consider increating pay and giving them a health plan this time.",
+        dueDate: new Date("2025-1-18"),
+        complete: false,
+      },
+      {
+        id: 4,
+        title: "Find lair location",
+        description: "A volcano island looks cool and even includes its own natural power source.",
+        dueDate: new Date("2025-3-31"),
+        complete: false,
+      },
+      {
+        id: 5,
+        title: "Pay taxes",
+        description: "No even supervillains mess with the IRS.",
+        dueDate: new Date("2025-4-15"),
+        complete: false,
+      },
+    ];
+
+    //Add filler tasks to AsyncStorage
+    for (let i = 0; i < fillerTasks.length; ++i) {
+      await Tasks.addTask(fillerTasks[i]);
     }
 
-    //Ensure table is drawn
-
-  //TEST DATA BELOW THIS LINE
-  //____________________________________
+    //Refetch tasks list and update state
+    setTasks(await Tasks.getTasks());
   }
 
-//GET TASK ID FROM SQL OR CREATE SOME UNIQUE ID VIA SOME METHOD (TIMESTAMP PLUE USERID?)
-  function saveTaskFunction(){
-    getTaskID();
-
-    var t = new Task(
-      id,
-      descValue, 
-      tNameValue,
-      userValue,
-      "0-0-0"
-    )
-    //convert to equivalent SQL / whatever
-    //DUMMY FUNCTION
-    t.pushToSQL(null);
-
-
+  const remove = async () => {
+    //Delete all tasks
+    await Tasks.clearTasks();
     
-    
-    
-    
-    
-    //TEST DATA BELOW THIS LINE
-    //____________________________________
-    console.log(JSON.stringify(t));
+    //Refetch tasks list and update state
+    setTasks(await Tasks.getTasks());
   }
 
-
-
-//MAKE VIEW / WHATEVER
+//Return render of tasks page
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      
-    <Tasks input = {parsedValue} />
-    <Betton onPress = {loadTasksFunction}/>
-    <NewTask
-      _saveTaskFunction={saveTaskFunction}
-      _descValue={descValue}
-      _setDescValue={setDescValue}
-      _tName={tNameValue}
-      _setTName={setTNameValue}
-    />
-    
+    <View style={styles.container}>
+      <PillButton icon={"download"} onPress={onLoad}/>
+      <PillButton icon={"delete"} onPress={remove}/>
+      <PillLink href={"/newtask"} icon={"add"} />
+      <FlatList style={styles.tasksContainer} data={tasks} renderItem={({item}) => <TaskView task={item}/>}/>
     </View>
   )
 }
 
-function NewTask({_saveTaskFunction, 
-                  _descValue, _setDescValue,
-                  _tName, _setTName}){
-  return (
-    <div>
-
-      <TextInput
-        style = {styles.input}
-        placeholder="Task Name"
-        value = {_tName}
-        onChangeText={text => _setTName(text)}
-      />
-
-      <TextInput
-        style = {styles.input}
-        placeholder="Task Desc"
-        value = {_descValue}
-        onChangeText={text => _setDescValue(text)}
-      />
-
-     
-
-      <Button
-        title="Save Task"
-        onPress = {_saveTaskFunction}
-      />
-    </div>
-  )
-}
-
-
-function Tasks({input}){
-  return (
-    <Text>
-      {input}
-    </Text>
-  )
-}
-
-
-function Betton({onPress}){
-  return(
-    <Button
-          title="Load Tasks"
-          onPress = {onPress}
-      />
-  )
-}
-
-function TaskList({TasksToDisplay}){
-
-}
-
-function TaskRow({id, name, desc, creator, dueDate}){
-  //QUESTION: SHOULD WE HAVE A CUSTOM DATA STRUCTURE, AND PASS THAT IN FROM THE MIDDLEWARE, JS, STORE IN BROWSER, ETC? WHAT DO?
-
-  //TODO: CREATE TASK ROW.
-}
-
 const styles = StyleSheet.create({
-  input: {
-    height: 40,
-    margin: 12,
-    borderWidth: 1,
-    padding: 10,
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    backgroundColor: Colors.backgroundPrimary,
+    paddingHorizontal: 60,
+    paddingVertical: 10,
   },
+  tasksContainer: {
+    width: '100%'
+  }
 });
