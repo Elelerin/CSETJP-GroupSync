@@ -1,14 +1,13 @@
-import { View, Pressable, StyleSheet } from 'react-native'
-import { Href, Link } from 'expo-router'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import { View, Pressable, StyleSheet } from 'react-native';
+import { Href, Link } from 'expo-router';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-import Colors from '@/constants/Colors'
+import Colors from '@/constants/Colors';
 
 type Props = {
   onPress: () => void,
-  icon: keyof typeof MaterialIcons.glyphMap;
-
-}
+  icon: keyof typeof MaterialIcons.glyphMap,
+};
 
 export default function PillLink({ onPress, icon }: Props) {
   return (
@@ -30,7 +29,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 21,
+    borderRadius: 8,
     backgroundColor: Colors.highlight,
   },
 });

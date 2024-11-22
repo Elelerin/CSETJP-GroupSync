@@ -1,27 +1,32 @@
 import { FlatList, View, StyleSheet } from "react-native";
-import { useState, useEffect } from 'react';
+import { useCallback, useState } from 'react';
 
 import * as Tasks from '@/services/tasks'
 import PillLink from '@/components/PillLink'
 import PillButton from '@/components/PillButton'
 import TaskView from "@/components/TaskView";
 import Colors from '@/constants/Colors'
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function Index() {
   const [tasks, setTasks] = useState<Tasks.Task[]>([]);
 
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const tasks = await Tasks.getTasks()
-        setTasks(tasks);
-      } catch (error) {
-        console.error("Error fetching tasks:", error);
+  useFocusEffect(
+    useCallback(() => {
+      const fetchTasks = async () => {
+          try {
+          const tasks = await Tasks.getTasks()
+          setTasks(tasks);
+        } catch (error) {
+          console.error("Error fetching tasks:", error);
+        }
       }
-    }
 
-    fetchTasks();
-  }, []);
+      fetchTasks()
+
+      return () => {}
+    }, [tasks])
+  );
 
   const onLoad = async () => {
     const fillerTasks = [
@@ -34,14 +39,14 @@ export default function Index() {
       },
       {
         id: 2,
-        title: "Buy holiday gifts",
+        title: "Buy holiday gifts for the sun",
         description: "Peter wants a novelty spoon. Maria wants a go kart. Chet wants a portrait of his dog.",
         dueDate: new Date("2024-12-17"),
         complete: false,
       },
       {
         id: 3,
-        title: "Hire Minions",
+        title: "Hire minions",
         description: "Consider increasing pay and giving them a health plan this time.",
         dueDate: new Date("2025-1-18"),
         complete: false,
@@ -99,10 +104,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     backgroundColor: Colors.backgroundPrimary,
-    paddingHorizontal: 60,
-    paddingVertical: 10,
+    paddingHorizontal: 20,
+    paddingTop: 10,
   },
   tasksContainer: {
     width: '100%',
+    marginTop: 10,
   }
 });

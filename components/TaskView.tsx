@@ -32,10 +32,10 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     backgroundColor: Colors.backgroundSecondary,
-    borderRadius: 21,
+    borderRadius: 8,
     borderColor: Colors.highlight,
     borderWidth: 4,
-    padding: 16,
+    padding: 12,
   },
   titleRow: {
     flex: 1,
@@ -43,9 +43,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'baseline',
     marginBottom: 20,
-  },
-  descriptionRow: {
-    
   },
   textDate: {
     color: Colors.textPrimary,
@@ -57,6 +54,6 @@ const styles = StyleSheet.create({
   },
   textDescription: {
     color: Colors.textSecondary,
-    fontSize: 16,
+    fontSize: 20,
   }
 });
