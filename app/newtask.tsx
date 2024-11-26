@@ -32,14 +32,17 @@ export default function newTask() {
   const setDate = (date : string) => {
     let task = newTask;
 
-    task.dueDate = new Date(date); 
+    task.dueDate = new Date(date);
     setNewTask(task);
   }
 
-  const addTask = () => {
-    Tasks.addTask(newTask)
+  const addTask = async () => {
+    let tasks = await Tasks.getTasks();
+    newTask.id = tasks.length + 1;
 
-    router.back()
+    Tasks.addTask(newTask);
+
+    router.back();
   }
 
   return (

@@ -39,7 +39,7 @@ export default function Index() {
       },
       {
         id: 2,
-        title: "Buy holiday gifts for the sun",
+        title: "Buy holiday gifts",
         description: "Peter wants a novelty spoon. Maria wants a go kart. Chet wants a portrait of his dog.",
         dueDate: new Date("2024-12-17"),
         complete: false,
