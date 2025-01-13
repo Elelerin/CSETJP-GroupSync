@@ -2,7 +2,7 @@ import { View, StyleSheet, TextInput, Text } from 'react-native';
 import { useState } from 'react';
 import { router } from 'expo-router'
 
-import Colors from '@/constants/Colors'
+import { useThemeColor } from '@/hooks/useThemeColor';
 import PillButton from '@/components/PillButton';
 import * as Tasks from '@/services/tasks';
 
@@ -68,13 +68,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: Colors.backgroundPrimary,
+    backgroundColor: useThemeColor("backgroundPrimary"),
     paddingHorizontal: 20,
     paddingTop: 10,
   },
   inputLabel: {
     fontSize: 20,
-    color: Colors.textSecondary,
+    color: useThemeColor("textSecondary"),
     marginBottom: 5,
   },
   inputContainer: {
@@ -82,11 +82,11 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   input: {
-    color: Colors.textPrimary,
-    backgroundColor: Colors.backgroundSecondary,
+    color: useThemeColor("textPrimary"),
+    backgroundColor: useThemeColor("backgroundSecondary"),
     width: '100%',
     fontSize: 20,
-    borderColor: Colors.highlight,
+    borderColor: useThemeColor("highlight"),
     borderWidth: 4,
     borderRadius: 8,
     padding: 8,

@@ -2,7 +2,7 @@ import { View, Pressable, StyleSheet } from 'react-native';
 import { Href, Link } from 'expo-router';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-import Colors from '@/constants/Colors';
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 type Props = {
   onPress: () => void,
@@ -13,7 +13,7 @@ export default function PillLink({ onPress, icon }: Props) {
   return (
     <View style={styles.pillButtonContainer}>
       <Pressable style={styles.pillButton} onPress={onPress}>
-        <MaterialIcons name={icon} size={24} color={Colors.textPrimary} />
+        <MaterialIcons name={icon} size={24} color={useThemeColor("textPrimary")} />
       </Pressable>
     </View>
   );
@@ -30,6 +30,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 8,
-    backgroundColor: Colors.highlight,
+    backgroundColor: useThemeColor("highlight"),
   },
 });

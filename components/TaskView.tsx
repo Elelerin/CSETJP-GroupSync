@@ -1,7 +1,7 @@
 import { View, StyleSheet, Text } from 'react-native'
 
 import * as Tasks from '@/services/tasks'
-import Colors from '@/constants/Colors'
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 type Props = {
   task: Tasks.Task,
@@ -31,9 +31,9 @@ const styles = StyleSheet.create({
   boxContainer: {
     flex: 1,
     flexDirection: 'column',
-    backgroundColor: Colors.backgroundSecondary,
+    backgroundColor: useThemeColor("backgroundSecondary"),
     borderRadius: 8,
-    borderColor: Colors.highlight,
+    borderColor: useThemeColor("highlight"),
     borderWidth: 4,
     padding: 12,
   },
@@ -45,15 +45,15 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   textDate: {
-    color: Colors.textPrimary,
+    color: useThemeColor("textPrimary"),
     fontSize: 20,
   },
   textTitle: {
-    color: Colors.textPrimary,
+    color: useThemeColor("textPrimary"),
     fontSize: 24,
   },
   textDescription: {
-    color: Colors.textSecondary,
+    color:useThemeColor("textSecondary"),
     fontSize: 20,
   }
 });

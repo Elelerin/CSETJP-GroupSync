@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 
-import Colors from '@/constants/Colors'
+import { useThemeColor } from '@/hooks/useThemeColor';
 import { NavigationContainer } from '@react-navigation/native';
 
 export default function RootLayout() {
@@ -8,10 +8,10 @@ export default function RootLayout() {
     <NavigationContainer>
       <Stack screenOptions={{
         headerStyle: {
-          backgroundColor: Colors.backgroundSecondary,
+          backgroundColor: useThemeColor("backgroundSecondary"),
         },
         headerShadowVisible: false,
-        headerTintColor: Colors.textPrimary,
+        headerTintColor: useThemeColor("textPrimary"),
       }}>
         <Stack.Screen name="index" options={{ title: "Tasks" }} />
         <Stack.Screen name="newtask" options={{ title: "New Task" }} />

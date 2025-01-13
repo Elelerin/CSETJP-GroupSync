@@ -5,7 +5,7 @@ import * as Tasks from '@/services/tasks'
 import PillLink from '@/components/PillLink'
 import PillButton from '@/components/PillButton'
 import TaskView from "@/components/TaskView";
-import Colors from '@/constants/Colors'
+import { useThemeColor } from "@/hooks/useThemeColor";
 import { useFocusEffect } from "@react-navigation/native";
 
 export default function Index() {
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: Colors.backgroundPrimary,
+    backgroundColor: useThemeColor("backgroundPrimary"),
     paddingHorizontal: 20,
     paddingTop: 10,
   },
