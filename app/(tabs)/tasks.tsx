@@ -2,7 +2,6 @@ import { FlatList, View, StyleSheet } from "react-native";
 import { useCallback, useState } from 'react';
 
 import * as Tasks from '@/services/tasks'
-import PillLink from '@/components/PillLink'
 import PillButton from '@/components/PillButton'
 import TaskView from "@/components/TaskView";
 import { useThemeColor } from "@/hooks/useThemeColor";
@@ -25,7 +24,7 @@ export default function Index() {
       fetchTasks()
 
       return () => {}
-    }, [tasks])
+    }, [])
   );
 
   const onLoad = async () => {
@@ -88,8 +87,7 @@ export default function Index() {
   return (
     <View style={styles.container}>
       <PillButton icon={"download"} onPress={onLoad}/>
-      <PillButton icon={"delete"} onPress={remove}/>
-      <PillLink href={"/newtask"} icon={"add"} />
+      <PillButton icon={"trash"} onPress={remove}/>
       <FlatList 
         style={styles.tasksContainer} 
         data={tasks} 
