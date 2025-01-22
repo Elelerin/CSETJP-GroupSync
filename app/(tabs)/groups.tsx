@@ -13,7 +13,7 @@ export default function Index() {
   useFocusEffect(
     useCallback(() => {
       const fetchGroups = async () => {
-          try {
+        try {
           const groups = await Groups.getGroups()
           setGroups(groups);
         } catch (error) {
@@ -34,7 +34,7 @@ export default function Index() {
         title: "Interesting Group Name",
         numTasks: 69,
         hasNextTask: true,
-        // eventually these will get pulled for the backend, but until that happens i'm just
+        // eventually these will get pulled from the backend, but until that happens i'm just
         // hard-coding them for the demo
         nextTaskTitle: "Water plants",
         nextTaskDueDate: new Date("2024-11-26")
@@ -64,7 +64,7 @@ export default function Index() {
     setGroups(await Groups.getGroups());
   }
 
-//Return render of groups page
+  //Return render of groups page
   return (
     <View style={styles.container}>
       <PillButton icon={"download"} onPress={onLoad}/>

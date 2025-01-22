@@ -1,4 +1,4 @@
-import { View, StyleSheet, Text } from "react-native"
+import { View, StyleSheet, Text, Pressable } from "react-native"
 
 import * as Groups from "@/services/groups"
 import { useThemeColor } from "@/hooks/useThemeColor";
@@ -9,7 +9,11 @@ type Props = {
 
 export default function GroupView({ group }: Props) {
   return (
-    <View style={styles.groupViewContainer}>
+    <Pressable style={styles.groupViewContainer} onPress={
+      ()=>{
+        console.log(`Pressed button for group "${group.title}"`);
+      }
+    }>
       <View style={styles.boxContainer}>
         {/* these views are for alignment and deliberately have no styles attached to them */}
         <View>
@@ -32,7 +36,7 @@ export default function GroupView({ group }: Props) {
           </View>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
