@@ -1,7 +1,6 @@
 import { Button, StyleSheet, Text, View } from 'react-native';
 import PillButton from '@/components/PillButton'
 
-//const url = "https://wpznuj8aa6.execute-api.us-east-2.amazonaws.com/LambdaTest"
 
 export default function Settings() {
 
@@ -18,15 +17,16 @@ export default function Settings() {
 
 function registerUser(userID, username, password){
   return async () => {
-      try{
-      const response = await fetch(upurl, {
+    try{
+      const response = await fetch(url, {
       method : 'POST',
       headers: {
+      },
+      body : JSON.stringify({
         'userID' : userID,
         'username' : username,
         'pword' : password 
-      },
-      body : 'NULL'
+      })
       })
 
       if(!response.ok){
