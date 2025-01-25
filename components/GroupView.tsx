@@ -2,6 +2,7 @@ import { View, StyleSheet, Text, Pressable } from "react-native"
 
 import * as Groups from "@/services/groups"
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { Link } from "expo-router";
 
 type Props = {
   group: Groups.Group
@@ -9,34 +10,39 @@ type Props = {
 
 export default function GroupView({ group }: Props) {
   return (
-    <Pressable style={styles.groupViewContainer} onPress={
-      ()=>{
-        console.log(`Pressed button for group "${group.title}"`);
-      }
-    }>
-      <View style={styles.boxContainer}>
-        {/* these views are for alignment and deliberately have no styles attached to them */}
-        <View>
-          <Text style={styles.textTitle}>{group.title}</Text>
-          <Text style={styles.textNumTasks}>{group.numTasks} Tasks</Text>
-        </View>
-
-        <View style={styles.verticalDivider}></View>
-
-        <View>
-          <View style={styles.nextTaskRow}>
-            <Text style={styles.textNextTaskSecondary}>Next Task: </Text>
-            <Text style={styles.textNextTaskPrimary}>{group.nextTaskTitle}</Text>
+    <Link href={{
+      pathname: "/group/[id]",
+      params: { id: group.id }
+    }}>
+      <Pressable style={styles.groupViewContainer} onPress={
+        ()=>{
+          console.log(`Pressed button for group "${group.title}"`);
+        }
+      }>
+        <View style={styles.boxContainer}>
+          {/* these views are for alignment and deliberately have no styles attached to them */}
+          <View>
+            <Text style={styles.textTitle}>{group.title}</Text>
+            <Text style={styles.textNumTasks}>{group.numTasks} Tasks</Text>
           </View>
-          <View style={styles.nextTaskRow}>
-            <Text style={styles.textNextTaskSecondary}>Due: </Text>
-            <Text style={styles.textNextTaskPrimary}>
-              {new Date(group.nextTaskDueDate).toLocaleDateString()}
-            </Text>
+
+          <View style={styles.verticalDivider}></View>
+
+          <View>
+            <View style={styles.nextTaskRow}>
+              <Text style={styles.textNextTaskSecondary}>Next Task: </Text>
+              <Text style={styles.textNextTaskPrimary}>{group.nextTaskTitle}</Text>
+            </View>
+            <View style={styles.nextTaskRow}>
+              <Text style={styles.textNextTaskSecondary}>Due: </Text>
+              <Text style={styles.textNextTaskPrimary}>
+                {new Date(group.nextTaskDueDate).toLocaleDateString()}
+              </Text>
+            </View>
           </View>
         </View>
-      </View>
-    </Pressable>
+      </Pressable>
+    </Link>
   );
 }
 
