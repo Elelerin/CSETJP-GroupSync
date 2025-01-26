@@ -1,7 +1,7 @@
 import { Button, StyleSheet, Text, View } from 'react-native';
 import PillButton from '@/components/PillButton'
 
-
+var url = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/User"
 export default function Settings() {
 
   return (
@@ -15,31 +15,52 @@ export default function Settings() {
   );
 }
 
-function registerUser(userID, username, password){
+function registerUser(_userID, _username, _password){ 
   return async () => {
     try{
       const response = await fetch(url, {
-      method : 'POST',
-      headers: {
-      },
-      body : JSON.stringify({
-        'userID' : userID,
-        'username' : username,
-        'pword' : password 
-      })
+        method : 'POST',
+        body: JSON.stringify({
+          userID : _userID,
+          username : _username,
+          pword : _password 
+        })
       })
 
       if(!response.ok){
         throw new Error("USER CREATION ERROR");
       }
 
-      const json = await response.json();
-      console.log(json);
+      const json = response;
+      console.log(response);
       return json;
     }catch{
-      throw new Error("GENERAL ERROR USER CREATION");
+
     }
   }
+}
+
+  function getUser(_userID){ 
+    return async () => {
+      try{
+        const response = await fetch(url, {
+          method : 'POST',
+          body: JSON.stringify({
+            userID : _userID 
+          })
+        })
+  
+        if(!response.ok){
+          throw new Error("User retreival error");
+        }
+  
+        const json = response;
+        console.log(response);
+        return json;
+      }catch{
+  
+      }
+    }
 }
 
 const styles = StyleSheet.create({
