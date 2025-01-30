@@ -1,0 +1,19 @@
+== TEST DATA ==
+//User Data
+{
+    "userID":"doro",
+    "username":"doro",
+    "pword":"doro"
+}
+
+//Task Data
+{
+    "taskName":"doro",
+    "taskDesc":"doro",
+    "taskAuthor":"doro"
+}
+
+//Get Task
+{
+    "taskAuthor":"doro"
+}
