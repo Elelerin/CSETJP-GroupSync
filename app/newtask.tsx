@@ -59,7 +59,7 @@ export default function newTask() {
         <Text style={styles.inputLabel}>Description</Text>
         <TextInput style={styles.input} onChangeText={setDescription}/>
       </View>
-      <PillButton icon="add" onPress={addTask} />
+      <PillButton icon="plus" onPress={addTask} />
     </View>
   )
 }
