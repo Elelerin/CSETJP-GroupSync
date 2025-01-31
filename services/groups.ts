@@ -18,7 +18,7 @@ export type Group = {
 
 export const getGroups = async () => {
   try {
-    const readString = await AsyncStorage.getItem('tasks');
+    const readString = await AsyncStorage.getItem('groups');
     let groups: Group[] = readString ? JSON.parse(readString) : [];
     return groups;
   } catch(error) {
@@ -31,7 +31,7 @@ export const addGroup = async (newGroups: Group) => {
   try {
     let groups = await getGroups();
     groups.push(newGroups);
-    await AsyncStorage.setItem('tasks', JSON.stringify(groups));
+    await AsyncStorage.setItem('groups', JSON.stringify(groups));
   } catch(error) {
     console.error("Error writing JSON file", error);
   }
