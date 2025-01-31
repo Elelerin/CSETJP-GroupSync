@@ -1,102 +1,69 @@
-// import React from "react";
-// import { NativeBaseProvider, Box, Button, VStack, Text } from "native-base";
-
-// export default function Settings() {
-//   return (
-//     <NativeBaseProvider>
-//       <Box flex={1} bg="gray.100" alignItems="center" justifyContent="center" p={5}>
-//         {/* Header */}
-//         <Text fontSize="2xl" fontWeight="bold" mb={6}>
-//           Settings
-//         </Text>
-
-//         {/* Button Group */}
-//         <VStack space={4} width="80%">
-//           <Button 
-//             colorScheme="blue" 
-//             size="lg" 
-//             borderRadius="full"
-//             shadow={3}
-//             onPress={() => console.log("Change Password")}
-//           >
-//             Change Password
-//           </Button>
-
-//           <Button 
-//             colorScheme="green" 
-//             size="lg" 
-//             borderRadius="full"
-//             shadow={3}
-//             onPress={() => console.log("Preferences")}
-//           >
-//             Preferences
-//           </Button>
-
-//           <Button 
-//             colorScheme="red" 
-//             size="lg" 
-//             borderRadius="full"
-//             shadow={3}
-//             onPress={() => console.log("Logout")}
-//           >
-//             Logout
-//           </Button>
-//         </VStack>
-//       </Box>
-//     </NativeBaseProvider>
-//   );
-// }
-
-
 import React from "react";
-import { NativeBaseProvider, Box, Button, VStack, Text } from "native-base";
+import { View, StyleSheet } from "react-native";
+import { Button, Card, Text } from "react-native-paper";
 
 export default function Settings() {
   return (
-    <NativeBaseProvider>
-      <Box flex={1} bg="black" alignItems="center" justifyContent="center" p={5}>
-        {/* Header */}
-        <Text fontSize="2xl" fontWeight="bold" color="white" mb={6}>
-          Settings
-        </Text>
+    <View style={styles.container}>
+      {/* Title */}
+      <Text variant="headlineLarge" style={styles.title}>
+        Settings
+      </Text>
 
-        {/* Buttons with Purple Theme */}
-        <VStack space={4} width="80%">
-          <Button 
-            bg="purple.500" 
-            size="lg" 
-            borderRadius="full"
-            _pressed={{ bg: "purple.600" }}
-            _text={{ color: "white", fontWeight: "bold" }}
-            onPress={() => console.log("Change Password")}
-          >
-            Change Password
-          </Button>
+      {/* Buttons */}
+      <Card mode="outlined" style={styles.card}>
+        <Button
+          mode="contained"
+          buttonColor="#8B5CF6" // Purple color
+          textColor="white"
+          onPress={() => console.log("Change Password")}
+        >
+          Change Password
+        </Button>
+      </Card>
 
-          <Button 
-            bg="purple.500" 
-            size="lg" 
-            borderRadius="full"
-            _pressed={{ bg: "purple.600" }}
-            _text={{ color: "white", fontWeight: "bold" }}
-            onPress={() => console.log("Preferences")}
-          >
-            Preferences
-          </Button>
+      <Card mode="outlined" style={styles.card}>
+        <Button
+          mode="contained"
+          buttonColor="#8B5CF6"
+          textColor="white"
+          onPress={() => console.log("Preferences")}
+        >
+          Preferences
+        </Button>
+      </Card>
 
-          <Button 
-            bg="purple.500" 
-            size="lg" 
-            borderRadius="full"
-            _pressed={{ bg: "purple.600" }}
-            _text={{ color: "white", fontWeight: "bold" }}
-            onPress={() => console.log("Logout")}
-          >
-            Logout
-          </Button>
-        </VStack>
-      </Box>
-    </NativeBaseProvider>
+      <Card mode="outlined" style={styles.card}>
+        <Button
+          mode="contained"
+          buttonColor="#8B5CF6"
+          textColor="white"
+          onPress={() => console.log("Logout")}
+        >
+          Logout
+        </Button>
+      </Card>
+    </View>
   );
 }
 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "black", // Match dark theme
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  title: {
+    color: "white",
+    marginBottom: 20,
+  },
+  card: {
+    width: "80%",
+    marginBottom: 10,
+    backgroundColor: "black",
+    borderColor: "#8B5CF6", // Purple border
+    borderWidth: 1,
+  },
+});
