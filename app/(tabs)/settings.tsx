@@ -1,3 +1,4 @@
+import { useThemeColor } from "@/hooks/useThemeColor";
 import React from "react";
 import { View, StyleSheet } from "react-native";
 import { Button, Card, Text } from "react-native-paper";
@@ -14,7 +15,7 @@ export default function Settings() {
       <Card mode="outlined" style={styles.card}>
         <Button
           mode="contained"
-          buttonColor="#8B5CF6" // Purple color
+          buttonColor={useThemeColor("backgroundSecondary")}
           textColor="white"
           onPress={() => console.log("Change Password")}
         >
@@ -25,7 +26,7 @@ export default function Settings() {
       <Card mode="outlined" style={styles.card}>
         <Button
           mode="contained"
-          buttonColor="#8B5CF6"
+          buttonColor={useThemeColor("backgroundSecondary")}
           textColor="white"
           onPress={() => console.log("Preferences")}
         >
@@ -34,10 +35,9 @@ export default function Settings() {
       </Card>
 
       <Card mode="outlined" style={styles.card}>
-        <Button
-          mode="contained"
-          buttonColor="#8B5CF6"
-          textColor="white"
+        <Button mode="contained"
+          buttonColor={useThemeColor("backgroundSecondary")}
+          textColor={useThemeColor("textPrimary")}
           onPress={() => console.log("Logout")}
         >
           Logout
@@ -50,20 +50,22 @@ export default function Settings() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "black", // Match dark theme
+    backgroundColor: useThemeColor("backgroundPrimary"), // Match dark theme
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
   },
   title: {
-    color: "white",
+    color: useThemeColor("textPrimary"),
     marginBottom: 20,
   },
   card: {
     width: "80%",
     marginBottom: 10,
-    backgroundColor: "black",
-    borderColor: "#8B5CF6", // Purple border
-    borderWidth: 1,
+    backgroundColor: "transparent",
+    borderColor: useThemeColor("highlight"),
+    borderWidth: 2,
+    // guarantees the card will conform to the buttons
+    borderRadius: 1000
   },
 });
