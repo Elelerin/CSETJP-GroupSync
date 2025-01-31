@@ -10,22 +10,7 @@ import { useFocusEffect } from "@react-navigation/native";
 export default function Index() {
   const [groups, setGroups] = useState<Groups.Group[]>([]);
 
-  useFocusEffect(
-    useCallback(() => {
-      const fetchGroups = async () => {
-          try {
-          const groups = await Groups.getGroups()
-          setGroups(groups);
-        } catch (error) {
-          console.error("Error fetching groups:", error);
-        }
-      }
-
-      fetchGroups()
-
-      return () => {}
-    }, [])
-  );
+  
 
   const onLoad = async () => {
     const fillerGroups: Groups.Group[] = [

@@ -10,22 +10,7 @@ import { useFocusEffect } from "@react-navigation/native";
 export default function Index() {
   const [tasks, setTasks] = useState<Tasks.Task[]>([]);
 
-  useFocusEffect(
-    useCallback(() => {
-      const fetchTasks = async () => {
-          try {
-          const tasks = await Tasks.getTasks()
-          setTasks(tasks);
-        } catch (error) {
-          console.error("Error fetching tasks:", error);
-        }
-      }
-
-      fetchTasks()
-
-      return () => {}
-    }, [])
-  );
+  
 
   const onLoad = async () => {
     const fillerTasks = [

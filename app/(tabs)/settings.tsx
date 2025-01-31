@@ -91,7 +91,6 @@ function getUser(_userID){
     }
   }
 }
-
 function getTask(_taskAuthor){
   return async () => {
     try{
