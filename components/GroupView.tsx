@@ -3,6 +3,7 @@ import { View, StyleSheet, Text, Pressable } from "react-native"
 import * as Groups from "@/services/groups"
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Link } from "expo-router";
+import { Card } from "react-native-paper";
 
 type Props = {
   group: Groups.Group
@@ -10,16 +11,12 @@ type Props = {
 
 export default function GroupView({ group }: Props) {
   return (
-    <Link href={{
-      pathname: "/group/[id]",
-      params: { id: group.id }
-    }}>
-      <Pressable style={styles.groupViewContainer} onPress={
-        ()=>{
-          console.log(`Pressed button for group "${group.title}"`);
-        }
-      }>
-        <View style={styles.boxContainer}>
+    <Card mode="contained" style={styles.groupViewContainer}>
+      <Card.Content>
+        <Link href={{
+          pathname: "/group/[id]",
+          params: { id: group.id }
+        }}>
           {/* these views are for alignment and deliberately have no styles attached to them */}
           <View>
             <Text style={styles.textTitle}>{group.title}</Text>
@@ -40,9 +37,9 @@ export default function GroupView({ group }: Props) {
               </Text>
             </View>
           </View>
-        </View>
-      </Pressable>
-    </Link>
+        </Link>
+      </Card.Content>
+    </Card>
   );
 }
 
@@ -50,18 +47,16 @@ const styles = StyleSheet.create({
   groupViewContainer: {
     marginVertical: 10,
     width: "100%",
-  },
-  boxContainer: {
     flex: 1,
     flexDirection: "row",
     justifyContent: "flex-start",
     alignItems: "center",
     backgroundColor: useThemeColor("backgroundSecondary"),
-    borderRadius: 8,
     borderColor: useThemeColor("highlight"),
-    borderWidth: 4,
-    padding: 12,
+    borderWidth: 3,
+    borderRadius: 15
   },
+
   // also contains the number of tasks
   textTitle: {
     color: useThemeColor("textPrimary"),
