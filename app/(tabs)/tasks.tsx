@@ -7,70 +7,72 @@ import TaskView from "@/components/TaskView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useFocusEffect } from "@react-navigation/native";
 
+var User = 'doro';
+const TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
+
+//TODO: Remove nested 'then' chain-hell. 
+function getTasks(_taskAuthor){
+  return async () => {
+    try{
+      console.log("Trying");
+      var toReturn;
+      const response = await fetch(TaskURL, {
+        method : 'GET',
+        headers : {
+        taskAuthor : _taskAuthor
+        }
+      }).then((response) => {
+        const reader = response.body.getReader();
+        return new ReadableStream({
+          start(controller){
+            return pump();
+            function pump(){
+              return reader.read().then(({done, value}) =>{
+                if(done){
+                  controller.close();
+                  return;
+                }
+                controller.enqueue(value);
+                return pump();
+              })
+            }
+          }
+        })
+      })
+      .then((stream) => new Response(stream))
+      .then((response) => response.json())
+      .then((json) => console.log(json));
+
+
+      return toReturn;
+    }catch{
+        throw "Darn, response retrieval error";
+    }
+  }
+}
+
+
+function parseTask(taskToParse){
+  var taskToAdd = {
+    title: taskToParse[1],
+    id: taskToParse[0],
+    description: taskToParse[2],
+
+    //TODO: PARSE DATE PROPERLY
+    dueDate: taskToParse[4],
+    complete: taskToParse[5]
+  }
+  return taskToAdd;
+}
+
+function populateTasks(){
+
+}
+
 export default function Index() {
   const [tasks, setTasks] = useState<Tasks.Task[]>([]);
-
-  useFocusEffect(
-    useCallback(() => {
-      const fetchTasks = async () => {
-          try {
-          const tasks = await Tasks.getTasks()
-          setTasks(tasks);
-        } catch (error) {
-          console.error("Error fetching tasks:", error);
-        }
-      }
-
-      fetchTasks()
-
-      return () => {}
-    }, [])
-  );
-
   const onLoad = async () => {
-    const fillerTasks = [
-      {
-        id: 1,
-        title: "Water plants",
-        description: "Water the plants in the foyer. The spider plant needs two cups of water.",
-        dueDate: new Date("2024-11-26"),
-        complete: false,
-      },
-      {
-        id: 2,
-        title: "Buy holiday gifts",
-        description: "Peter wants a novelty spoon. Maria wants a go kart. Chet wants a portrait of his dog.",
-        dueDate: new Date("2024-12-17"),
-        complete: false,
-      },
-      {
-        id: 3,
-        title: "Hire minions",
-        description: "Consider increasing pay and giving them a health plan this time.",
-        dueDate: new Date("2025-1-18"),
-        complete: false,
-      },
-      {
-        id: 4,
-        title: "Find lair location",
-        description: "A volcano island looks cool and even includes its own natural power source.",
-        dueDate: new Date("2025-3-31"),
-        complete: false,
-      },
-      {
-        id: 5,
-        title: "Pay taxes",
-        description: "No even supervillains mess with the IRS.",
-        dueDate: new Date("2025-4-15"),
-        complete: false,
-      },
-    ];
-
-    //Add filler tasks to AsyncStorage
-    for (let i = 0; i < fillerTasks.length; ++i) {
-      await Tasks.addTask(fillerTasks[i]);
-    }
-
+    var toParse = getTasks(User);
     //Refetch tasks list and update state
     setTasks(await Tasks.getTasks());
   }
@@ -86,7 +88,7 @@ export default function Index() {
 //Return render of tasks page
   return (
     <View style={styles.container}>
-      <PillButton icon={"download"} onPress={onLoad}/>
+      <PillButton icon={"download"} onPress={getTasks(User)}/>
       <PillButton icon={"trash"} onPress={remove}/>
       <FlatList 
         style={styles.tasksContainer} 
