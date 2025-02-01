@@ -60,7 +60,7 @@ export default function Index() {
       {
         id: 5,
         title: "Pay taxes",
-        description: "No even supervillains mess with the IRS.",
+        description: "Not even supervillains mess with the IRS.",
         dueDate: new Date("2025-4-15"),
         complete: false,
       },
