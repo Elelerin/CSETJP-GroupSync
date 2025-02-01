@@ -4,6 +4,8 @@ import { useAuthRequest, exchangeCodeAsync, revokeAsync, ResponseType} from 'exp
 import { Button, Alert } from 'react-native';
 import PillButton from '@/components/PillButton';
 
+const PORT = process.env.PORT || 3000
+
 WebBrowser.maybeCompleteAuthSession();
 
 const clientId = '13524tn38254dqsrm1tsn52hc9';

@@ -5,7 +5,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useThemeColor } from '@/hooks/useThemeColor';
 
 type Props = {
-  onPress: () => void,
+  onPress: () => any,
   icon: keyof typeof FontAwesome.glyphMap,
 };
 
