@@ -1,9 +1,10 @@
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useLocalSearchParams } from "expo-router";
 import { View, Text, StyleSheet, FlatList } from "react-native";
-import { Card } from "react-native-paper";
+import { Card, IconButton, PaperProvider } from "react-native-paper";
 import * as Tasks from '@/services/tasks'
 import TaskView from "@/components/TaskView";
+import { Dropdown } from "react-native-paper-dropdown";
 
 // temporary, will be replaced later
 interface User {
@@ -101,10 +102,31 @@ export default function GroupHome() {
 
   return (
     <View style={styles.pageContainer}>
-      <Card mode="contained" style={styles.titleCard}>
-        <Text style={styles.textTitle}>Group {id} name</Text>
-      </Card>
-      <View style={styles.columnContainer}>
+      <View style={styles.upperColumnContainer}>
+        <Card mode="contained" style={styles.titleCard}>
+          <Text style={styles.textTitle}>Group {id} name</Text>
+        </Card>
+        <View style={styles.filtersCard}>
+          <PaperProvider>
+            <View style={{ margin: 16, justifyContent: "flex-start" }}>
+              <Dropdown
+                label="Sort By"
+                options={[
+                  { label: "None", value: "none" },
+                  { label: "Name", value: "name" },
+                  { label: "Creation Date", value: "created" },
+                  { label: "Due Date", value: "due" },
+                ]}
+                value="none"
+              />
+            </View>
+          </PaperProvider>
+          <IconButton
+            icon="sort-ascending"
+          />
+        </View>
+      </View>
+      <View style={styles.lowerColumnContainer}>
         <Card mode="contained" style={styles.usersCard}>
           <Card.Content>
             <Text style={styles.textSubtitle}>Users</Text>
@@ -130,53 +152,67 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "column",
     backgroundColor: useThemeColor("backgroundPrimary"),
-    paddingHorizontal: 20,
-    paddingTop: 10
+    paddingHorizontal: 30,
+    paddingTop: 20
   },
-  columnContainer: {
+  upperColumnContainer: {
+    flexDirection: "row",
+    backgroundColor: useThemeColor("backgroundPrimary"),
+    zIndex: 5
+  },
+  lowerColumnContainer: {
     flex: 1,
     flexDirection: "row",
     backgroundColor: useThemeColor("backgroundPrimary"),
-    marginTop: 10
-  },
-  usersCard: {
-    backgroundColor: useThemeColor("backgroundSecondary"),
-    borderRadius: 15,
-    borderColor: useThemeColor("highlight"),
-    borderWidth: 3,
-    width: "20%",
-    alignSelf: "flex-start",
-    position: "sticky",
-    top: 20,
-    marginTop: 9
   },
   titleCard: {
     backgroundColor: useThemeColor("backgroundSecondary"),
     borderRadius: 15,
     borderColor: useThemeColor("highlight"),
     borderWidth: 3,
-    marginRight: 20,
+    marginRight: 10,
     paddingHorizontal: 20,
-    paddingBottom: 12
+    paddingBottom: 10,
+    width: "30%",
+  },
+  filtersCard: {
+    backgroundColor: useThemeColor("backgroundSecondary"),
+    borderRadius: 15,
+    borderColor: useThemeColor("highlight"),
+    borderWidth: 3,
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    flexDirection: "row-reverse",
+  },
+  usersCard: {
+    backgroundColor: useThemeColor("backgroundSecondary"),
+    borderRadius: 15,
+    borderColor: useThemeColor("highlight"),
+    borderWidth: 3,
+    width: "30%",
+    alignSelf: "flex-start",
+    position: "sticky",
+    top: 20,
+    marginTop: 9
   },
   tasksContainer: {
     flex: 1,
     flexDirection: "column",
-    paddingHorizontal: 20,
+    paddingLeft: 10,
   },
   textTitle: {
     color: useThemeColor("textPrimary"),
     fontWeight: 600,
-    fontSize: 64
+    fontSize: 48
   },
   textSubtitle: {
     color: useThemeColor("textPrimary"),
     fontWeight: 600,
-    fontSize: 32,
-    marginBottom: 10
+    fontSize: 36,
+    marginBottom: 5
   },
   textContent: {
-    color: useThemeColor("textPrimary"),
-    fontSize: 20,
+    color: useThemeColor("textSecondary"),
+    fontSize: 28,
   }
 });
