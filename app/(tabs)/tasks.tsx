@@ -34,7 +34,7 @@ export default function Index() {
       id: taskToParse[0],
       description: taskToParse[2],
       
-      dueDate: date(taskToParse[4]),
+      dueDate: taskToParse[4],
       complete: taskToParse[5]
     }
     console.log(taskToAdd);
@@ -74,7 +74,6 @@ export default function Index() {
         .then((stream) => new Response(stream))
         .then((response) => response.json())
         .then((json) => {
-          console.log(json);
           for(var i = 0; i < json.length; i++){
             Tasks.addTask(parseTask(json[i]));
           }
