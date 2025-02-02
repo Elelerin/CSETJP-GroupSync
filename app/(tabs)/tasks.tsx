@@ -10,70 +10,9 @@ import { useFocusEffect } from "@react-navigation/native";
 var User = 'doro';
 const TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
 
-//TODO: Remove nested 'then' chain-hell. 
-function getTasks(_taskAuthor: string){
-  var toReturn = "ERROR";
-  return async () => {
-    try{
-      console.log("Trying");
-      
-      const response = await fetch(TaskURL, {
-        method : 'GET',
-        headers : {
-        taskAuthor : _taskAuthor
-        }
-      }).then((response) => {
-        const reader = response.body.getReader();
-        return new ReadableStream({
-          start(controller){
-            return pump();
-            function pump(){
-              return reader.read().then(({done, value}) =>{
-                if(done){
-                  controller.close();
-                  return;
-                }
-                controller.enqueue(value);
-                return pump();
-              })
-            }
-          }
-        })
-      })
-      .then((stream) => new Response(stream))
-      .then((response) => response.json())
-      .then((json) => {
-        for(var i = 0; i < json.length; i++){
-          console.log(json[i]);
-          Tasks.addTask(parseTask(json[i]));
-        }
-      });
-      console.log("Successful Response");
-      return toReturn;
-    }catch{
-        throw "Darn, response retrieval error";
-    }
-  }
-}
-
-
-function parseTask(taskToParse: any){
-  var taskToAdd = {
-    title: taskToParse[1],
-    id: taskToParse[0],
-    description: taskToParse[2],
-
-    //TODO: PARSE DATE PROPERLY
-    dueDate: taskToParse[4],
-    complete: taskToParse[5]
-  }
-  console.log(taskToAdd);
-
-  return taskToAdd;
-}
-
-
 export default function Index() {
+  //TODO: Remove nested 'then' chain-hell. 
+
   const [tasks, setTasks] = useState<Tasks.Task[]>([]);
   const onLoad = async () => {
     getTasks(User);
@@ -87,6 +26,68 @@ export default function Index() {
     //Refetch tasks list and update state
     setTasks(await Tasks.getTasks());
   }
+
+  function parseTask(taskToParse: any){
+    console.log(taskToParse);
+    var taskToAdd = {
+      title: taskToParse[1],
+      id: taskToParse[0],
+      description: taskToParse[2],
+      
+      dueDate: date(taskToParse[4]),
+      complete: taskToParse[5]
+    }
+    console.log(taskToAdd);
+  
+    return taskToAdd;
+  }
+
+  function getTasks(_taskAuthor: string){
+    var toReturn = "ERROR";
+    return async () => {
+      try{
+        console.log("Trying");
+        
+        const response = await fetch(TaskURL, {
+          method : 'GET',
+          headers : {
+          taskAuthor : _taskAuthor
+          }
+        }).then((response) => {
+          const reader = response.body.getReader();
+          return new ReadableStream({
+            start(controller){
+              return pump();
+              function pump(){
+                return reader.read().then(({done, value}) =>{
+                  if(done){
+                    controller.close();
+                    return;
+                  }
+                  controller.enqueue(value);
+                  return pump();
+                })
+              }
+            }
+          })
+        })
+        .then((stream) => new Response(stream))
+        .then((response) => response.json())
+        .then((json) => {
+          console.log(json);
+          for(var i = 0; i < json.length; i++){
+            Tasks.addTask(parseTask(json[i]));
+          }
+        });
+        setTasks(await Tasks.getTasks());
+        
+        return toReturn;
+      }catch{
+          throw "Darn, response retrieval error";
+      }
+    }
+  }
+  
 
 //Return render of tasks page
   return (
