@@ -11,11 +11,12 @@ var User = 'doro';
 const TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
 
 //TODO: Remove nested 'then' chain-hell. 
-function getTasks(_taskAuthor){
+function getTasks(_taskAuthor: string){
+  var toReturn = "ERROR";
   return async () => {
     try{
       console.log("Trying");
-      var toReturn;
+      
       const response = await fetch(TaskURL, {
         method : 'GET',
         headers : {
@@ -41,9 +42,13 @@ function getTasks(_taskAuthor){
       })
       .then((stream) => new Response(stream))
       .then((response) => response.json())
-      .then((json) => console.log(json));
-
-
+      .then((json) => {
+        for(var i = 0; i < json.length; i++){
+          console.log(json[i]);
+          Tasks.addTask(parseTask(json[i]));
+        }
+      });
+      console.log("Successful Response");
       return toReturn;
     }catch{
         throw "Darn, response retrieval error";
@@ -52,7 +57,7 @@ function getTasks(_taskAuthor){
 }
 
 
-function parseTask(taskToParse){
+function parseTask(taskToParse: any){
   var taskToAdd = {
     title: taskToParse[1],
     id: taskToParse[0],
@@ -62,18 +67,16 @@ function parseTask(taskToParse){
     dueDate: taskToParse[4],
     complete: taskToParse[5]
   }
+  console.log(taskToAdd);
+
   return taskToAdd;
 }
 
-function populateTasks(){
-
-}
 
 export default function Index() {
   const [tasks, setTasks] = useState<Tasks.Task[]>([]);
   const onLoad = async () => {
-    var toParse = getTasks(User);
-    //Refetch tasks list and update state
+    getTasks(User);
     setTasks(await Tasks.getTasks());
   }
 

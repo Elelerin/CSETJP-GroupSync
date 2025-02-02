@@ -19,7 +19,7 @@ export default function Settings() {
   );
 }
 
-function registerUser(_userID, _username, _password){ 
+function registerUser(_userID: string, _username: string, _password: string){ 
   return async () => {
     try{
       const response = await fetch(UserURL, {
