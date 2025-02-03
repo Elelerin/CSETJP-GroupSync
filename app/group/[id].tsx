@@ -1,10 +1,12 @@
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useLocalSearchParams } from "expo-router";
-import { View, Text, StyleSheet, FlatList } from "react-native";
-import { Card, IconButton, PaperProvider } from "react-native-paper";
-import * as Tasks from '@/services/tasks'
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
+import { Card, IconButton } from "react-native-paper";
+import * as Tasks from '@/services/tasks';
 import TaskView from "@/components/TaskView";
-import { Dropdown } from "react-native-paper-dropdown";
+import { Dropdown, MultiSelect } from "react-native-element-dropdown";
+import { useState } from "react";
+import { MaterialIcons } from "@expo/vector-icons";
 
 // temporary, will be replaced later
 interface User {
@@ -100,6 +102,37 @@ export default function GroupHome() {
     },
   ];
 
+  // for sorting menus
+  const [sortAscending, setSortAscending] = useState(true);
+  const [sortMode, setSortMode] = useState<string>();
+  const sortModeMenuData = [
+    { label: "Name", value: "alphabetical" },
+    { label: "Creation Date", value: "creation date" },
+    { label: "Due Date", value: "due date" }
+  ];
+
+  // for filter menu
+  const [filters, setFilters] = useState<string[]>([]);
+  const filterMenuData = [
+    { label: "Completed", value: "completed" },
+    { label: "Uncompleted", value: "uncompleted" },
+    { label: "Assigned to Me", value: "assigned to me" },
+    { label: "Assigned to Others", value: "assigned to others" },
+    { label: "Unassigned", value: "Unassigned" },
+  ];
+
+  const renderItem = (item: { label: string }) => {
+    return (
+      <View style={multiSelectStyles.item}>
+        <Text style={multiSelectStyles.selectedText}>{item.label}</Text>
+        {/* <MaterialIcons style={{marginRight: 5}} color="black" name="shield" size={20} /> */}
+      </View>
+    );
+  };
+
+  // required because react native is a PERFECTLY DESIGNED library with NO FLAWS WHATSOEVER
+  const selectedIconColor = useThemeColor("textPrimary");
+
   return (
     <View style={styles.pageContainer}>
       <View style={styles.upperColumnContainer}>
@@ -107,22 +140,52 @@ export default function GroupHome() {
           <Text style={styles.textTitle}>Group {id} name</Text>
         </Card>
         <View style={styles.filtersCard}>
-          <PaperProvider>
-            <View style={{ margin: 16, justifyContent: "flex-start" }}>
-              <Dropdown
-                label="Sort By"
-                options={[
-                  { label: "None", value: "none" },
-                  { label: "Name", value: "name" },
-                  { label: "Creation Date", value: "created" },
-                  { label: "Due Date", value: "due" },
-                ]}
-                value="none"
-              />
-            </View>
-          </PaperProvider>
           <IconButton
-            icon="sort-ascending"
+            icon={sortAscending ? "sort-ascending" : "sort-descending"}
+            iconColor={useThemeColor("textSecondary")}
+            size={36}
+            onPress={() => setSortAscending(!sortAscending)}
+          />
+          <Dropdown
+            style={dropdownStyles.main}
+            placeholderStyle={dropdownStyles.placeholder}
+            selectedTextStyle={dropdownStyles.selectedText}
+            containerStyle={dropdownStyles.container}
+            itemTextStyle={dropdownStyles.itemText}
+            activeColor="transparent"
+            maxHeight={300}
+            labelField="label"
+            valueField="value"
+            placeholder="None"
+            data={sortModeMenuData}
+            value={sortMode}
+            onChange={item => {
+              setSortMode(item.value);
+            }}
+          />
+          <MultiSelect
+            style={multiSelectStyles.main}
+            placeholderStyle={multiSelectStyles.placeholder}
+            containerStyle={multiSelectStyles.container}
+            itemTextStyle={multiSelectStyles.itemText}
+            activeColor="transparent"
+            alwaysRenderSelectedItem
+            labelField="label"
+            valueField="value"
+            data={filterMenuData}
+            value={filters}
+            onChange={item => {
+              setFilters(item)
+            }}
+            // renderItem={renderItem}
+            renderSelectedItem={(item, unSelect) => (
+              <TouchableOpacity onPress={() => unSelect && unSelect(item)}>
+                <View style={multiSelectStyles.selected}>
+                  <Text style={multiSelectStyles.selectedText}>{item.label}</Text>
+                  <MaterialIcons color={selectedIconColor} name="delete" size={20} />
+                </View>
+              </TouchableOpacity>
+            )}
           />
         </View>
       </View>
@@ -182,7 +245,11 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     flexGrow: 1,
     paddingHorizontal: 20,
-    flexDirection: "row-reverse",
+    flexDirection: "row",
+    alignItems: "center"
+  },
+  multiSelectContainer: {
+    flexDirection: "row"
   },
   usersCard: {
     backgroundColor: useThemeColor("backgroundSecondary"),
@@ -215,4 +282,87 @@ const styles = StyleSheet.create({
     color: useThemeColor("textSecondary"),
     fontSize: 28,
   }
+});
+
+const dropdownStyles = StyleSheet.create({
+  main: {
+    marginHorizontal: 12,
+    marginTop: 14,
+    marginBottom: 18,
+    height: 50,
+    borderBottomColor: useThemeColor("highlight"),
+    borderBottomWidth: 2,
+    minWidth: 175
+  },
+  icon: {
+    marginRight: 5,
+  },
+  placeholder: {
+    color: useThemeColor("textSecondary"),
+    fontSize: 24,
+  },
+  selectedText: {
+    color: useThemeColor("textPrimary"),
+    fontSize: 24,
+  },
+  itemText: {
+    color: useThemeColor("textPrimary"),
+    fontSize: 18,
+  },
+  container: {
+    backgroundColor: useThemeColor("backgroundSecondary"),
+    borderRadius: 10,
+    borderColor: useThemeColor("highlight"),
+    borderWidth: 2,
+  },
+});
+
+const multiSelectStyles = StyleSheet.create({
+  main: {
+    marginHorizontal: 12,
+    marginTop: 14,
+    marginBottom: 18,
+    height: 50,
+    borderBottomColor: useThemeColor("highlight"),
+    borderBottomWidth: 2,
+    minWidth: 175
+  },
+  placeholder: {
+    color: useThemeColor("textSecondary"),
+    fontSize: 24,
+  },
+  selectedText: {
+    color: useThemeColor("textPrimary"),
+    fontSize: 16,
+    marginRight: 5
+  },
+  icon: {
+    width: 20,
+    height: 20,
+  },
+  selected: {
+    borderRadius: 12,
+    borderColor: useThemeColor("highlight"),
+    borderWidth: 2,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 10,
+    paddingVertical: 5
+  },
+  container: {
+    backgroundColor: useThemeColor("backgroundSecondary"),
+    borderRadius: 10,
+    borderColor: useThemeColor("highlight"),
+    borderWidth: 2,
+  },
+  item: {
+    padding: 17,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  itemText: {
+    color: useThemeColor("textPrimary"),
+    fontSize: 18,
+  },
 });
