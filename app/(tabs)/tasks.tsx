@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 
 import * as Tasks from "@/services/tasks";
 import PillButton from '@/components/PillButton'
-import TaskView from "@/components/TaskView";
+import {TaskView } from "@/components/TaskView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useFocusEffect } from "@react-navigation/native";
 
