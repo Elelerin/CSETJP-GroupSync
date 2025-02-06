@@ -49,6 +49,7 @@ export default function Index() {
         
         const response = await fetch(TaskURL, {
           method : 'GET',
+          mode : 'cors',
           headers : {
             taskAuthor : _taskAuthor
           }
