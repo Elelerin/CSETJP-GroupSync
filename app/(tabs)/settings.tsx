@@ -20,6 +20,7 @@ export default function Settings() {
 }
 
 function registerUser(_userID : string, _username : string, _password : string){ 
+
   return async () => {
     try{
       const response = await fetch(UserURL, {
@@ -94,10 +95,12 @@ function getUser(_userID : string){
 function getTask(_taskAuthor){
   return async () => {
     try{
+      console.log("Trying");
+      var toReturn;
       const response = await fetch(TaskURL, {
         method : 'GET',
         headers : {
-          taskAuthor : _taskAuthor
+        taskAuthor : _taskAuthor
         }
       }).then((response) => {
         const reader = response.body.getReader();
@@ -119,16 +122,16 @@ function getTask(_taskAuthor){
       })
       .then((stream) => new Response(stream))
       .then((response) => response.json())
-      .then((json) => console.log(json))
+      .then((json) => console.log(json));
 
-      console.log(response);
-      console.log("TEST");
-      return response;
+
+      return toReturn;
     }catch{
         throw "Darn, response retrieval error";
     }
   }
 }
+
 
 const styles = StyleSheet.create({
   container: {
