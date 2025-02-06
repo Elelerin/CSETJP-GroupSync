@@ -5,10 +5,9 @@ import * as Tasks from "@/services/tasks";
 import PillButton from '@/components/PillButton'
 import {TaskView } from "@/components/TaskView";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { useFocusEffect } from "@react-navigation/native";
 
 export default function Index() {
-  var selectedTasks = [];
+  const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
   const [tasks, setTasks] = useState<Tasks.Task[]>([]);
   const fillerTasks = [
     {
@@ -49,8 +48,7 @@ export default function Index() {
   ];
 
   function onLoad () {
-      setTasks(tasks.concat(fillerTasks));
-    
+      setTasks(tasks.concat(fillerTasks));  
   }
 
   function remove() {
@@ -70,7 +68,17 @@ export default function Index() {
       <FlatList 
         style={styles.tasksContainer} 
         data={tasks} 
-        renderItem={({item}) => <TaskView task={item}/>}
+        renderItem={({item}) => <TaskView task={item} 
+          onClick={() =>{
+            if(selectedTasks.includes(item.id)){
+              setSelectedTasks(selectedTasks.filter(a => a != item.id))
+            }else{
+              setSelectedTasks(selectedTasks.concat(item.id));
+            }
+            setChecked(!checked);
+            console.log(selectedTasks);
+          }}
+        />}
         showsHorizontalScrollIndicator={false}/>
     </View>
   )
@@ -95,3 +103,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   }
 });
+
+function addToSelectedList(item: Tasks.Task): Tasks.Task {
+  throw new Error("Function not implemented.");
+}
