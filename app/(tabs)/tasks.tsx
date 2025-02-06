@@ -1,78 +1,72 @@
 import { FlatList, View, StyleSheet } from "react-native";
 import { useCallback, useState } from 'react';
 
-import * as Tasks from '@/services/tasks'
+import * as Tasks from "@/services/tasks";
 import PillButton from '@/components/PillButton'
 import TaskView from "@/components/TaskView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useFocusEffect } from "@react-navigation/native";
 
 export default function Index() {
+  var selectedTasks = [];
   const [tasks, setTasks] = useState<Tasks.Task[]>([]);
-
-  
-
-  const onLoad = async () => {
-    const fillerTasks = [
-      {
-        id: 1,
-        title: "Water plants",
-        description: "Water the plants in the foyer. The spider plant needs two cups of water.",
-        dueDate: new Date("2024-11-26"),
-        complete: false,
-      },
-      {
-        id: 2,
-        title: "Buy holiday gifts",
-        description: "Peter wants a novelty spoon. Maria wants a go kart. Chet wants a portrait of his dog.",
-        dueDate: new Date("2024-12-17"),
-        complete: false,
-      },
-      {
-        id: 3,
-        title: "Hire minions",
-        description: "Consider increasing pay and giving them a health plan this time.",
-        dueDate: new Date("2025-1-18"),
-        complete: false,
-      },
-      {
-        id: 4,
-        title: "Find lair location",
-        description: "A volcano island looks cool and even includes its own natural power source.",
-        dueDate: new Date("2025-3-31"),
-        complete: false,
-      },
-      {
-        id: 5,
-        title: "Pay taxes",
-        description: "No even supervillains mess with the IRS.",
-        dueDate: new Date("2025-4-15"),
-        complete: false,
-      },
-    ];
-
-    //Add filler tasks to AsyncStorage
-    for (let i = 0; i < fillerTasks.length; ++i) {
-      await Tasks.addTask(fillerTasks[i]);
+  const fillerTasks = [
+    {
+      id: 1,
+      title: "Water plants",
+      description: "Water the plants in the foyer. The spider plant needs two cups of water.",
+      dueDate: new Date("2024-11-26"),
+      complete: false,
+    },
+    {
+      id: 2,
+      title: "Buy holiday gifts",
+      description: "Peter wants a novelty spoon. Maria wants a go kart. Chet wants a portrait of his dog.",
+      dueDate: new Date("2024-12-17"),
+      complete: false,
+    },
+    {
+      id: 3,
+      title: "Hire minions",
+      description: "Consider increasing pay and giving them a health plan this time.",
+      dueDate: new Date("2025-1-18"),
+      complete: false,
+    },
+    {
+      id: 4,
+      title: "Find lair location",
+      description: "A volcano island looks cool and even includes its own natural power source.",
+      dueDate: new Date("2025-3-31"),
+      complete: false,
+    },
+    {
+      id: 5,
+      title: "Pay taxes",
+      description: "No even supervillains mess with the IRS.",
+      dueDate: new Date("2025-4-15"),
+      complete: false,
     }
+  ];
 
-    //Refetch tasks list and update state
-    setTasks(await Tasks.getTasks());
+  function onLoad () {
+      setTasks(tasks.concat(fillerTasks));
+    
   }
 
-  const remove = async () => {
-    //Delete all tasks
-    await Tasks.clearTasks();
-    
-    //Refetch tasks list and update state
-    setTasks(await Tasks.getTasks());
+  function remove() {
+    clearTasks();
+  }
+
+
+  function clearTasks() {
+    setTasks([]);
   }
 
 //Return render of tasks page
   return (
     <View style={styles.container}>
       <PillButton icon={"download"} onPress={onLoad}/>
-      <PillButton icon={"trash"} onPress={remove}/>
+      <PillButton icon={"trash"} onPress={clearTasks}/>
       <FlatList 
         style={styles.tasksContainer} 
         data={tasks} 
@@ -81,6 +75,12 @@ export default function Index() {
     </View>
   )
 }
+
+
+
+
+
+
 
 const styles = StyleSheet.create({
   container: {

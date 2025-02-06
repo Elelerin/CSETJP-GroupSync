@@ -26,7 +26,7 @@ export default function TaskView({ task }: Props) {
 const styles = StyleSheet.create({
   taskViewContainer: {
     marginVertical: 10,
-    width: '100%',
+    width: '100%'
   },
   boxContainer: {
     flex: 1,
