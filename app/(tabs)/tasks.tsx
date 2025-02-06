@@ -1,14 +1,18 @@
 import { FlatList, View, StyleSheet } from "react-native";
 import { useCallback, useState } from 'react';
 
-import * as Tasks from '@/services/tasks'
+import * as Tasks from "@/services/tasks";
 import PillButton from '@/components/PillButton'
-import TaskView from "@/components/TaskView";
+import {TaskView } from "@/components/TaskView";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { useFocusEffect } from "@react-navigation/native";
 
-var User = 'doro';
-const TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
+
+export default function Index() {
+  const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
+  const [tasks, setTasks] = useState<Tasks.Task[]>([]);
+
+  var User = 'doro';
+  const TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
 
 export default function Index() {
   //TODO: Remove nested 'then' chain-hell. 
@@ -19,12 +23,9 @@ export default function Index() {
     setTasks(await Tasks.getTasks());
   }
 
-  const remove = async () => {
-    //Delete all tasks
-    await Tasks.clearTasks();
-    
-    //Refetch tasks list and update state
-    setTasks(await Tasks.getTasks());
+
+  function clearTasks() {
+    setTasks([]);
   }
 
   function parseTask(taskToParse: any){
@@ -96,11 +97,27 @@ export default function Index() {
       <FlatList 
         style={styles.tasksContainer} 
         data={tasks} 
-        renderItem={({item}) => <TaskView task={item}/>}
+        renderItem={({item}) => <TaskView task={item} 
+          onClick={() =>{
+            if(selectedTasks.includes(item.id)){
+              setSelectedTasks(selectedTasks.filter(a => a != item.id))
+            }else{
+              setSelectedTasks(selectedTasks.concat(item.id));
+            }
+            setChecked(!checked);
+            console.log(selectedTasks);
+          }}
+        />}
         showsHorizontalScrollIndicator={false}/>
     </View>
   )
 }
+
+
+
+
+
+
 
 const styles = StyleSheet.create({
   container: {
@@ -115,3 +132,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   }
 });
+
+function addToSelectedList(item: Tasks.Task): Tasks.Task {
+  throw new Error("Function not implemented.");
+}

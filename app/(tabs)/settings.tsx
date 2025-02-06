@@ -19,7 +19,8 @@ export default function Settings() {
   );
 }
 
-function registerUser(_userID: string, _username: string, _password: string){ 
+function registerUser(_userID : string, _username : string, _password : string){ 
+
   return async () => {
     try{
       const response = await fetch(UserURL, {
@@ -44,7 +45,7 @@ function registerUser(_userID: string, _username: string, _password: string){
   }
 }
 
-function registerTask(_taskName, _taskDesc, _taskAuthor){ 
+function registerTask(_taskName :string, _taskDesc : string, _taskAuthor : string){ 
   return async () => {
     try{
       const response = await fetch(TaskURL, {
@@ -69,15 +70,15 @@ function registerTask(_taskName, _taskDesc, _taskAuthor){
   }
 }
 
-function getUser(_userID){ 
+function getUser(_userID : string){ 
   return async () => {
     try{
       const response = await fetch(UserURL, {
         method : 'GET',
-        body: JSON.stringify({
-          userID : _userID 
-        })
-      })
+        headers : {
+          'userID' : _userID
+        }
+      });
 
       if(!response.ok){
         throw new Error("User retreival error");
@@ -106,7 +107,7 @@ function getTask(_taskAuthor){
         return new ReadableStream({
           start(controller){
             return pump();
-            function pump(){
+            function pump() : any{
               return reader.read().then(({done, value}) =>{
                 if(done){
                   controller.close();
