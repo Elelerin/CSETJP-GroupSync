@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 
 import * as Tasks from "@/services/tasks";
 import PillButton from '@/components/PillButton'
-import {TaskView } from "@/components/TaskView";
+import {TaskView}  from "@/components/TaskView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
 
@@ -14,10 +14,8 @@ export default function Index() {
   var User = 'doro';
   const TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
 
-export default function Index() {
   //TODO: Remove nested 'then' chain-hell. 
-
-  const [tasks, setTasks] = useState<Tasks.Task[]>([]);
+  
   const onLoad = async () => {
     getTasks(User);
     setTasks(await Tasks.getTasks());
@@ -52,9 +50,10 @@ export default function Index() {
         const response = await fetch(TaskURL, {
           method : 'GET',
           headers : {
-          taskAuthor : _taskAuthor
+            taskAuthor : _taskAuthor
           }
         }).then((response) => {
+          
           const reader = response.body.getReader();
           return new ReadableStream({
             start(controller){
@@ -75,12 +74,14 @@ export default function Index() {
         .then((stream) => new Response(stream))
         .then((response) => response.json())
         .then((json) => {
+          let toPushBack : Tasks.Task[] = [];
           for(var i = 0; i < json.length; i++){
-            Tasks.addTask(parseTask(json[i]));
+             toPushBack.push(parseTask(json[i]));
           }
+
+          setTasks(tasks.concat(toPushBack));
         });
-        setTasks(await Tasks.getTasks());
-        
+        console.log(tasks);
         return toReturn;
       }catch{
           throw "Darn, response retrieval error";
@@ -93,18 +94,18 @@ export default function Index() {
   return (
     <View style={styles.container}>
       <PillButton icon={"download"} onPress={getTasks(User)}/>
-      <PillButton icon={"trash"} onPress={remove}/>
+      <PillButton icon={"trash"} onPress={clearTasks}/>
       <FlatList 
         style={styles.tasksContainer} 
         data={tasks} 
         renderItem={({item}) => <TaskView task={item} 
           onClick={() =>{
-            if(selectedTasks.includes(item.id)){
-              setSelectedTasks(selectedTasks.filter(a => a != item.id))
-            }else{
+            if(!selectedTasks.includes(item.id)){
               setSelectedTasks(selectedTasks.concat(item.id));
+            }if(selectedTasks.includes(item.id)){
+              setSelectedTasks(selectedTasks.splice(selectedTasks.indexOf(item.id), 1));
             }
-            setChecked(!checked);
+            
             console.log(selectedTasks);
           }}
         />}
