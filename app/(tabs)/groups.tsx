@@ -12,7 +12,7 @@ const GroupURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsy
 export default function Index() {
   const [groups, setGroups] = useState<Groups.Group[]>([]);
 
-  function parseGroup(groupToParse: any){
+  function parseGroup (groupToParse: any) {
     console.log(groupToParse);
     var groupToAdd = {
       id: groupToParse[0],
@@ -26,29 +26,8 @@ export default function Index() {
        * backend is actually implemented, but for now I'm just hard-coding things for the demo.
        */
       nextTaskTitle: "NULL",
-
-  const onLoad = async () => {
-    const fillerGroups: Groups.Group[] = [
-      {
-        id: 0,
-        title: "Interesting Group Name",
-        numTasks: 69,
-        hasNextTask: true,
-        // eventually these will get pulled from the backend, but until that happens i'm just
-        // hard-coding them for the demo
-        nextTaskTitle: "Water plants",
-        nextTaskDueDate: new Date("2024-11-26")
-      },
-      // {
-      //   id: 1,
-      //   title: "Interesting Group Name 2: Electric Boogaloo",
-      //   numTasks: 420,
-      //   hasNextTask: false
-      // }
-    ];
     }
-    console.log(groupToAdd);
-  
+
     return groupToAdd;
   }
 
