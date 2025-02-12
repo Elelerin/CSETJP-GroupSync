@@ -49,29 +49,21 @@ export default function Index() {
 
       const json = await response.json();
 
-      let groups: Groups.Group[] = json.map(parseGroup);
+      let gotGroups: Groups.Group[] = json.map(parseGroup);
 
-      setGroups([...groups, ...groups]);
-    } catch (error) {
-      console.error("Darn, response retrieval error", error);
+      setGroups([...groups, ...gotGroups])
+      return groups;
+    }catch (error) {
+      console.error("Failed to get groups", error);
       throw new Error("Failed to fetch groups");
     }
-
   }
 
 
-  const onLoad = async () => {
-    await getGroups(User);
-    //Refetch groups list and update state
-    setGroups(await Groups.getGroups());
-  }
 
   const remove = async () => {
-    //Delete all groups
-    await Groups.clearGroups();
-    
-    //Refetch groups list and update state
-    setGroups(await Groups.getGroups());
+    //DELETE ALL GROUPS (HEAVY OPS)
+    setGroups([]);
   }
 
   //Return render of groups page
@@ -82,7 +74,7 @@ export default function Index() {
       <FlatList 
         style={styles.groupsContainer} 
         data={groups} 
-        renderItem={({item}) => <GroupView group={item}/>}
+        renderItem={({item}) => <GroupView group={item} id={item.id}/>}
         showsHorizontalScrollIndicator={false}/>
     </View>
   )
