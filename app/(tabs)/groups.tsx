@@ -39,6 +39,7 @@ export default function Index() {
         
         const response = await fetch(GroupURL, {
           method : 'GET',
+          mode : 'cors',
           headers : {
             groupOwner : _groupOwner
           }
@@ -71,9 +72,10 @@ export default function Index() {
         setGroups(await Groups.getGroups());
         
         return toReturn;
-      }catch{
-          throw "Darn, response retrieval error";
-      }
+      }catch (error) {
+        // Handle network errors or thrown errors
+        console.error("GET request failed:" + error);
+    }
     }
   }
 
