@@ -7,25 +7,25 @@ import GroupView from "@/components/GroupView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useFocusEffect } from "@react-navigation/native";
 
+const User = 'doro';
+const GroupURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/GroupFunction"
 export default function Index() {
   const [groups, setGroups] = useState<Groups.Group[]>([]);
 
-  useFocusEffect(
-    useCallback(() => {
-      const fetchGroups = async () => {
-        try {
-          const groups = await Groups.getGroups()
-          setGroups(groups);
-        } catch (error) {
-          console.error("Error fetching groups:", error);
-        }
-      }
+  function parseGroup(groupToParse: any){
+    console.log(groupToParse);
+    var groupToAdd = {
+      id: groupToParse[0],
+      title:groupToParse[1],
+      description: groupToParse[2],
 
-      fetchGroups()
-
-      return () => {}
-    }, [])
-  );
+      numTasks: 0,
+      hasNextTask: false,
+      /**
+       * Title and due date for the next due task in the group. This will need to be changed once the
+       * backend is actually implemented, but for now I'm just hard-coding things for the demo.
+       */
+      nextTaskTitle: "NULL",
 
   const onLoad = async () => {
     const fillerGroups: Groups.Group[] = [
@@ -46,12 +46,61 @@ export default function Index() {
       //   hasNextTask: false
       // }
     ];
-
-    //Add filler groups to AsyncStorage
-    for (let i = 0; i < fillerGroups.length; ++i) {
-      await Groups.addGroup(fillerGroups[i]);
     }
+    console.log(groupToAdd);
+  
+    return groupToAdd;
+  }
 
+  function getGroups(_groupOwner: string){
+    var toReturn = "ERROR";
+    return async () => {
+      try{
+        console.log("Trying");
+        
+        const response = await fetch(GroupURL, {
+          method : 'GET',
+          headers : {
+            groupOwner : _groupOwner
+          }
+        }).then((response) => {
+          const reader = response.body.getReader();
+          return new ReadableStream({
+            start(controller){
+              return pump();
+              function pump(){
+                return reader.read().then(({done, value}) =>{
+                  if(done){
+                    controller.close();
+                    return;
+                  }
+                  controller.enqueue(value);
+                  return pump();
+                })
+              }
+            }
+          })
+        })
+        .then((stream) => new Response(stream))
+        .then((response) => response.json())
+        .then((json) => {
+          console.log(json);
+          for(var i = 0; i < json.length; i++){
+            Groups.addGroup(parseGroup(json[i]));
+          }
+        });
+        setGroups(await Groups.getGroups());
+        
+        return toReturn;
+      }catch{
+          throw "Darn, response retrieval error";
+      }
+    }
+  }
+
+
+  const onLoad = async () => {
+    getGroups(User);
     //Refetch groups list and update state
     setGroups(await Groups.getGroups());
   }
@@ -67,7 +116,7 @@ export default function Index() {
   //Return render of groups page
   return (
     <View style={styles.container}>
-      <PillButton icon={"download"} onPress={onLoad}/>
+      <PillButton icon={"download"} onPress={getGroups(User)}/>
       <PillButton icon={"trash"} onPress={remove}/>
       <FlatList 
         style={styles.groupsContainer} 
