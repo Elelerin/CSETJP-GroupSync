@@ -21,11 +21,10 @@ export default function Index() {
     setTasks(await Tasks.getTasks());
   }
 
-
   function clearTasks() {
     setTasks([]);
   }
-
+  
   function parseTask(taskToParse: any){
     console.log(taskToParse);
     var taskToAdd = {

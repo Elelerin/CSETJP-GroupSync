@@ -27,6 +27,25 @@ export default function Index() {
        */
       nextTaskTitle: "NULL",
 
+  const onLoad = async () => {
+    const fillerGroups: Groups.Group[] = [
+      {
+        id: 0,
+        title: "Interesting Group Name",
+        numTasks: 69,
+        hasNextTask: true,
+        // eventually these will get pulled from the backend, but until that happens i'm just
+        // hard-coding them for the demo
+        nextTaskTitle: "Water plants",
+        nextTaskDueDate: new Date("2024-11-26")
+      },
+      // {
+      //   id: 1,
+      //   title: "Interesting Group Name 2: Electric Boogaloo",
+      //   numTasks: 420,
+      //   hasNextTask: false
+      // }
+    ];
     }
     console.log(groupToAdd);
   
@@ -94,7 +113,7 @@ export default function Index() {
     setGroups(await Groups.getGroups());
   }
 
-//Return render of groups page
+  //Return render of groups page
   return (
     <View style={styles.container}>
       <PillButton icon={"download"} onPress={getGroups(User)}/>

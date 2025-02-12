@@ -1,6 +1,7 @@
-import { Button, StyleSheet, Text, View } from 'react-native';
-import PillButton from '@/components/PillButton'
-import { PureComponent } from 'react';
+import { useThemeColor } from "@/hooks/useThemeColor";
+import React from "react";
+import { View, StyleSheet } from "react-native";
+import { Button, Card, Text } from "react-native-paper";
 
 var UserURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/User"
 var TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
@@ -10,10 +11,43 @@ export default function Settings() {
     
 
     <View style={styles.container}>
-      <Text>Hello world!</Text>
-      <PillButton icon="key" onPress={registerUser("doro", "doro", "I<3DORO")}/>
-      <PillButton icon="key" onPress={registerTask("doro", "doro", "doro")}/>
-      <PillButton icon="key" onPress={getTask("doro")}/>
+      {/* Title */}
+      <Text variant="headlineLarge" style={styles.title}>
+        Settings
+      </Text>
+
+      {/* Buttons */}
+      <Card mode="outlined" style={styles.card}>
+        <Button
+          mode="contained"
+          buttonColor={useThemeColor("backgroundSecondary")}
+          textColor="white"
+          onPress={() => console.log("Change Password")}
+        >
+          Change Password
+        </Button>
+      </Card>
+
+      <Card mode="outlined" style={styles.card}>
+        <Button
+          mode="contained"
+          buttonColor={useThemeColor("backgroundSecondary")}
+          textColor="white"
+          onPress={() => console.log("Preferences")}
+        >
+          Preferences
+        </Button>
+      </Card>
+
+      <Card mode="outlined" style={styles.card}>
+        <Button mode="contained"
+          buttonColor={useThemeColor("backgroundSecondary")}
+          textColor={useThemeColor("textPrimary")}
+          onPress={() => console.log("Logout")}
+        >
+          Logout
+        </Button>
+      </Card>
     </View>
 
   );
@@ -136,8 +170,22 @@ function getTask(_taskAuthor){
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: useThemeColor("backgroundPrimary"), // Match dark theme
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  title: {
+    color: useThemeColor("textPrimary"),
+    marginBottom: 20,
+  },
+  card: {
+    width: "80%",
+    marginBottom: 10,
+    backgroundColor: "transparent",
+    borderColor: useThemeColor("highlight"),
+    borderWidth: 2,
+    // guarantees the card will conform to the buttons
+    borderRadius: 1000
   },
 });

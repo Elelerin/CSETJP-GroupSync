@@ -2,6 +2,7 @@ import { View, StyleSheet, Text, GestureResponderEvent } from 'react-native'
 
 import * as Tasks from '@/services/tasks'
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { Card } from 'react-native-paper';
 import React, { PropsWithRef, useState } from 'react';
 import { Checkbox } from 'react-native-paper';
 
@@ -10,8 +11,8 @@ export const TaskView = ({task, onClick}) => {
   const [checked, setChecked] = useState(false);
 
   return (
-    <View style={styles.taskViewContainer}>
-      <View style={styles.boxContainer}>
+    <Card mode="contained" style={styles.taskViewContainer}>
+      <Card.Content>
         <View style ={styles.titleRow}>
           <Checkbox status={checked ? 'checked' : 'unchecked'}
               onPress={onClick}
@@ -22,8 +23,8 @@ export const TaskView = ({task, onClick}) => {
         <View> 
           <Text style={styles.textDescription}>{task.description}</Text>
         </View>
-      </View>
-    </View>
+      </Card.Content>
+    </Card>
   )
 }
 
@@ -36,17 +37,16 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     backgroundColor: useThemeColor("backgroundSecondary"),
-    borderRadius: 8,
+    borderRadius: 15,
     borderColor: useThemeColor("highlight"),
-    borderWidth: 4,
-    padding: 12,
+    borderWidth: 3,
   },
   titleRow: {
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'baseline',
-    marginBottom: 20,
+    marginBottom: 12,
   },
   textDate: {
     color: useThemeColor("textPrimary"),
