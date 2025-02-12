@@ -31,57 +31,37 @@ export default function Index() {
     return groupToAdd;
   }
 
-  function getGroups(_groupOwner: string){
-    var toReturn = "ERROR";
-    return async () => {
-      try{
-        console.log("Trying");
-        
-        const response = await fetch(GroupURL, {
+  async function getGroups(_groupOwner: string) : Promise<Groups.Group[]>{
+    try{
+      console.log("Getting Groups...");
+
+      const response = await fetch(GroupURL, {
           method : 'GET',
           mode : 'cors',
           headers : {
             groupOwner : _groupOwner
           }
-        }).then((response) => {
-          const reader = response.body.getReader();
-          return new ReadableStream({
-            start(controller){
-              return pump();
-              function pump(){
-                return reader.read().then(({done, value}) =>{
-                  if(done){
-                    controller.close();
-                    return;
-                  }
-                  controller.enqueue(value);
-                  return pump();
-                })
-              }
-            }
-          })
-        })
-        .then((stream) => new Response(stream))
-        .then((response) => response.json())
-        .then((json) => {
-          console.log(json);
-          for(var i = 0; i < json.length; i++){
-            Groups.addGroup(parseGroup(json[i]));
-          }
-        });
-        setGroups(await Groups.getGroups());
-        
-        return toReturn;
-      }catch (error) {
-        // Handle network errors or thrown errors
-        console.error("GET request failed:" + error);
+      });
+
+      if(!response.ok){
+        throw new Error("ERROR: STATUS: ${response.status}");
+      }
+
+      const json = await response.json();
+
+      let groups: Groups.Group[] = json.map(parseGroup);
+
+      setGroups([...groups, ...groups]);
+    } catch (error) {
+      console.error("Darn, response retrieval error", error);
+      throw new Error("Failed to fetch groups");
     }
-    }
+
   }
 
 
   const onLoad = async () => {
-    getGroups(User);
+    await getGroups(User);
     //Refetch groups list and update state
     setGroups(await Groups.getGroups());
   }
@@ -97,7 +77,7 @@ export default function Index() {
   //Return render of groups page
   return (
     <View style={styles.container}>
-      <PillButton icon={"download"} onPress={getGroups(User)}/>
+      <PillButton icon={"download"} onPress={() => getGroups(User)}/>
       <PillButton icon={"trash"} onPress={remove}/>
       <FlatList 
         style={styles.groupsContainer} 

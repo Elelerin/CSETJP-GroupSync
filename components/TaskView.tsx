@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
   boxContainer: {
     flex: 1,
     flexDirection: 'column',
-    backgroundColor: useThemeColor("backgroundSecondary"),
+    backgroundColor: useThemeColor("highlight"),
     borderRadius: 15,
     borderColor: useThemeColor("highlight"),
     borderWidth: 3,

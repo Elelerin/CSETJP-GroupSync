@@ -6,7 +6,8 @@ import { Link } from "expo-router";
 import { Card } from "react-native-paper";
 
 type Props = {
-  group: Groups.Group
+  group: Groups.Group,
+  id : Number
 };
 
 export default function GroupView({ group }: Props) {
