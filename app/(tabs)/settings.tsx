@@ -19,7 +19,8 @@ export default function Settings() {
   );
 }
 
-function registerUser(_userID, _username, _password){ 
+function registerUser(_userID : string, _username : string, _password : string){ 
+
   return async () => {
     try{
       const response = await fetch(UserURL, {
@@ -44,7 +45,7 @@ function registerUser(_userID, _username, _password){
   }
 }
 
-function registerTask(_taskName, _taskDesc, _taskAuthor){ 
+function registerTask(_taskName :string, _taskDesc : string, _taskAuthor : string){ 
   return async () => {
     try{
       const response = await fetch(TaskURL, {
@@ -69,15 +70,15 @@ function registerTask(_taskName, _taskDesc, _taskAuthor){
   }
 }
 
-function getUser(_userID){ 
+function getUser(_userID : string){ 
   return async () => {
     try{
       const response = await fetch(UserURL, {
         method : 'GET',
-        body: JSON.stringify({
-          userID : _userID 
-        })
-      })
+        headers : {
+          'userID' : _userID
+        }
+      });
 
       if(!response.ok){
         throw new Error("User retreival error");
@@ -94,17 +95,19 @@ function getUser(_userID){
 function getTask(_taskAuthor){
   return async () => {
     try{
+      console.log("Trying");
+      var toReturn;
       const response = await fetch(TaskURL, {
         method : 'GET',
         headers : {
-          taskAuthor : _taskAuthor
+        taskAuthor : _taskAuthor
         }
       }).then((response) => {
         const reader = response.body.getReader();
         return new ReadableStream({
           start(controller){
             return pump();
-            function pump(){
+            function pump() : any{
               return reader.read().then(({done, value}) =>{
                 if(done){
                   controller.close();
@@ -119,16 +122,16 @@ function getTask(_taskAuthor){
       })
       .then((stream) => new Response(stream))
       .then((response) => response.json())
-      .then((json) => console.log(json))
+      .then((json) => console.log(json));
 
-      console.log(response);
-      console.log("TEST");
-      return response;
+
+      return toReturn;
     }catch{
         throw "Darn, response retrieval error";
     }
   }
 }
+
 
 const styles = StyleSheet.create({
   container: {
