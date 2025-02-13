@@ -5,6 +5,8 @@ import { Button, Card, Text } from "react-native-paper";
 
 var UserURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/User"
 var TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
+
+
 export default function Settings() {
 
   return (
@@ -22,7 +24,7 @@ export default function Settings() {
           mode="contained"
           buttonColor={useThemeColor("backgroundSecondary")}
           textColor="white"
-          onPress={() => console.log("Change Password")}
+          onPress={() => console.log("Password")}
         >
           Change Password
         </Button>
