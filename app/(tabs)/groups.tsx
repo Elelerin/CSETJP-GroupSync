@@ -8,7 +8,10 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { useFocusEffect } from "@react-navigation/native";
 
 const User = 'doro';
+const GroupTaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/groupTasks"
 const GroupURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/GroupFunction"
+var TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
+
 export default function Index() {
   const [groups, setGroups] = useState<Groups.Group[]>([]);
 
@@ -60,6 +63,56 @@ export default function Index() {
   }
 
 
+  async function getTasksForGroup(_groupID : Number) : Promise<Number[]>{
+    try{
+      console.log("Getting GroupTasks...");
+
+      const response = await fetch(GroupTaskURL, {
+          method : 'GET',
+          mode : 'cors',
+          headers : {
+            grouptaskgroup : _groupID.toString()
+          }
+      });
+
+      if(!response.ok){
+        throw new Error("ERROR: STATUS: ${response.status}");
+      }
+
+      const json = await response.json();
+      console.log(json);
+      return json;
+    }catch (error) {
+      console.error("Failed to get tasks for group", error);
+      throw new Error("Failed to fetch tasks for group");
+    }
+  }
+
+  async function getListOfGroupTasks(_groupList : Number[]) : Promise<Number[]>{
+    try{
+      
+      
+      console.log("Getting Set of Tasks...");
+      const response = await fetch(TaskURL, {
+          method : 'GET',
+          mode : 'cors',
+          headers : {
+            taskID : JSON.stringify(_groupList)
+          }
+      });
+
+      if(!response.ok){
+        throw new Error("ERROR: STATUS: ${response.status}");
+      }
+
+      const json = await response.json();
+
+      return json;
+    }catch (error) {
+      console.error("Failed to get groups", error);
+      throw new Error("Failed to fetch groups");
+    }
+  }
 
   const remove = async () => {
     //DELETE ALL GROUPS (HEAVY OPS)
@@ -70,6 +123,8 @@ export default function Index() {
   return (
     <View style={styles.container}>
       <PillButton icon={"download"} onPress={() => getGroups(User)}/>
+      <PillButton icon={"download"} onPress={() => getTasksForGroup(2)}/>
+      <PillButton icon={"download"} onPress={() => getTasksForGroup(2).then((groupTasks) => getListOfGroupTasks(groupTasks))}/>
       <PillButton icon={"trash"} onPress={remove}/>
       <FlatList 
         style={styles.groupsContainer} 
