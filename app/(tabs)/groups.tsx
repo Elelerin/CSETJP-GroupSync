@@ -33,6 +33,7 @@ export default function Index() {
     return groupToAdd;
   }
 
+  //TODO: ABSTRACT THIS FUNCTION TO A WRAPPER (OR JUST ABSTRACT IT SO IT TAKES IN A FEW PARAMS THAT SWAP OUT AND REMOVE THE RETURN TYPE!)
   async function getGroups(_groupOwner: string) : Promise<Groups.Group[]>{
     try{
       console.log("Getting Groups...");
@@ -61,6 +62,8 @@ export default function Index() {
     }
   }
 
+
+  //TODO: REFACTOR THIS TO USE A BACKEND LOOP OF STUFF. THIS WHOLE SECTION BELOW WILL BE TOSSED.
   async function getTasksForGroup(_groupID : Number) : Promise<Number[]>{
     try{
       console.log("Getting GroupTasks...");
