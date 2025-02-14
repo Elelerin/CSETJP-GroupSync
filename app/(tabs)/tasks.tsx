@@ -1,25 +1,28 @@
 import { FlatList, View, StyleSheet } from "react-native";
 import { useCallback, useState } from 'react';
+import { IconButton } from "react-native-paper";
 
 import * as Tasks from "@/services/tasks";
 import PillButton from '@/components/PillButton'
-import {TaskView}  from "@/components/TaskView";
+import { TaskView }  from "@/components/TaskView";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import TaskCreationModal from "@/components/TaskCreationModal";
 
 
 export default function Index() {
   const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
   const [tasks, setTasks] = useState<Tasks.Task[]>([]);
+  const [modalVisible, setModalVisible] = useState(false);
 
   var User = 'doro';
   const TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
 
   //TODO: Remove nested 'then' chain-hell. 
   
-  const onLoad = async () => {
-    getTasks(User);
-    setTasks(await Tasks.getTasks());
-  }
+  // const onLoad = async () => {
+  //   getTasks(User);
+  //   setTasks(await Tasks.getTasks());
+  // }
 
   function clearTasks() {
     setTasks([]);
@@ -93,6 +96,16 @@ export default function Index() {
 //Return render of tasks page
   return (
     <View style={styles.container}>
+
+      <TaskCreationModal modalVisible={modalVisible} setModalVisible={setModalVisible} />
+      
+      <IconButton
+        icon={"note-plus"}
+        iconColor={useThemeColor("textSecondary")}
+        size={36}
+        onPress={() => { setModalVisible(true); }}
+      />
+      <PillButton icon={"download"} onPress={getTasks(User)}/>
       <PillButton icon={"download"} onPress={getTasks(User)}/>
       <PillButton icon={"trash"} onPress={clearTasks}/>
       <FlatList 
@@ -113,12 +126,6 @@ export default function Index() {
     </View>
   )
 }
-
-
-
-
-
-
 
 const styles = StyleSheet.create({
   container: {

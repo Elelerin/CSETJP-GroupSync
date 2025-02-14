@@ -6,6 +6,7 @@ import PillButton from '@/components/PillButton'
 import GroupView from "@/components/GroupView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useFocusEffect } from "@react-navigation/native";
+import { Modal, PaperProvider, Portal } from "react-native-paper";
 
 const User = 'doro';
 const GroupTaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/groupTasks"
@@ -46,7 +47,7 @@ export default function Index() {
       });
 
       if(!response.ok){
-        throw new Error("ERROR: STATUS: ${response.status}");
+        throw new Error(`ERROR: STATUS: ${response.status}`);
       }
 
       const json = await response.json();
@@ -72,7 +73,7 @@ export default function Index() {
           }
       });
       if(!response.ok){
-        throw new Error("ERROR: STATUS: ${response.status}");
+        throw new Error(`ERROR: STATUS: ${response.status}`);
       }
       const json = await response.json();
       console.log(json);
@@ -95,7 +96,7 @@ export default function Index() {
           }
       });
       if(!response.ok){
-        throw new Error("ERROR: STATUS: ${response.status}");
+        throw new Error(`ERROR: STATUS: ${response.status}`);
       }
       const json = await response.json();
       return json;
