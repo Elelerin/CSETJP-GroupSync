@@ -86,29 +86,6 @@ export default function Index() {
       throw new Error("Failed to fetch tasks for group");
     }
   }
-  async function getListOfGroupTasks(_groupList : Number[]) : Promise<Number[]>{
-    try{
-      
-      
-      console.log("Getting Set of Tasks...");
-      const response = await fetch(TaskURL, {
-          method : 'GET',
-          mode : 'cors',
-          headers : {
-            taskID : JSON.stringify(_groupList)
-          }
-      });
-      if(!response.ok){
-        throw new Error(`ERROR: STATUS: ${response.status}`);
-      }
-      const json = await response.json();
-      return json;
-    }catch (error) {
-      console.error("Failed to get groups", error);
-      throw new Error("Failed to fetch groups");
-    }
-  }
-
   const remove = async () => {
     //DELETE ALL GROUPS (HEAVY OPS)
     setGroups([]);
@@ -120,7 +97,6 @@ export default function Index() {
       <PillButton icon={"download"} onPress={() => getGroups(User)}/>
       <PillButton icon={"trash"} onPress={remove}/>
       <PillButton icon={"download"} onPress={() => getTasksForGroup(2)}/>
-      <PillButton icon={"download"} onPress={() => getTasksForGroup(2).then((groupTasks) => getListOfGroupTasks(groupTasks))}/>
       <FlatList 
         style={styles.groupsContainer} 
         data={groups} 
