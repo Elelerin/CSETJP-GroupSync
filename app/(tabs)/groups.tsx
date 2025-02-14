@@ -2,6 +2,7 @@ import { FlatList, View, StyleSheet } from "react-native";
 import { useCallback, useState } from 'react';
 
 import * as Groups from '@/services/groups'
+import * as Tasks from "@/services/tasks";
 import PillButton from '@/components/PillButton'
 import GroupView from "@/components/GroupView";
 import { useThemeColor } from "@/hooks/useThemeColor";
@@ -63,6 +64,18 @@ export default function Index() {
     }
   }
 
+  function parseTask(taskToParse: any){
+    console.log(taskToParse);
+    var taskToAdd : Tasks.Task = {
+      title: taskToParse[1],
+      id: taskToParse[0],
+      description: taskToParse[2],
+      
+      dueDate: taskToParse[4],
+      complete: taskToParse[5]
+    }
+    return taskToAdd;
+  }
 
   //TODO: REFACTOR THIS TO USE A BACKEND LOOP OF STUFF. THIS WHOLE SECTION BELOW WILL BE TOSSED.
   async function getTasksForGroup(_groupID : Number) : Promise<Number[]>{
@@ -79,13 +92,21 @@ export default function Index() {
         throw new Error(`ERROR: STATUS: ${response.status}`);
       }
       const json = await response.json();
-      console.log(json);
+
+      let taskList = [];
+      for(const o of json){
+        taskList.push(parseTask(o));
+      }
+      console.log(taskList);
+
+
       return json;
     }catch (error) {
       console.error("Failed to get tasks for group", error);
       throw new Error("Failed to fetch tasks for group");
     }
   }
+
   const remove = async () => {
     //DELETE ALL GROUPS (HEAVY OPS)
     setGroups([]);
