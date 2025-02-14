@@ -40,6 +40,42 @@ export default function Index() {
     return taskToAdd;
   }
 
+  function registerTask(inputTask : Tasks.Task, userID : string){ 
+    return async () => {
+      try{
+        let dateToParse = inputTask.dueDate;
+              const pad = (num : Number) => num.toString().padStart(2, '0');
+              const toSend = `${pad(dateToParse.getFullYear())}-${pad(dateToParse.getMonth() + 1)}-${pad(dateToParse.getDate())} ${pad(dateToParse.getHours())}:${pad(dateToParse.getMinutes())}:${pad(dateToParse.getSeconds())}`;
+              console.log(toSend);
+        console.log(toSend);
+  
+        let fetchBody = {
+          taskName : inputTask.title,
+          taskDesc : inputTask.description,
+          taskAuthor : userID,
+          ...(inputTask.dueDate && {dueDate : dateToParse})
+        }
+        
+        console.log(fetchBody);
+        const response = await fetch(TaskURL, {
+          method : 'POST',
+          body: JSON.stringify(fetchBody)
+        });
+  
+        if(!response.ok){
+          throw new Error("Error registering task.");
+        }
+  
+        const json = response;
+        console.log(response);
+        return json;
+      }catch{
+  
+      }
+    }
+  }
+
+
   function getTasks(_taskAuthor: string){
     var toReturn = "ERROR";
     return async () => {
