@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 
 import * as Tasks from "@/services/tasks";
 import PillButton from '@/components/PillButton'
-import {TaskView}  from "@/components/TaskView";
+import TaskView from "@/components/TaskView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
 import { Menu, Button } from "react-native-paper";
@@ -62,11 +62,14 @@ export default function Index() {
           }
         }).then((response) => {
           
+          if (!response.body) {
+            throw new Error("Response body is null");
+          }
           const reader = response.body.getReader();
           return new ReadableStream({
             start(controller){
               return pump();
-              function pump(){
+              function pump(): Promise<void> {
                 return reader.read().then(({done, value}) =>{
                   if(done){
                     controller.close();
@@ -99,53 +102,19 @@ export default function Index() {
   
 
 //Return render of tasks page
-  // return (
-  //   <View style={styles.container}>
-  //     <Menu
-  //     visible={menuVisible}
-  //     onDismiss={() => setMenuVisible(false)}
-  //     anchor={
-  //       <Button mode="contained" onPress={() => setMenuVisible(true)}>
-  //         Sort By
-  //       </Button>
-  //     }
-  //   >
-  //     <Menu.Item onPress={() => setSortBy("name")} title="Name" />
-  //     <Menu.Item onPress={() => setSortBy("date")} title="Date" />
-  //     <Menu.Item onPress={() => setSortBy("size")} title="Size" />
-  //   </Menu>
-  //     <PillButton icon={"download"} onPress={getTasks(User)}/>
-  //     <PillButton icon={"trash"} onPress={clearTasks}/>
-  //     <FlatList 
-  //       style={styles.tasksContainer} 
-  //       data={tasks} 
-  //       renderItem={({item}) => <TaskView task={item} 
-  //         onClick={() =>{
-  //           if(!selectedTasks.includes(item.id)){
-  //             setSelectedTasks(selectedTasks.concat(item.id));
-  //           }if(selectedTasks.includes(item.id)){
-  //             setSelectedTasks(selectedTasks.splice(selectedTasks.indexOf(item.id), 1));
-  //           }
-            
-  //           console.log(selectedTasks);
-  //         }}
-  //       />}
-  //       showsHorizontalScrollIndicator={false}/>
-  //   </View>
-  // )
   return (
     <View style={styles.container}>
   
-      {/* 🔹 Button Row - Centered with Sort By on Right */}
+     
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", width: "100%", paddingHorizontal: 10, marginBottom: 10 }}>
   
-        {/* Smaller Download & Delete Buttons */}
+  
         <View style={{ flexDirection: "row", gap: 10 }}>
-          <PillButton icon={"download"} onPress={getTasks(User)} compact />
-          <PillButton icon={"trash"} onPress={clearTasks} compact />
+          <PillButton icon={"download"} onPress={getTasks(User)} />
+          <PillButton icon={"trash"} onPress={clearTasks} />
         </View>
   
-        {/* Sort By Button - Aligned Right */}
+        
         <View style={{ marginLeft: "auto" }}>
           <Menu
             visible={menuVisible}
@@ -164,7 +133,7 @@ export default function Index() {
   
       </View>
   
-      {/* 🔹 Task List */}
+ 
       <FlatList 
         style={styles.tasksContainer} 
         data={sortedTasks}  
