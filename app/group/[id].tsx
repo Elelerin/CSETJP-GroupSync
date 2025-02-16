@@ -202,7 +202,8 @@ export default function GroupHome() {
         <View style={styles.tasksContainer}>
           <FlatList
             data={tasks} 
-            renderItem={({item}) => <TaskView task={item}/>}
+            // onclick currently does nothing - this will need to be changed eventually
+            renderItem={({item}) => <TaskView task={item} onClick={()=>{}}/>}
             showsHorizontalScrollIndicator={false}/>
         </View>
       </View>
