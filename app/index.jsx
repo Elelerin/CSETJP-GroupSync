@@ -119,7 +119,7 @@ export default function Index() {
           mode="outlined"
           onPress={() => promptAsync()}
           loading={loading}
-          style={[styles.button, styles.whiteButton]} // 🔹 Add custom style
+          style={[styles.button, styles.whiteButton]} 
           labelStyle={{ color: "#fff" }}
         >
           {loading ? "Redirecting to Sign Up..." : "Create an Account"}
