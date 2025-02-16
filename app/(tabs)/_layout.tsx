@@ -38,6 +38,6 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
-    </PaperProvider> 
+     </PaperProvider>  
   );
 }
