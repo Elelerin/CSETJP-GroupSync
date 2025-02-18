@@ -1,5 +1,6 @@
 import { useThemeColor } from "@/hooks/useThemeColor";
 import React from "react";
+import * as Tasks from "@/services/tasks";
 import { Modal, View, StyleSheet, Text } from "react-native";
 import { IconButton, TextInput, Button, MD3DarkTheme, Icon, PaperProvider } from "react-native-paper";
 import { DatePickerModal } from "react-native-paper-dates";
@@ -10,7 +11,12 @@ interface Props {
   setModalVisible: (visible: boolean) => void
 }
 
+var User = 'doro';
+const TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
+
 export default function TaskCreationModal({ modalVisible, setModalVisible }: Props) {
+  const [taskName, setTaskName] = React.useState<string>('');
+  const [taskDesc, setTaskDesc] = React.useState<string>('');
   const [dueDate, setDueDate] = React.useState<Date>();
   const [dateSelectorOpen, setDateSelectorOpen] = React.useState(false);
 
@@ -44,6 +50,7 @@ export default function TaskCreationModal({ modalVisible, setModalVisible }: Pro
               <TextInput
                 label="Name"
                 style={styles.textInput}
+                onChangeText = {setTaskName}
                 textColor={useThemeColor("textPrimary")}
                 theme={paperTheme}
               />
@@ -54,6 +61,7 @@ export default function TaskCreationModal({ modalVisible, setModalVisible }: Pro
               <TextInput
                 label="Description"
                 style={styles.textInput}
+                onChangeText = {setTaskDesc}
                 textColor={useThemeColor("textPrimary")}
                 textAlignVertical={"top"}
                 theme={paperTheme}
@@ -112,7 +120,15 @@ export default function TaskCreationModal({ modalVisible, setModalVisible }: Pro
                 theme={paperTheme}
                 size={36}
                 onPress={() => {
-                  console.log("Adding task...");
+                  var taskToAdd :Tasks.Task = {
+                    title: taskName,
+                    id: 0,
+                    description: taskDesc,
+                    
+                    dueDate: dueDate,
+                    complete: false
+                  }
+                  registerTask(taskToAdd, User)
                   setModalVisible(false);
                 }}
               />
@@ -121,6 +137,41 @@ export default function TaskCreationModal({ modalVisible, setModalVisible }: Pro
         </View>
       </Modal>
   );
+}
+
+async function registerTask(inputTask : Tasks.Task, userID : string){ 
+  
+    try{
+      let dateToParse = inputTask.dueDate;
+            const pad = (num : Number) => num.toString().padStart(2, '0');
+            const toSend = `${pad(dateToParse.getFullYear())}-${pad(dateToParse.getMonth() + 1)}-${pad(dateToParse.getDate())} ${pad(dateToParse.getHours())}:${pad(dateToParse.getMinutes())}:${pad(dateToParse.getSeconds())}`;
+            console.log(toSend);
+      console.log(toSend);
+
+      let fetchBody = {
+        taskName : inputTask.title,
+        taskDesc : inputTask.description,
+        taskAuthor : userID,
+        ...(inputTask.dueDate && {dueDate : dateToParse})
+      }
+      
+      console.log(fetchBody);
+      const response = await fetch(TaskURL, {
+        method : 'POST',
+        body: JSON.stringify(fetchBody)
+      });
+
+      if(!response.ok){
+        throw new Error("Error registering task.");
+      }
+
+      const json = response;
+      console.log(response);
+      return json;
+    }catch{
+
+    }
+  
 }
 
 const paperTheme = {
