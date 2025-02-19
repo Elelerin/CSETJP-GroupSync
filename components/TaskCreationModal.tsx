@@ -8,13 +8,15 @@ import { CalendarDate } from "react-native-paper-dates/lib/typescript/Date/Calen
 
 interface Props {
   modalVisible: boolean,
-  setModalVisible: (visible: boolean) => void
+  setModalVisible: (visible: boolean) => void,
+  //If this is defined, we're in a group, so we should add tasks to the group, instead
+  groupID?: Number
 }
 
 var User = 'doro';
 const TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
 
-export default function TaskCreationModal({ modalVisible, setModalVisible }: Props) {
+export default function TaskCreationModal({ modalVisible, setModalVisible, groupID }: Props) {
   const [taskName, setTaskName] = React.useState<string>('');
   const [taskDesc, setTaskDesc] = React.useState<string>('');
   const [dueDate, setDueDate] = React.useState<Date>();
@@ -128,7 +130,15 @@ export default function TaskCreationModal({ modalVisible, setModalVisible }: Pro
                     dueDate: dueDate,
                     complete: false
                   }
-                  registerTask(taskToAdd, User)
+                  if(groupID !== undefined){
+                    //REGISTER NORMAL TASK TO GROUP
+
+
+                  }else{
+                    //REGISTER NORMAL TASK TO USER
+                    registerTask(taskToAdd, User)
+                  }
+                  
                   setModalVisible(false);
                 }}
               />

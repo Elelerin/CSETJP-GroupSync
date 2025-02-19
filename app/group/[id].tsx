@@ -7,6 +7,7 @@ import TaskView from "@/components/TaskView";
 import { Dropdown, MultiSelect } from "react-native-element-dropdown";
 import { useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
+import TaskCreationModal from "@/components/TaskCreationModal";
 
 // temporary, will be replaced later
 interface User {
@@ -15,6 +16,8 @@ interface User {
 
 export default function GroupHome() {
   const { id } = useLocalSearchParams();
+  const groupID = Number(id);
+  const [modalVisible, setModalVisible] = useState(false);
 
   // eventually this will be populated with the actual users, but for now i just need a demo
   const users: User[] = [
@@ -135,6 +138,7 @@ export default function GroupHome() {
 
   return (
     <View style={styles.pageContainer}>
+      <TaskCreationModal modalVisible={modalVisible} setModalVisible={setModalVisible} groupID={ groupID }/>
       <View style={styles.upperColumnContainer}>
         <Card mode="contained" style={styles.titleCard}>
           <Text style={styles.textTitle}>Group {id} name</Text>
@@ -187,6 +191,12 @@ export default function GroupHome() {
               </TouchableOpacity>
             )}
           />
+          <IconButton
+            icon={"note-plus"}
+            iconColor={useThemeColor("textSecondary")}
+            size={36}
+            onPress={() => { setModalVisible(true); }}
+          />
         </View>
       </View>
       <View style={styles.lowerColumnContainer}>
@@ -199,6 +209,8 @@ export default function GroupHome() {
               showsHorizontalScrollIndicator={false}/>
           </Card.Content>
         </Card>
+      
+        
         <View style={styles.tasksContainer}>
           <FlatList
             data={tasks} 
