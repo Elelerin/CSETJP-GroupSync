@@ -5,15 +5,16 @@ import * as Tasks from "@/services/tasks";
 import PillButton from '@/components/PillButton'
 import TaskView from "@/components/TaskView";
 import { useThemeColor } from "@/hooks/useThemeColor";
-
+import TaskCreationModal from "@/components/TaskCreationModal";
 import { Menu, Button } from "react-native-paper";
 
 export default function Index() {
-  const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
+  const [selectedTasks, setSelectedTasks] = useState<Number[]>([]);
   const [tasks, setTasks] = useState<Tasks.Task[]>([]);
   //sort by button
   const [sortBy, setSortBy] = useState<"name" | "date" | "size">("name");
   const [menuVisible, setMenuVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
   var User = 'doro';
   const TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
 
@@ -105,13 +106,14 @@ export default function Index() {
   return (
     <View style={styles.container}>
   
-     
+      <TaskCreationModal modalVisible={modalVisible} setModalVisible={setModalVisible}/>
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", width: "100%", paddingHorizontal: 10, marginBottom: 10 }}>
   
   
         <View style={{ flexDirection: "row", gap: 10 }}>
           <PillButton icon={"download"} onPress={getTasks(User)} />
           <PillButton icon={"trash"} onPress={clearTasks} />
+          <PillButton icon={"newItem"} onPress={()=>{setModalVisible(true)}} />
         </View>
   
         
@@ -120,7 +122,7 @@ export default function Index() {
             visible={menuVisible}
             onDismiss={() => setMenuVisible(false)}
             anchor={
-              <Button mode="contained" onPress={() => setMenuVisible(true)}>
+              <Button mode="contained" onPress={()=>{setModalVisible(true);}}>
                 Sort By
               </Button>
             }
