@@ -11,16 +11,17 @@ import { Button, Menu, Modal, PaperProvider, Portal } from "react-native-paper";
 
 const User = 'doro';
 const GroupTaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/groupTasks"
-var TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
+// is this unecessary or just unused for now?
+const TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
 const GroupURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/GroupFunction"
 export default function Index() {
   const [groups, setGroups] = useState<Groups.Group[]>([]);
   const [sortBy, setSortBy] = useState<"name" | "date" | "size">("name");
   const [menuVisible, setMenuVisible] = useState(false);
 
-  function parseGroup (groupToParse: any) {
+  function parseGroup(groupToParse: any) {
     console.log(groupToParse);
-    var groupToAdd = {
+    const groupToAdd = {
       id: groupToParse[0],
       title:groupToParse[1],
       description: groupToParse[2],
@@ -37,9 +38,11 @@ export default function Index() {
     return groupToAdd;
   }
 
-  //TODO: ABSTRACT THIS FUNCTION TO A WRAPPER (OR JUST ABSTRACT IT SO IT TAKES IN A FEW PARAMS THAT SWAP OUT AND REMOVE THE RETURN TYPE!)
-  async function getGroups(_groupOwner: string) : Promise<Groups.Group[]>{
-    try{
+  /**
+   * Attempts to get all groups that a user is part of.
+   */
+  async function getGroups(_groupOwner: string): Promise<Groups.Group[]>{
+    try {
       console.log("Getting Groups...");
 
       const response = await fetch(GroupURL, {
@@ -60,15 +63,15 @@ export default function Index() {
 
       setGroups([...groups, ...gotGroups])
       return groups;
-    }catch (error) {
+    } catch (error) {
       console.error("Failed to get groups", error);
       throw new Error("Failed to fetch groups");
     }
   }
 
-  function parseTask(taskToParse: any){
+  function parseTask(taskToParse: any) {
     console.log(taskToParse);
-    var taskToAdd : Tasks.Task = {
+    const taskToAdd : Tasks.Task = {
       title: taskToParse[1],
       id: taskToParse[0],
       description: taskToParse[2],
@@ -79,9 +82,11 @@ export default function Index() {
     return taskToAdd;
   }
 
-  //TODO: REFACTOR THIS TO USE A BACKEND LOOP OF STUFF. THIS WHOLE SECTION BELOW WILL BE TOSSED.
-  async function getTasksForGroup(_groupID : Number) : Promise<Number[]>{
-    try{
+  /**
+   * Gets the IDs for all tasks in a given group.
+   */
+  async function getTaskIDsForGroup(_groupID : number) : Promise<number[]>{
+    try {
       console.log("Getting GroupTasks...");
       const response = await fetch(GroupTaskURL, {
           method : 'GET',
@@ -90,7 +95,7 @@ export default function Index() {
             grouptaskgroup : _groupID.toString()
           }
       });
-      if(!response.ok){
+      if (!response.ok) {
         throw new Error(`ERROR: STATUS: ${response.status}`);
       }
       const json = await response.json();
@@ -103,12 +108,15 @@ export default function Index() {
 
 
       return json;
-    }catch (error) {
+    } catch (error) {
       console.error("Failed to get tasks for group", error);
       throw new Error("Failed to fetch tasks for group");
     }
   }
 
+  /**
+   * Deletes ***ALL*** groups.
+   */
   const remove = async () => {
     //DELETE ALL GROUPS (HEAVY OPS)
     setGroups([]);
@@ -125,15 +133,23 @@ export default function Index() {
     groupsContainer: {
       width: '100%',
       marginTop: 10,
+    },
+    buttonRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      width: "100%",
+      paddingHorizontal: 10,
+      marginBottom: 10
     }
-  })
+  });
   
   //Return render of groups page
   return (
     <View style={styles.container}>
   
       {/* 🔹 Button Row - Centered with Sort By on the Right */}
-      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", width: "100%", paddingHorizontal: 10, marginBottom: 10 }}>
+      <View style={styles.buttonRow}>
   
         {/* Smaller Action Buttons - Centered */}
         <View style={{ flexDirection: "row", gap: 10 }}>
@@ -157,13 +173,13 @@ export default function Index() {
             <Menu.Item onPress={() => setSortBy("size")} title="Size" />
           </Menu>
           {/* 🔹 Group List */}
-      <FlatList 
-        style={styles.groupsContainer} 
-        data={groups}  
-        renderItem={({ item }) => <GroupView group={item} id={item.id} />}
-        showsHorizontalScrollIndicator={false}
-      />
-      </View>
+          <FlatList 
+            style={styles.groupsContainer} 
+            data={groups}  
+            renderItem={({ item }) => <GroupView group={item} id={item.id} />}
+            showsHorizontalScrollIndicator={false}
+          />
+        </View>
       </View>
     </View>
   );

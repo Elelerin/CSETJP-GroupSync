@@ -4,15 +4,14 @@ import * as Tasks from "@/services/tasks";
 import { View, StyleSheet } from "react-native";
 import { Button, Card, Text } from "react-native-paper";
 
-var UserURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/User"
-var TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
+const UserURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/User"
+// is this unecessary or just unused for now?
+const TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
 
 
 export default function Settings() {
 
   return (
-    
-
     <View style={styles.container}>
       {/* Title */}
       <Text variant="headlineLarge" style={styles.title}>
@@ -56,9 +55,13 @@ export default function Settings() {
   );
 }
 
-function registerUser(_userID : string, _username : string, _password : string){ 
+/**
+ * Creates and adds a user account.
+ * @param _userID Should this be a number?
+ */
+function registerUser(_userID: string, _username: string, _password: string) { 
   return async () => {
-    try{
+    try {
       const response = await fetch(UserURL, {
         method : 'POST',
         body: JSON.stringify({
@@ -66,23 +69,23 @@ function registerUser(_userID : string, _username : string, _password : string){
           username : _username,
           pword : _password 
         })
-      })
+      });
 
-      if(!response.ok){
+      if (!response.ok) {
         throw new Error("USER CREATION ERROR");
       }
 
       const json = response;
       console.log(response);
       return json;
-    }catch{
+    } catch {
 
     }
   }
 }
 
 //TEST TASK.
-let t : Tasks.Task ={
+let t: Tasks.Task = {
   id: 0,
   title: "Feed da doro",
   description : "Gotta feed em ",
@@ -90,11 +93,13 @@ let t : Tasks.Task ={
   complete : false
 }
 
-
-
-function getUser(_userID : string){ 
+/**
+ * Gets a user's account from the database.
+ * @param _userID Should this be a number?
+ */
+function getUser(_userID: string) { 
   return async () => {
-    try{
+    try {
       const response = await fetch(UserURL, {
         method : 'GET',
         headers : {
@@ -109,7 +114,7 @@ function getUser(_userID : string){
       const json = response;
       console.log(response);
       return json;
-    }catch{
+    } catch {
 
     }
   }

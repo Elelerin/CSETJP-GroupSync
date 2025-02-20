@@ -122,20 +122,22 @@ export default function TaskCreationModal({ modalVisible, setModalVisible, group
                 theme={paperTheme}
                 size={36}
                 onPress={() => {
-                  var taskToAdd :Tasks.Task = {
+                  const taskToAdd: Tasks.Task = {
                     title: taskName,
                     id: 0,
                     description: taskDesc,
                     
+                    // typescript gets mad here because it thinks dueDate might be undefined; are we
+                    // sure that it won't be by now?
                     dueDate: dueDate,
                     complete: false
                   }
-                  if(groupID !== undefined){
-                    //REGISTER NORMAL TASK TO GROUP
+                  if (groupID !== undefined) {
+                    // REGISTER NORMAL TASK TO GROUP
 
 
-                  }else{
-                    //REGISTER NORMAL TASK TO USER
+                  } else { 
+                    // REGISTER NORMAL TASK TO USER
                     registerTask(taskToAdd, User)
                   }
                   
@@ -149,43 +151,50 @@ export default function TaskCreationModal({ modalVisible, setModalVisible, group
   );
 }
 
-async function registerTask(inputTask : Tasks.Task, userID : string){ 
-  
-    try{
-      let dateToParse = inputTask.dueDate;
-            const pad = (num : Number) => num.toString().padStart(2, '0');
-            const toSend = `${pad(dateToParse.getFullYear())}-${pad(dateToParse.getMonth() + 1)}-${pad(dateToParse.getDate())} ${pad(dateToParse.getHours())}:${pad(dateToParse.getMinutes())}:${pad(dateToParse.getSeconds())}`;
-            console.log(toSend);
+/**
+ * Attempts to add a task to the database.
+ * @param userID Should this be a number?
+ */
+async function registerTask(inputTask: Tasks.Task, userID: string){ 
+    try {
+      const dateToParse = inputTask.dueDate;
+      const pad = (num: Number) => num.toString().padStart(2, '0');
+      const toSend = `${pad(dateToParse.getFullYear())}-${pad(dateToParse.getMonth() + 1)}-${pad(dateToParse.getDate())} ${pad(dateToParse.getHours())}:${pad(dateToParse.getMinutes())}:${pad(dateToParse.getSeconds())}`;
       console.log(toSend);
 
-      let fetchBody = {
+      const fetchBody = {
         taskName : inputTask.title,
         taskDesc : inputTask.description,
         taskAuthor : userID,
         ...(inputTask.dueDate && {dueDate : dateToParse})
       }
-      
       console.log(fetchBody);
+
       const response = await fetch(TaskURL, {
         method : 'POST',
         body: JSON.stringify(fetchBody)
       });
 
-      if(!response.ok){
+      if (!response.ok) {
         throw new Error("Error registering task.");
       }
 
       const json = response;
       console.log(response);
       return json;
-    }catch{
+    } catch {
 
     }
   
 }
 
+/**
+ * Required to make react native paper work. TL;DR, paper uses themes for most of its colors, and
+ * there's no good way to make it use stylesheets instead. Themes seem like they could be better
+ * for colors than stylesheets, so we may want to refactor in the future.
+ */
 const paperTheme = {
-    ...MD3DarkTheme,
+    ...MD3DarkTheme, // use the default theme for anything we don't override
     colors: {
       primary: '#a548e2',
       secondary: '#ffffff',

@@ -5,7 +5,7 @@ import { Provider as PaperProvider } from 'react-native-paper'; // ✅ Import Pa
 
 export default function TabLayout() {
   return (
-    <PaperProvider> 
+    <PaperProvider> {/* required to make react native paper work */}
       <Tabs screenOptions={{
         headerStyle: {
           backgroundColor: useThemeColor("backgroundSecondary"),

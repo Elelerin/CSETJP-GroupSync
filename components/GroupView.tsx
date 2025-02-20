@@ -1,4 +1,4 @@
-import { View, StyleSheet, Text, Pressable } from "react-native"
+import { View, StyleSheet, Text } from "react-native"
 
 import * as Groups from "@/services/groups"
 import { useThemeColor } from "@/hooks/useThemeColor";
@@ -24,6 +24,7 @@ export default function GroupView({ group }: Props) {
             <Text style={styles.textNumTasks}>{group.numTasks} Tasks</Text>
           </View>
 
+          {/* this doesn't work and can probably be removed */}
           <View style={styles.verticalDivider}></View>
 
           <View>
@@ -34,6 +35,7 @@ export default function GroupView({ group }: Props) {
             <View style={styles.nextTaskRow}>
               <Text style={styles.textNextTaskSecondary}>Due: </Text>
               <Text style={styles.textNextTaskPrimary}>
+                {/* typescript says this doesn't exist?? */}
                 {new Date(group.nextTaskDueDate).toLocaleDateString()}
               </Text>
             </View>
@@ -74,6 +76,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "baseline",
   },
+
   // used multiple times in the next task row
   textNextTaskPrimary: {
     color: useThemeColor("textPrimary"),

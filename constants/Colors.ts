@@ -1,4 +1,5 @@
 const Colors = {
+  // TODO: make light theme actually light
   light: {
     textPrimary: '#ffffff',
     textSecondary: '#c3c3c3',

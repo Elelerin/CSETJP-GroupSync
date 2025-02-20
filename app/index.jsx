@@ -6,8 +6,8 @@ import {
   revokeAsync,
   ResponseType,
 } from "expo-auth-session";
-import { View, Alert, Image } from "react-native";
-import { Button, Text, TextInput, ActivityIndicator } from "react-native-paper";
+import { View, Alert } from "react-native";
+import { Button, Text, TextInput } from "react-native-paper";
 import { Redirect, useRouter } from "expo-router";
 
 WebBrowser.maybeCompleteAuthSession();

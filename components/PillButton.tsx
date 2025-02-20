@@ -1,5 +1,4 @@
 import { View, Pressable, StyleSheet } from 'react-native';
-import { Href, Link } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 import { useThemeColor } from '@/hooks/useThemeColor';

@@ -123,26 +123,20 @@ export default function GroupHome() {
     { label: "Assigned to Others", value: "assigned to others" },
     { label: "Unassigned", value: "Unassigned" },
   ];
-
-  const renderItem = (item: { label: string }) => {
-    return (
-      <View style={multiSelectStyles.item}>
-        <Text style={multiSelectStyles.selectedText}>{item.label}</Text>
-        {/* <MaterialIcons style={{marginRight: 5}} color="black" name="shield" size={20} /> */}
-      </View>
-    );
-  };
-
+  
   // required because react native is a PERFECTLY DESIGNED library with NO FLAWS WHATSOEVER
   const selectedIconColor = useThemeColor("textPrimary");
 
   return (
     <View style={styles.pageContainer}>
       <TaskCreationModal modalVisible={modalVisible} setModalVisible={setModalVisible} groupID={ groupID }/>
+      
       <View style={styles.upperColumnContainer}>
         <Card mode="contained" style={styles.titleCard}>
           <Text style={styles.textTitle}>Group {id} name</Text>
         </Card>
+
+        {/* sort direction toggle */}
         <View style={styles.filtersCard}>
           <IconButton
             icon={sortAscending ? "sort-ascending" : "sort-descending"}
@@ -150,6 +144,8 @@ export default function GroupHome() {
             size={36}
             onPress={() => setSortAscending(!sortAscending)}
           />
+
+          {/* sort mode menu */}
           <Dropdown
             style={dropdownStyles.main}
             placeholderStyle={dropdownStyles.placeholder}
@@ -167,6 +163,8 @@ export default function GroupHome() {
               setSortMode(item.value);
             }}
           />
+
+          {/* filter menu */}
           <MultiSelect
             style={multiSelectStyles.main}
             placeholderStyle={multiSelectStyles.placeholder}
@@ -191,6 +189,8 @@ export default function GroupHome() {
               </TouchableOpacity>
             )}
           />
+
+          {/* new task button */}
           <IconButton
             icon={"note-plus"}
             iconColor={useThemeColor("textSecondary")}
@@ -199,7 +199,9 @@ export default function GroupHome() {
           />
         </View>
       </View>
+
       <View style={styles.lowerColumnContainer}>
+        {/* ysers */}
         <Card mode="contained" style={styles.usersCard}>
           <Card.Content>
             <Text style={styles.textSubtitle}>Users</Text>
@@ -210,7 +212,7 @@ export default function GroupHome() {
           </Card.Content>
         </Card>
       
-        
+        {/* task list */}
         <View style={styles.tasksContainer}>
           <FlatList
             data={tasks} 

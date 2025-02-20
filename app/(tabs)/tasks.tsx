@@ -1,5 +1,5 @@
 import { FlatList, View, StyleSheet } from "react-native";
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 
 import * as Tasks from "@/services/tasks";
 import PillButton from '@/components/PillButton'
@@ -15,28 +15,32 @@ export default function Index() {
   const [sortBy, setSortBy] = useState<"name" | "date" | "size">("name");
   const [menuVisible, setMenuVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  var User = 'doro';
+  const User = 'doro';
   const TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
 
-  //TODO: Remove nested 'then' chain-hell. 
   const sortedTasks = [...tasks].sort((a, b) => {
     if (sortBy === "name") return a.title.localeCompare(b.title);
     if (sortBy === "date") return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
     if (sortBy === "size") return (a.description?.length || 0) - (b.description?.length || 0);
     return 0;
   });
+
   const onLoad = async () => {
     getTasks(User);
-    setTasks(await Tasks.getTasks());
+    setTasks(await Tasks.getTasks()); // typescript says this doesn't exist??
   }
 
   function clearTasks() {
     setTasks([]);
   }
   
-  function parseTask(taskToParse: any){
+  /**
+   * Converts a task's database entry to a useable object
+   * @param taskToParse What type is this?
+   */
+  function parseTask(taskToParse: any) {
     console.log(taskToParse);
-    var taskToAdd = {
+    const taskToAdd = {
       title: taskToParse[1],
       id: taskToParse[0],
       description: taskToParse[2],
@@ -49,17 +53,18 @@ export default function Index() {
     return taskToAdd;
   }
 
-  function getTasks(_taskAuthor: string){
-    var toReturn = "ERROR";
+  function getTasks(_taskAuthor: string) {
+    const toReturn = "ERROR";
     return async () => {
       try{
         console.log("Trying");
         
+        // why is all of this unused?
         const response = await fetch(TaskURL, {
-          method : 'GET',
-          mode : 'cors',
-          headers : {
-            taskAuthor : _taskAuthor
+          method: 'GET',
+          mode: 'cors',
+          headers: {
+            taskAuthor: _taskAuthor
           }
         }).then((response) => {
           
@@ -95,7 +100,7 @@ export default function Index() {
         });
         console.log(tasks);
         return toReturn;
-      }catch{
+      } catch{ 
           throw "Darn, response retrieval error";
       }
     };
@@ -105,18 +110,18 @@ export default function Index() {
 //Return render of tasks page
   return (
     <View style={styles.container}>
-  
+      {/* task creation modal - this is invisible until the button is clicked */}
       <TaskCreationModal modalVisible={modalVisible} setModalVisible={setModalVisible}/>
-      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", width: "100%", paddingHorizontal: 10, marginBottom: 10 }}>
-  
-  
+      
+      {/* everything else */}
+      <View style={styles.listContainer}>
         <View style={{ flexDirection: "row", gap: 10 }}>
           <PillButton icon={"download"} onPress={getTasks(User)} />
           <PillButton icon={"trash"} onPress={clearTasks} />
           <PillButton icon={"newItem"} onPress={()=>{setModalVisible(true)}} />
         </View>
   
-        
+        {/* sorting menu */}
         <View style={{ marginLeft: "auto" }}>
           <Menu
             visible={menuVisible}
@@ -132,10 +137,9 @@ export default function Index() {
             <Menu.Item onPress={() => setSortBy("size")} title="Size" />
           </Menu>
         </View>
-  
       </View>
-  
  
+      {/* main task list */}
       <FlatList 
         style={styles.tasksContainer} 
         data={sortedTasks}  
@@ -157,16 +161,7 @@ export default function Index() {
   
     </View>
   );
-  
-
-  
 }
-
-
-
-
-
-
 
 const styles = StyleSheet.create({
   container: {
@@ -175,6 +170,14 @@ const styles = StyleSheet.create({
     backgroundColor: useThemeColor("backgroundPrimary"),
     paddingHorizontal: 20,
     paddingTop: 10,
+  },
+  listContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    paddingHorizontal: 10,
+    marginBottom: 10
   },
   tasksContainer: {
     width: '100%',
