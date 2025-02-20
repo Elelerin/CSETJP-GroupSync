@@ -15,7 +15,7 @@ export default function TaskView({task, onClick}: Props) {
   const [checked, setChecked] = useState(false);
 
   return (
-    <Card mode="contained" style={styles.taskViewContainer}>
+    <Card mode="contained" style={styles.boxContainer}>
       <Card.Content>
         <View style ={styles.titleRow}>
           <Checkbox status={checked ? 'checked' : 'unchecked'}
@@ -33,14 +33,13 @@ export default function TaskView({task, onClick}: Props) {
 }
 
 const styles = StyleSheet.create({
-  taskViewContainer: {
-    marginVertical: 10,
-    width: '100%'
-  },
   boxContainer: {
+    marginVertical: 10,
+    width: '100%',
     flex: 1,
     flexDirection: 'column',
-    backgroundColor: useThemeColor("highlight"),
+    alignContent: "flex-start",
+    backgroundColor: useThemeColor("backgroundSecondary"),
     borderRadius: 15,
     borderColor: useThemeColor("highlight"),
     borderWidth: 3,
