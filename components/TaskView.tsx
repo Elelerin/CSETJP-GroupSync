@@ -6,8 +6,12 @@ import { Card } from 'react-native-paper';
 import React, { PropsWithRef, useState } from 'react';
 import { Checkbox } from 'react-native-paper';
 
+type Props = {
+  task: Tasks.Task,
+  onClick: ()=>void
+};
 
-export const TaskView = ({task, onClick}) => {
+export default function TaskView({task, onClick}: Props) {
   const [checked, setChecked] = useState(false);
 
   return (

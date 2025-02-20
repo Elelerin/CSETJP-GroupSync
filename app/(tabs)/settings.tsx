@@ -1,10 +1,13 @@
 import { useThemeColor } from "@/hooks/useThemeColor";
 import React from "react";
+import * as Tasks from "@/services/tasks";
 import { View, StyleSheet } from "react-native";
 import { Button, Card, Text } from "react-native-paper";
 
 var UserURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/User"
 var TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
+
+
 export default function Settings() {
 
   return (
@@ -22,7 +25,7 @@ export default function Settings() {
           mode="contained"
           buttonColor={useThemeColor("backgroundSecondary")}
           textColor="white"
-          onPress={() => console.log("Change Password")}
+          onPress={() => console.log("Password")}
         >
           Change Password
         </Button>
@@ -54,7 +57,6 @@ export default function Settings() {
 }
 
 function registerUser(_userID : string, _username : string, _password : string){ 
-
   return async () => {
     try{
       const response = await fetch(UserURL, {
@@ -79,30 +81,16 @@ function registerUser(_userID : string, _username : string, _password : string){
   }
 }
 
-function registerTask(_taskName :string, _taskDesc : string, _taskAuthor : string){ 
-  return async () => {
-    try{
-      const response = await fetch(TaskURL, {
-        method : 'POST',
-        body: JSON.stringify({
-          taskName : _taskName,
-          taskDesc : _taskDesc,
-          taskAuthor : _taskAuthor
-        })
-      })
-
-      if(!response.ok){
-        throw new Error("USER CREATION ERROR");
-      }
-
-      const json = response;
-      console.log(response);
-      return json;
-    }catch{
-
-    }
-  }
+//TEST TASK.
+let t : Tasks.Task ={
+  id: 0,
+  title: "Feed da doro",
+  description : "Gotta feed em ",
+  dueDate : new Date(1678886400000),
+  complete : false
 }
+
+
 
 function getUser(_userID : string){ 
   return async () => {
@@ -123,45 +111,6 @@ function getUser(_userID : string){
       return json;
     }catch{
 
-    }
-  }
-}
-function getTask(_taskAuthor){
-  return async () => {
-    try{
-      console.log("Trying");
-      var toReturn;
-      const response = await fetch(TaskURL, {
-        method : 'GET',
-        headers : {
-        taskAuthor : _taskAuthor
-        }
-      }).then((response) => {
-        const reader = response.body.getReader();
-        return new ReadableStream({
-          start(controller){
-            return pump();
-            function pump() : any{
-              return reader.read().then(({done, value}) =>{
-                if(done){
-                  controller.close();
-                  return;
-                }
-                controller.enqueue(value);
-                return pump();
-              })
-            }
-          }
-        })
-      })
-      .then((stream) => new Response(stream))
-      .then((response) => response.json())
-      .then((json) => console.log(json));
-
-
-      return toReturn;
-    }catch{
-        throw "Darn, response retrieval error";
     }
   }
 }
