@@ -60,7 +60,6 @@ export default function Index() {
       const json = await response.json();
 
       let gotGroups: Groups.Group[] = json.map(parseGroup);
-
       setGroups([...groups, ...gotGroups])
       return groups;
     } catch (error) {
