@@ -6,8 +6,8 @@ import * as Tasks from "@/services/tasks";
 import PillButton from '@/components/PillButton'
 import GroupView from "@/components/GroupView";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { useFocusEffect } from "@react-navigation/native";
-import { Button, Menu, Modal, PaperProvider, Portal } from "react-native-paper";
+import { Dropdown } from "react-native-element-dropdown";
+import { Button, Menu } from "react-native-paper";
 
 const User = 'doro';
 const GroupTaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/groupTasks"
@@ -17,7 +17,25 @@ const GroupURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsy
 export default function Index() {
   const [groups, setGroups] = useState<Groups.Group[]>([]);
   const [sortBy, setSortBy] = useState<"name" | "date" | "size">("name");
-  const [menuVisible, setMenuVisible] = useState(false);
+
+  // sort modes and their associated sorting functions
+    const sortModes: { [key: string]: (a: Groups.Group, b: Groups.Group)=>number } = {
+      name: (a, b) => a.title.localeCompare(b.title),
+      date: (a, b) => 0, // TODO: replace this with an actual sorting function
+      size: (a, b) => (a.description.length ?? 0) - (b.description?.length ?? 0)
+    };
+    // moved to a function so it can be re-called whenever the sort mode changes
+    function sortGroups() {
+      // this fallback *should* be impossible
+      return [...groups].sort(sortModes[sortBy] ?? ((a, b) => 0));
+    }
+  
+    // sort mode menu stuff
+    const sortModeMenuData = Object.keys(sortModes).map(
+      i => { return { label: `Sort by ${i}`, value: i }; }
+    );
+  
+    const sortedGroups = sortGroups();
 
   function parseGroup(groupToParse: any) {
     console.log(groupToParse);
@@ -121,28 +139,6 @@ export default function Index() {
     //DELETE ALL GROUPS (HEAVY OPS)
     setGroups([]);
   }
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      alignItems: 'center',
-      backgroundColor: useThemeColor("backgroundPrimary"),
-      paddingHorizontal: 20,
-      paddingTop: 10,
-    },
-    groupsContainer: {
-      width: '100%',
-      marginTop: 10,
-    },
-    buttonRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      width: "100%",
-      paddingHorizontal: 10,
-      marginBottom: 10
-    }
-  });
   
   //Return render of groups page
   return (
@@ -159,19 +155,24 @@ export default function Index() {
   
         {/* Sort By Button - Aligned Right */}
         <View style={{ marginLeft: "auto" }}>
-          <Menu
-            visible={menuVisible}
-            onDismiss={() => setMenuVisible(false)}
-            anchor={
-              <Button mode="contained" onPress={() => setMenuVisible(true)}>
-                Sort By
-              </Button>
-            }
-          >
-            <Menu.Item onPress={() => setSortBy("name")} title="Name" />
-            <Menu.Item onPress={() => setSortBy("date")} title="Date" />
-            <Menu.Item onPress={() => setSortBy("size")} title="Size" />
-          </Menu>
+          <Dropdown
+            style={dropdownStyles.main}
+            placeholderStyle={dropdownStyles.placeholder}
+            selectedTextStyle={dropdownStyles.selectedText}
+            containerStyle={dropdownStyles.container}
+            itemTextStyle={dropdownStyles.itemText}
+            activeColor="transparent"
+            maxHeight={300}
+            labelField="label"
+            valueField="value"
+            placeholder="Color Theme"
+            data={sortModeMenuData}
+            value={sortBy}
+            onChange={item => {
+              setSortBy(item.value);
+              console.log(`Sort groups by ${item.value}`);
+            }}
+          />
           {/* 🔹 Group List */}
           <FlatList 
             style={styles.groupsContainer} 
@@ -185,3 +186,57 @@ export default function Index() {
   );
 }
 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    backgroundColor: useThemeColor("backgroundPrimary"),
+    paddingHorizontal: 20,
+    paddingTop: 10,
+  },
+  groupsContainer: {
+    width: '100%',
+    marginTop: 10,
+  },
+  buttonRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    paddingHorizontal: 10,
+    marginBottom: 10
+  }
+});
+
+const dropdownStyles = StyleSheet.create({
+  main: {
+    marginHorizontal: 12,
+    marginTop: 14,
+    marginBottom: 18,
+    height: 50,
+    borderBottomColor: useThemeColor("highlight"),
+    borderBottomWidth: 2,
+    minWidth: 175
+  },
+  icon: {
+    marginRight: 5,
+  },
+  placeholder: {
+    color: useThemeColor("textSecondary"),
+    fontSize: 18,
+  },
+  selectedText: {
+    color: useThemeColor("textPrimary"),
+    fontSize: 18,
+  },
+  itemText: {
+    color: useThemeColor("textPrimary"),
+    fontSize: 18,
+  },
+  container: {
+    backgroundColor: useThemeColor("backgroundSecondary"),
+    borderRadius: 10,
+    borderColor: useThemeColor("highlight"),
+    borderWidth: 2,
+  },
+});

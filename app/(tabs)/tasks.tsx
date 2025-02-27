@@ -12,24 +12,28 @@ export default function Index() {
   const [selectedTasks, setSelectedTasks] = useState<Number[]>([]);
   const [tasks, setTasks] = useState<Tasks.Task[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [sortBy, setSortBy] = useState<string>("name");
   const User = 'doro';
   const TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
 
-  // sort mode menu stuff
-  const sortModes = [
-    "name",
-    "date",
-    "size"
-  ];
-  const [sortBy, setSortBy] = useState<typeof sortModes[number]>("name");
-  const sortModeMenuData = sortModes.map(i => { return { label: `Sort by ${i}`, value: i }; });
+  // sort modes and their associated sorting functions
+  const sortModes: { [key: string]: (a: Tasks.Task, b: Tasks.Task)=>number } = {
+    name: (a, b) => a.title.localeCompare(b.title),
+    date: (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime(),
+    size: (a, b) => (a.description.length ?? 0) - (b.description?.length ?? 0)
+  };
+  // moved to a function so it can be re-called whenever the sort mode changes
+  function sortTasks() {
+    // this fallback *should* be impossible
+    return [...tasks].sort(sortModes[sortBy] ?? ((a, b) => 0));
+  }
 
-  const sortedTasks = [...tasks].sort((a, b) => {
-    if (sortBy === "name") return a.title.localeCompare(b.title);
-    if (sortBy === "date") return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
-    if (sortBy === "size") return (a.description?.length || 0) - (b.description?.length || 0);
-    return 0;
-  });
+  // sort mode menu stuff
+  const sortModeMenuData = Object.keys(sortModes).map(
+    i => { return { label: `Sort by ${i}`, value: i }; }
+  );
+
+  const sortedTasks = sortTasks();
 
   const onLoad = async () => {
     getTasks(User);
@@ -144,6 +148,7 @@ export default function Index() {
             value={sortBy}
             onChange={item => {
               setSortBy(item.value);
+              console.log(`Sort tasks by ${item.value}`);
             }}
           />
         </View>
