@@ -6,17 +6,23 @@ import PillButton from '@/components/PillButton'
 import TaskView from "@/components/TaskView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import TaskCreationModal from "@/components/TaskCreationModal";
-import { Menu, Button } from "react-native-paper";
+import { Dropdown } from "react-native-element-dropdown";
 
 export default function Index() {
   const [selectedTasks, setSelectedTasks] = useState<Number[]>([]);
   const [tasks, setTasks] = useState<Tasks.Task[]>([]);
-  //sort by button
-  const [sortBy, setSortBy] = useState<"name" | "date" | "size">("name");
-  const [menuVisible, setMenuVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const User = 'doro';
   const TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
+
+  // sort mode menu stuff
+  const sortModes = [
+    "name",
+    "date",
+    "size"
+  ];
+  const [sortBy, setSortBy] = useState<typeof sortModes[number]>("name");
+  const sortModeMenuData = sortModes.map(i => { return { label: `Sort by ${i}`, value: i }; });
 
   const sortedTasks = [...tasks].sort((a, b) => {
     if (sortBy === "name") return a.title.localeCompare(b.title);
@@ -123,19 +129,23 @@ export default function Index() {
   
         {/* sorting menu */}
         <View style={{ marginLeft: "auto" }}>
-          <Menu
-            visible={menuVisible}
-            onDismiss={() => setMenuVisible(false)}
-            anchor={
-              <Button mode="contained" onPress={()=>{setModalVisible(true);}}>
-                Sort By
-              </Button>
-            }
-          >
-            <Menu.Item onPress={() => setSortBy("name")} title="Name" />
-            <Menu.Item onPress={() => setSortBy("date")} title="Date" />
-            <Menu.Item onPress={() => setSortBy("size")} title="Size" />
-          </Menu>
+          <Dropdown
+            style={dropdownStyles.main}
+            placeholderStyle={dropdownStyles.placeholder}
+            selectedTextStyle={dropdownStyles.selectedText}
+            containerStyle={dropdownStyles.container}
+            itemTextStyle={dropdownStyles.itemText}
+            activeColor="transparent"
+            maxHeight={300}
+            labelField="label"
+            valueField="value"
+            placeholder="Color Theme"
+            data={sortModeMenuData}
+            value={sortBy}
+            onChange={item => {
+              setSortBy(item.value);
+            }}
+          />
         </View>
       </View>
  
@@ -183,6 +193,39 @@ const styles = StyleSheet.create({
     width: '100%',
     marginTop: 10,
   }
+});
+
+const dropdownStyles = StyleSheet.create({
+  main: {
+    marginHorizontal: 12,
+    marginTop: 14,
+    marginBottom: 18,
+    height: 50,
+    borderBottomColor: useThemeColor("highlight"),
+    borderBottomWidth: 2,
+    minWidth: 175
+  },
+  icon: {
+    marginRight: 5,
+  },
+  placeholder: {
+    color: useThemeColor("textSecondary"),
+    fontSize: 18,
+  },
+  selectedText: {
+    color: useThemeColor("textPrimary"),
+    fontSize: 18,
+  },
+  itemText: {
+    color: useThemeColor("textPrimary"),
+    fontSize: 18,
+  },
+  container: {
+    backgroundColor: useThemeColor("backgroundSecondary"),
+    borderRadius: 10,
+    borderColor: useThemeColor("highlight"),
+    borderWidth: 2,
+  },
 });
 
 function addToSelectedList(item: Tasks.Task): Tasks.Task {
