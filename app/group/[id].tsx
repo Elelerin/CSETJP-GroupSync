@@ -109,19 +109,19 @@ export default function GroupHome() {
   const [sortAscending, setSortAscending] = useState(true);
   const [sortMode, setSortMode] = useState<string>();
   const sortModeMenuData = [
-    { label: "Name", value: "alphabetical" },
+    { label: "Name",          value: "alphabetical" },
     { label: "Creation Date", value: "creation date" },
-    { label: "Due Date", value: "due date" }
+    { label: "Due Date",      value: "due date" }
   ];
 
   // for filter menu
   const [filters, setFilters] = useState<string[]>([]);
   const filterMenuData = [
-    { label: "Completed", value: "completed" },
-    { label: "Uncompleted", value: "uncompleted" },
-    { label: "Assigned to Me", value: "assigned to me" },
+    { label: "Completed",          value: "completed" },
+    { label: "Uncompleted",        value: "uncompleted" },
+    { label: "Assigned to Me",     value: "assigned to me" },
     { label: "Assigned to Others", value: "assigned to others" },
-    { label: "Unassigned", value: "Unassigned" },
+    { label: "Unassigned",         value: "Unassigned" },
   ];
   
   // required because react native is a PERFECTLY DESIGNED library with NO FLAWS WHATSOEVER
