@@ -46,7 +46,6 @@ export default function GroupHome() {
       const userIds: string[] = await response.json();
       setUsers([...users, ...userIds]);
       console.log(users);
-      return userIds;
     } catch {
 
     }
@@ -231,7 +230,7 @@ export default function GroupHome() {
             icon={"note-plus"}
             iconColor={useThemeColor("textSecondary")}
             size={36}
-            onPress={() => { getGroupUsers(Number(id)); }}
+            onPress={() => { setModalVisible(true); }}
           />
         </View>
       </View>
@@ -243,7 +242,8 @@ export default function GroupHome() {
             <Text style={styles.textSubtitle}>Users</Text>
             <FlatList
               data={users}
-              renderItem={({item}) => <Text style={styles.textContent}>{item.name}</Text>}
+              keyExtractor={(item, index) => index.toString()} // Ensures each item has a unique key
+              renderItem={({ item }) => <Text style={styles.textContent}>{item}</Text>}
               showsHorizontalScrollIndicator={false}/>
           </Card.Content>
         </Card>
