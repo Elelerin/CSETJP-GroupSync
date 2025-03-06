@@ -6,24 +6,34 @@ import PillButton from '@/components/PillButton'
 import TaskView from "@/components/TaskView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import TaskCreationModal from "@/components/TaskCreationModal";
-import { Menu, Button } from "react-native-paper";
+import { Dropdown } from "react-native-element-dropdown";
 
 export default function Index() {
   const [selectedTasks, setSelectedTasks] = useState<Number[]>([]);
   const [tasks, setTasks] = useState<Tasks.Task[]>([]);
-  //sort by button
-  const [sortBy, setSortBy] = useState<"name" | "date" | "size">("name");
-  const [menuVisible, setMenuVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [sortBy, setSortBy] = useState<string>("name");
   const User = 'doro';
   const TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
 
-  const sortedTasks = [...tasks].sort((a, b) => {
-    if (sortBy === "name") return a.title.localeCompare(b.title);
-    if (sortBy === "date") return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
-    if (sortBy === "size") return (a.description?.length || 0) - (b.description?.length || 0);
-    return 0;
-  });
+  // sort modes and their associated sorting functions
+  const sortModes: { [key: string]: (a: Tasks.Task, b: Tasks.Task)=>number } = {
+    name: (a, b) => a.title.localeCompare(b.title),
+    date: (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime(),
+    size: (a, b) => (a.description.length ?? 0) - (b.description?.length ?? 0)
+  };
+  // moved to a function so it can be re-called whenever the sort mode changes
+  function sortTasks() {
+    // this fallback *should* be impossible
+    return [...tasks].sort(sortModes[sortBy] ?? ((a, b) => 0));
+  }
+
+  // sort mode menu stuff
+  const sortModeMenuData = Object.keys(sortModes).map(
+    i => { return { label: `Sort by ${i}`, value: i }; }
+  );
+
+  const sortedTasks = sortTasks();
 
   const onLoad = async () => {
     getTasks(User);
@@ -123,19 +133,24 @@ export default function Index() {
   
         {/* sorting menu */}
         <View style={{ marginLeft: "auto" }}>
-          <Menu
-            visible={menuVisible}
-            onDismiss={() => setMenuVisible(false)}
-            anchor={
-              <Button mode="contained" onPress={()=>{setModalVisible(true);}}>
-                Sort By
-              </Button>
-            }
-          >
-            <Menu.Item onPress={() => setSortBy("name")} title="Name" />
-            <Menu.Item onPress={() => setSortBy("date")} title="Date" />
-            <Menu.Item onPress={() => setSortBy("size")} title="Size" />
-          </Menu>
+          <Dropdown
+            style={dropdownStyles.main}
+            placeholderStyle={dropdownStyles.placeholder}
+            selectedTextStyle={dropdownStyles.selectedText}
+            containerStyle={dropdownStyles.container}
+            itemTextStyle={dropdownStyles.itemText}
+            activeColor="transparent"
+            maxHeight={300}
+            labelField="label"
+            valueField="value"
+            placeholder="Color Theme"
+            data={sortModeMenuData}
+            value={sortBy}
+            onChange={item => {
+              setSortBy(item.value);
+              console.log(`Sort tasks by ${item.value}`);
+            }}
+          />
         </View>
       </View>
  
@@ -183,6 +198,39 @@ const styles = StyleSheet.create({
     width: '100%',
     marginTop: 10,
   }
+});
+
+const dropdownStyles = StyleSheet.create({
+  main: {
+    marginHorizontal: 12,
+    marginTop: 14,
+    marginBottom: 18,
+    height: 50,
+    borderBottomColor: useThemeColor("highlight"),
+    borderBottomWidth: 2,
+    minWidth: 175
+  },
+  icon: {
+    marginRight: 5,
+  },
+  placeholder: {
+    color: useThemeColor("textSecondary"),
+    fontSize: 18,
+  },
+  selectedText: {
+    color: useThemeColor("textPrimary"),
+    fontSize: 18,
+  },
+  itemText: {
+    color: useThemeColor("textPrimary"),
+    fontSize: 18,
+  },
+  container: {
+    backgroundColor: useThemeColor("backgroundSecondary"),
+    borderRadius: 10,
+    borderColor: useThemeColor("highlight"),
+    borderWidth: 2,
+  },
 });
 
 function addToSelectedList(item: Tasks.Task): Tasks.Task {

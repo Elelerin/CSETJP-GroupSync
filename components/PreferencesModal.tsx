@@ -1,14 +1,7 @@
 import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
-import {
-  Button,
-  Modal,
-  Portal,
-  Text,
-  useTheme,
-  Switch,
-  Menu,
-} from "react-native-paper";
+import { Button, Modal, Portal, Text, useTheme, Switch } from "react-native-paper";
+import { Dropdown } from "react-native-element-dropdown";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
 interface ChangePreferencesProps {
@@ -23,14 +16,24 @@ export default function ChangePreferencesModal({
   const theme = useTheme(); // ✅ Get current theme
   const backgroundColor = useThemeColor("backgroundSecondary");
 
+  // add any new languages here
+  const languages = ["English", "Spanish", "French"];
+
   // States for preferences
-  const [selectedTheme, setSelectedTheme] = useState("dark");
-  const [selectedLanguage, setSelectedLanguage] = useState("English");
+  // TODO: initialize these with whatever they're actually set to
+  const [selectedTheme, setSelectedTheme] = useState<"light"|"dark">("dark");
+  const [selectedLanguage, setSelectedLanguage] = useState<typeof languages[number]>("English");
   const [notifications, setNotifications] = useState(true);
 
-  // Dropdown menu state
-  const [themeMenuVisible, setThemeMenuVisible] = useState(false);
-  const [languageMenuVisible, setLanguageMenuVisible] = useState(false);
+  // dropdown stuff
+  // we don't need a variable for whether the menu is visible (the dropdown will handle it on its
+  // own), but we do need one with the different options
+  const themeMenuData = [
+    // the label is what will be displayed on the dropdown
+    { label: "Light Theme", value: "light" },
+    { label: "Dark Theme",  value: "dark" }
+  ];
+  const languageMenuData = languages.map(i => { return { label: `Language: ${i}`, value: i }; });
 
   const handlePreferencesChange = () => {
     console.log("Preferences changed successfully!");
@@ -47,50 +50,42 @@ export default function ChangePreferencesModal({
         <Text style={styles.title}>Change Preferences</Text>
 
         {/* Theme Selection */}
-        <Menu
-          visible={themeMenuVisible}
-          onDismiss={() => setThemeMenuVisible(false)}
-          anchor={
-            <Button
-              mode="outlined"
-              onPress={() => setThemeMenuVisible(true)}
-              style={styles.dropdownButton}
-            >
-              Theme: {selectedTheme}
-            </Button>
-          }
-        >
-          <Menu.Item onPress={() => setSelectedTheme("light")} title="Light" />
-          <Menu.Item onPress={() => setSelectedTheme("dark")} title="Dark" />
-        </Menu>
+        <Dropdown
+          style={dropdownStyles.main}
+          placeholderStyle={dropdownStyles.placeholder}
+          selectedTextStyle={dropdownStyles.selectedText}
+          containerStyle={dropdownStyles.container}
+          itemTextStyle={dropdownStyles.itemText}
+          activeColor="transparent"
+          maxHeight={300}
+          labelField="label"
+          valueField="value"
+          placeholder="Color Theme"
+          data={themeMenuData}
+          value={selectedTheme}
+          onChange={item => {
+            setSelectedTheme(item.value);
+          }}
+        />
 
         {/* Language Selection */}
-        <Menu
-          visible={languageMenuVisible}
-          onDismiss={() => setLanguageMenuVisible(false)}
-          anchor={
-            <Button
-              mode="outlined"
-              onPress={() => setLanguageMenuVisible(true)}
-              style={styles.dropdownButton}
-            >
-              Language: {selectedLanguage}
-            </Button>
-          }
-        >
-          <Menu.Item
-            onPress={() => setSelectedLanguage("English")}
-            title="English"
-          />
-          <Menu.Item
-            onPress={() => setSelectedLanguage("Spanish")}
-            title="Spanish"
-          />
-          <Menu.Item
-            onPress={() => setSelectedLanguage("French")}
-            title="French"
-          />
-        </Menu>
+        <Dropdown
+          style={dropdownStyles.main}
+          placeholderStyle={dropdownStyles.placeholder}
+          selectedTextStyle={dropdownStyles.selectedText}
+          containerStyle={dropdownStyles.container}
+          itemTextStyle={dropdownStyles.itemText}
+          activeColor="transparent"
+          maxHeight={300}
+          labelField="label"
+          valueField="value"
+          placeholder="Language"
+          data={languageMenuData}
+          value={selectedLanguage}
+          onChange={item => {
+            setSelectedLanguage(item.value);
+          }}
+        />
 
         {/* Notifications Toggle */}
         <View style={styles.switchContainer}>
@@ -133,3 +128,37 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 });
+
+const dropdownStyles = StyleSheet.create({
+  main: {
+    marginHorizontal: 12,
+    marginTop: 14,
+    marginBottom: 18,
+    height: 50,
+    borderBottomColor: useThemeColor("highlight"),
+    borderBottomWidth: 2,
+    minWidth: 175
+  },
+  icon: {
+    marginRight: 5,
+  },
+  placeholder: {
+    color: useThemeColor("textSecondary"),
+    fontSize: 20,
+  },
+  selectedText: {
+    color: useThemeColor("textPrimary"),
+    fontSize: 20,
+  },
+  itemText: {
+    color: useThemeColor("textPrimary"),
+    fontSize: 18,
+  },
+  container: {
+    backgroundColor: useThemeColor("backgroundSecondary"),
+    borderRadius: 10,
+    borderColor: useThemeColor("highlight"),
+    borderWidth: 2,
+  },
+});
+
