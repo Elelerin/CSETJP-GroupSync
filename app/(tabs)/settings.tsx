@@ -128,7 +128,7 @@ function getUser(_userID: string) {
         },
       });
 
-      if(!response.ok){
+      if (!response.ok) {
         throw new Error("User retreival error");
       }
 
@@ -142,32 +142,29 @@ function getUser(_userID: string) {
 /**
  * Gets list of users in database as an array of userIDs
  * Will change to be DISPLAYNAMES, but that's all backend stuff. For now, if this is loaded in
- * then you won't need to change anything when I push it. 
+ * then you won't need to change anything when I push it.
  * @param _userID Should this be a number?
  */
-function getGroupUsers(groupID: number) { 
+function getGroupUsers(groupID: number) {
   return async () => {
     try {
       const response = await fetch(UserURL, {
-        method : 'GET',
-        headers : {
-          'usergroupgroup' : groupID.toString();
-        }
+        method: "GET",
+        headers: {
+          usergroupgroup: groupID.toString(),
+        },
       });
 
-      if(!response.ok){
+      if (!response.ok) {
         throw new Error("Group Users Retrieval error");
       }
 
       const json = response;
       console.log(response);
       return json;
-    } catch {
-
-    }
-  }
+    } catch {}
+  };
 }
-
 
 const styles = StyleSheet.create({
   container: {
