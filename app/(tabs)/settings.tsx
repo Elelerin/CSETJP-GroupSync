@@ -117,7 +117,6 @@ let t: Tasks.Task = {
 
 /**
  * Gets a user's account from the database.
- * @param _userID Should this be a number?
  */
 function getUser(_userID: string) {
   return async () => {

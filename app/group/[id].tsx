@@ -8,29 +8,64 @@ import { Dropdown, MultiSelect } from "react-native-element-dropdown";
 import { useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import TaskCreationModal from "@/components/TaskCreationModal";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 
 // temporary, will be replaced later
 interface User {
   name: string
 }
+const UserGroupURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/groupUser"
+/**
+ * Gets list of users in database as an array of userIDs
+ * Will change to be DISPLAYNAMES, but that's all backend stuff. For now, if this is loaded in
+ * then you won't need to change anything when I push it. 
+ */
+ 
 
 export default function GroupHome() {
   const { id } = useLocalSearchParams();
   const groupID = Number(id);
   const [modalVisible, setModalVisible] = useState(false);
+  const [users, setUsers] = useState<string[]>([]);
 
-  // eventually this will be populated with the actual users, but for now i just need a demo
-  const users: User[] = [
-    {
-      name: "Dave"
-    },
-    {
-      name: "Bob"
-    },
-    {
-      name: "Glornax the Destroyer"
+  async function getGroupUsers(groupID: Number) : Promise<string[]>{ 
+    try {
+      console.log("Tset");
+      const response = await fetch(UserGroupURL, {
+        method : 'GET',
+        headers : {
+          'usergroupgroup' : groupID.toString()
+        }
+      });
+
+      if(!response.ok){
+        throw new Error("Group Users Retrieval error");
+      }
+      
+      const userIds: string[] = await response.json();
+      setUsers([...users, ...userIds]);
+      console.log(users);
+    } catch {
+
     }
-  ];
+    throw console.error();
+    
+  }
+  
+  useFocusEffect(
+    useCallback(() => {
+      const fetchUsers = async () => {
+        console.log("TESTING");
+        getGroupUsers(groupID);
+        console.log(users);
+      };
+
+      fetchUsers();
+
+      return () => console.log("Screen is unfocused!"); // Cleanup if needed
+    }, [groupID])
+  );
 
   const tasks: Tasks.Task[] = [
     {
@@ -207,7 +242,8 @@ export default function GroupHome() {
             <Text style={styles.textSubtitle}>Users</Text>
             <FlatList
               data={users}
-              renderItem={({item}) => <Text style={styles.textContent}>{item.name}</Text>}
+              keyExtractor={(item, index) => index.toString()} // Ensures each item has a unique key
+              renderItem={({ item }) => <Text style={styles.textContent}>{item}</Text>}
               showsHorizontalScrollIndicator={false}/>
           </Card.Content>
         </Card>
