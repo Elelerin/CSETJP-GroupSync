@@ -110,8 +110,8 @@ export default function Index() {
         });
         console.log(tasks);
         return toReturn;
-      } catch{ 
-          throw "Darn, response retrieval error";
+      } catch(err : any){ 
+        console.error("Error occurred:", err.message || err);
       }
     };
   }
@@ -128,7 +128,7 @@ export default function Index() {
         <View style={{ flexDirection: "row", gap: 10 }}>
           <PillButton icon={"download"} onPress={getTasks(User)} />
           <PillButton icon={"trash"} onPress={clearTasks} />
-          <PillButton icon={"newItem"} onPress={()=>{setModalVisible(true)}} />
+          <PillButton icon={"plus"} onPress={()=>{setModalVisible(true)}} />
         </View>
   
         {/* sorting menu */}
