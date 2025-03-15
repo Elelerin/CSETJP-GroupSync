@@ -63,55 +63,31 @@ export default function Index() {
     return taskToAdd;
   }
 
-  function getTasks(_taskAuthor: string) {
-    const toReturn = "ERROR";
+  function getTasks(taskAuthor: string) {
     return async () => {
-      try{
-        console.log("Trying");
-        
-        // why is all of this unused?
+      try {
+        console.log("Fetching tasks for user:", taskAuthor);
+
         const response = await fetch(TaskURL, {
           method: 'GET',
-          mode: 'cors',
           headers: {
-            taskAuthor: _taskAuthor
+            'taskAuthor': taskAuthor,
+            'Content-Type': 'application/json'
           }
-        }).then((response) => {
-          
-          if (!response.body) {
-            throw new Error("Response body is null");
-          }
-          const reader = response.body.getReader();
-          return new ReadableStream({
-            start(controller){
-              return pump();
-              function pump(): Promise<void> {
-                return reader.read().then(({done, value}) =>{
-                  if(done){
-                    controller.close();
-                    return;
-                  }
-                  controller.enqueue(value);
-                  return pump();
-                })
-              }
-            }
-          })
-        })
-        .then((stream) => new Response(stream))
-        .then((response) => response.json())
-        .then((json) => {
-          let toPushBack : Tasks.Task[] = [];
-          for(var i = 0; i < json.length; i++){
-             toPushBack.push(parseTask(json[i]));
-          }
-
-          setTasks(tasks.concat(toPushBack));
         });
-        console.log(tasks);
-        return toReturn;
-      } catch(err : any){ 
-        console.error("Error occurred:", err.message || err);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const json = await response.json();
+        console.log("API response:", json);
+
+        const newTasks: Tasks.Task[] = json.map((task: any) => parseTask(task));
+        setTasks(tasks.concat(newTasks));
+        console.log("Updated tasks:", tasks.concat(newTasks));
+      } catch (err: any) {
+        console.error("Error fetching tasks:", err.message || err);
       }
     };
   }
