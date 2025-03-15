@@ -109,7 +109,8 @@ export default function Index() {
           method : 'GET',
           mode : 'cors',
           headers : {
-            grouptaskgroup : _groupID.toString()
+            grouptaskgroup : _groupID.toString(),
+            'Content-Type': 'application/json'
           }
       });
       if (!response.ok) {
