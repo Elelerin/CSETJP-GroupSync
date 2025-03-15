@@ -7,8 +7,10 @@ import PillButton from '@/components/PillButton'
 import GroupView from "@/components/GroupView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Dropdown } from "react-native-element-dropdown";
-import { Button, Menu } from "react-native-paper";
 import ErrorMessage from "@/components/ErrorMessage";
+
+/** Self-explanatory (for testing). */
+const forceGetGroupsCrash = false;
 
 const User = 'doro';
 const GroupTaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/groupTasks"
@@ -18,7 +20,7 @@ const GroupURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsy
 export default function Index() {
   const [groups, setGroups] = useState<Groups.Group[]>([]);
   const [sortBy, setSortBy] = useState<"name" | "date" | "size">("name");
-  const [databaseError, setDatabaseError] = useState<boolean>(true);
+  const [databaseError, setDatabaseError] = useState<boolean>(false);
 
   // sort modes and their associated sorting functions
   const sortModes: { [key: string]: (a: Groups.Group, b: Groups.Group)=>number } = {
@@ -59,9 +61,16 @@ export default function Index() {
   }
 
   /**
-   * Attempts to get all groups that a user is part of.
+   * Attempts to get all groups that a user is part of. If `ForceGetGroupsCrash` is enabled, it
+   * just crashes instead.
    */
-  async function getGroups(_groupOwner: string): Promise<Groups.Group[]>{
+  async function getGroups(_groupOwner: string) {
+    if (forceGetGroupsCrash) {
+      console.error("ERROR: You know what you did.");
+      setDatabaseError(true);
+      return;
+    }
+
     try {
       console.log("Getting Groups...");
 
@@ -73,18 +82,18 @@ export default function Index() {
           }
       });
 
-      if(!response.ok){
+      if (!response.ok) {
         throw new Error(`ERROR: STATUS: ${response.status}`);
       }
 
       const json = await response.json();
 
       let gotGroups: Groups.Group[] = json.map(parseGroup);
-      setGroups([...groups, ...gotGroups])
-      return groups;
+      setGroups([...groups, ...gotGroups]);
+      setDatabaseError(false);
     } catch (error) {
       console.error("Failed to get groups", error);
-      throw new Error("Failed to fetch groups");
+      setDatabaseError(true);
     }
   }
 
@@ -141,58 +150,63 @@ export default function Index() {
     setGroups([]);
   }
 
-  // these are out here so we can swap them if there's a database error
-  const groupFlatList = (
-    <FlatList 
-      style={styles.groupsContainer} 
-      data={groups}  
-      renderItem={({ item }) => <GroupView group={item} id={item.id} />}
-      showsHorizontalScrollIndicator={false}
-    />
-  );
-
   const errorMessage = ErrorMessage({
-    text: "Could not get groups from database."
+    text: "Could not get groups.",
+    // setting this to true (the default is false) will automatically center the message on the
+    // page. for this to work, put the element *outside* of the main container and wrap the entire
+    // thing in a second view
+    fullPage: true
+    // there's also an "icon" property but it defaults to true
   });
-
-  const groupListOrErrorMessage = () => (databaseError ? errorMessage : groupFlatList);
   
   // Return render of groups page
   return (
-    <View style={styles.container}>
-  
-      {/* 🔹 Button Row - Centered with Sort By on the Right */}
-      <View style={styles.buttonRow}>
-  
-        {/* Smaller Action Buttons - Centered */}
-        <View style={{ flexDirection: "row", gap: 10 }}>
-          <PillButton icon={"download"} onPress={() => getGroups(User)}  />
-          <PillButton icon={"trash"} onPress={remove}  />
+    // functions can only return one element, so this has to wrap around both the main page and the
+    // error message. setting flex to 1 is also required to prevent the background from being
+    // completely white, because css is COMPLETELY PERFECT and has NO FLAWS WHATSOEVER.
+    <View style={{ flex: 1 }}>
+      {/* main page container */}
+      <View style={styles.container}>
+        {/* 🔹 Button Row - Centered with Sort By on the Right */}
+        <View style={styles.buttonRow}>
+    
+          {/* Smaller Action Buttons - Centered */}
+          <View style={{ flexDirection: "row", gap: 10 }}>
+            <PillButton icon={"download"} onPress={() => getGroups(User)}  />
+            <PillButton icon={"trash"} onPress={remove}  />
+          </View>
+    
+          {/* Sort By Button - Aligned Right */}
+          <View style={{ marginLeft: "auto" }}>
+            <Dropdown
+              style={dropdownStyles.main}
+              placeholderStyle={dropdownStyles.placeholder}
+              selectedTextStyle={dropdownStyles.selectedText}
+              containerStyle={dropdownStyles.container}
+              itemTextStyle={dropdownStyles.itemText}
+              activeColor="transparent"
+              maxHeight={300}
+              labelField="label"
+              valueField="value"
+              placeholder="Color Theme"
+              data={sortModeMenuData}
+              value={sortBy}
+              onChange={item => {
+                setSortBy(item.value);
+                console.log(`Sort groups by ${item.value}`);
+              }}
+            />
+          </View>
         </View>
-  
-        {/* Sort By Button - Aligned Right */}
-        <View style={{ marginLeft: "auto" }}>
-          <Dropdown
-            style={dropdownStyles.main}
-            placeholderStyle={dropdownStyles.placeholder}
-            selectedTextStyle={dropdownStyles.selectedText}
-            containerStyle={dropdownStyles.container}
-            itemTextStyle={dropdownStyles.itemText}
-            activeColor="transparent"
-            maxHeight={300}
-            labelField="label"
-            valueField="value"
-            placeholder="Color Theme"
-            data={sortModeMenuData}
-            value={sortBy}
-            onChange={item => {
-              setSortBy(item.value);
-              console.log(`Sort groups by ${item.value}`);
-            }}
-          />
-        </View>
+        <FlatList 
+          style={styles.groupsContainer} 
+          data={groups}  
+          renderItem={({ item }) => <GroupView group={item} id={item.id} />}
+          showsHorizontalScrollIndicator={false}
+        />
       </View>
-      {groupListOrErrorMessage()}
+      {/* this must be outside of the main container! */}
+      {databaseError && errorMessage}
     </View>
   );
 }
@@ -205,7 +219,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 10,
   },
-  
   groupsContainer: {
     width: '100%',
     // marginTop: 10,
