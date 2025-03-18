@@ -100,39 +100,6 @@ export default function Index() {
   }
 
   /**
-   * Gets the IDs for all tasks in a given group.
-   */
-  async function getTaskIDsForGroup(_groupID : number) : Promise<number[]>{
-    try {
-      console.log("Getting GroupTasks...");
-      const response = await fetch(GroupTaskURL, {
-          method : 'GET',
-          mode : 'cors',
-          headers : {
-            grouptaskgroup : _groupID.toString(),
-            'Content-Type': 'application/json'
-          }
-      });
-      if (!response.ok) {
-        throw new Error(`ERROR: STATUS: ${response.status}`);
-      }
-      const json = await response.json();
-
-      let taskList = [];
-      for(const o of json){
-        taskList.push(parseTask(o));
-      }
-      console.log(taskList);
-
-
-      return json;
-    } catch (error) {
-      console.error("Failed to get tasks for group", error);
-      throw new Error("Failed to fetch tasks for group");
-    }
-  }
-
-  /**
    * Deletes ***ALL*** groups.
    */
   const remove = async () => {
