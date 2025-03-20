@@ -15,6 +15,8 @@ import { useCallback } from "react";
 interface User {
   name: string
 }
+
+const GroupTaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/groupTasks"
 const UserGroupURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/groupUser"
 /**
  * Gets list of users in database as an array of userIDs
@@ -26,12 +28,60 @@ const UserGroupURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/gro
 export default function GroupHome() {
   const { id } = useLocalSearchParams();
   const groupID = Number(id);
+  const [groupTasks, setGroupTasks] = useState<Tasks.Task[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [users, setUsers] = useState<string[]>([]);
 
+    /**
+     * Converts a task's database entry to a useable object
+     * @param taskToParse What type is this?
+     */
+    function parseTask(taskToParse: any) {
+      console.log(taskToParse);
+      const taskToAdd = {
+        title: taskToParse[1],
+        id: taskToParse[0],
+        description: taskToParse[2],
+        
+        dueDate: taskToParse[4],
+        complete: taskToParse[5]
+      }
+      console.log(taskToAdd);
+
+      return taskToAdd;
+    }
+  /**
+   * Gets the IDs for all tasks in a given group.
+   */
+   async function getTaskIDsForGroup(_groupID : number) : Promise<number[]>{
+    try {
+      console.log("Getting GroupTasks...");
+      const response = await fetch(GroupTaskURL, {
+          method : 'GET',
+          mode : 'cors',
+          headers : {
+            grouptaskgroup : _groupID.toString(),
+            'Content-Type': 'application/json'
+          }
+      });
+      if (!response.ok) {
+        throw new Error(`ERROR: STATUS: ${response.status}`);
+      }
+      const json = await response.json();
+
+      const newTasks: Tasks.Task[] = json.map((task: any) => parseTask(task));
+      setGroupTasks(groupTasks.concat(newTasks));
+      console.log("Updated tasks:", groupTasks.concat(newTasks));
+      return json
+    } catch (error) {
+      console.error("Failed to get tasks for group", error);
+      throw new Error("Failed to fetch tasks for group");
+    }
+  }
+
+
   async function getGroupUsers(groupID: Number) : Promise<string[]>{ 
     try {
-      console.log("Tset");
       const response = await fetch(UserGroupURL, {
         method : 'GET',
         headers : {
@@ -56,9 +106,8 @@ export default function GroupHome() {
   useFocusEffect(
     useCallback(() => {
       const fetchUsers = async () => {
-        console.log("TESTING");
         getGroupUsers(groupID);
-        console.log(users);
+        getTaskIDsForGroup(groupID);
       };
 
       fetchUsers();
@@ -66,79 +115,6 @@ export default function GroupHome() {
       return () => console.log("Screen is unfocused!"); // Cleanup if needed
     }, [groupID])
   );
-
-  const tasks: Tasks.Task[] = [
-    {
-      id: 1,
-      title: "Water plants",
-      description: "Water the plants in the foyer. The spider plant needs two cups of water.",
-      dueDate: new Date("2024-11-26"),
-      complete: false,
-    },
-    {
-      id: 2,
-      title: "Buy holiday gifts",
-      description: "Peter wants a novelty spoon. Maria wants a go kart. Chet wants a portrait of his dog.",
-      dueDate: new Date("2024-12-17"),
-      complete: false,
-    },
-    {
-      id: 3,
-      title: "Hire minions",
-      description: "Consider increasing pay and giving them a health plan this time.",
-      dueDate: new Date("2025-1-18"),
-      complete: false,
-    },
-    {
-      id: 4,
-      title: "Find lair location",
-      description: "A volcano island looks cool and even includes its own natural power source.",
-      dueDate: new Date("2025-3-31"),
-      complete: false,
-    },
-    {
-      id: 5,
-      title: "Pay taxes",
-      description: "Not even supervillains mess with the IRS.",
-      dueDate: new Date("2025-4-15"),
-      complete: false,
-    },
-    {
-      id: 6,
-      title: "Water plants",
-      description: "Water the plants in the foyer. The spider plant needs two cups of water.",
-      dueDate: new Date("2024-11-26"),
-      complete: false,
-    },
-    {
-      id: 7,
-      title: "Buy holiday gifts",
-      description: "Peter wants a novelty spoon. Maria wants a go kart. Chet wants a portrait of his dog.",
-      dueDate: new Date("2024-12-17"),
-      complete: false,
-    },
-    {
-      id: 8,
-      title: "Hire minions",
-      description: "Consider increasing pay and giving them a health plan this time.",
-      dueDate: new Date("2025-1-18"),
-      complete: false,
-    },
-    {
-      id: 9,
-      title: "Find lair location",
-      description: "A volcano island looks cool and even includes its own natural power source.",
-      dueDate: new Date("2025-3-31"),
-      complete: false,
-    },
-    {
-      id: 0,
-      title: "Pay taxes",
-      description: "Not even supervillains mess with the IRS.",
-      dueDate: new Date("2025-4-15"),
-      complete: false,
-    },
-  ];
 
   // for sorting menus
   const [sortAscending, setSortAscending] = useState(true);
@@ -230,7 +206,7 @@ export default function GroupHome() {
             icon={"note-plus"}
             iconColor={useThemeColor("textSecondary")}
             size={36}
-            onPress={() => { setModalVisible(true); }}
+            onPress={() => { setModalVisible(true); setGroupTasks([]); getTaskIDsForGroup(groupID); }}
           />
         </View>
       </View>
@@ -251,7 +227,7 @@ export default function GroupHome() {
         {/* task list */}
         <View style={styles.tasksContainer}>
           <FlatList
-            data={tasks} 
+            data={groupTasks} 
             // onclick currently does nothing - this will need to be changed eventually
             renderItem={({item}) => <TaskView task={item} onClick={()=>{}}/>}
             showsHorizontalScrollIndicator={false}/>

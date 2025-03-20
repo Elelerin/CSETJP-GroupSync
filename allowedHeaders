@@ -1,0 +1,5 @@
+//Tasks
+Content-Type,taskAuthor,taskName,taskDesc,TaskAuthor,dueDate
+
+//Groups
+Content-Type,groupOwner,grouptaskgroup

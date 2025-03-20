@@ -7,7 +7,10 @@ import PillButton from '@/components/PillButton'
 import GroupView from "@/components/GroupView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Dropdown } from "react-native-element-dropdown";
-import { Button, Menu } from "react-native-paper";
+import ErrorMessage from "@/components/ErrorMessage";
+
+/** Self-explanatory (for testing). */
+const forceGetGroupsCrash = false;
 
 const User = 'doro';
 const GroupTaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/groupTasks"
@@ -17,25 +20,26 @@ const GroupURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsy
 export default function Index() {
   const [groups, setGroups] = useState<Groups.Group[]>([]);
   const [sortBy, setSortBy] = useState<"name" | "date" | "size">("name");
+  const [databaseError, setDatabaseError] = useState<boolean>(false);
 
   // sort modes and their associated sorting functions
-    const sortModes: { [key: string]: (a: Groups.Group, b: Groups.Group)=>number } = {
-      name: (a, b) => a.title.localeCompare(b.title),
-      date: (a, b) => 0, // TODO: replace this with an actual sorting function
-      size: (a, b) => (a.description.length ?? 0) - (b.description?.length ?? 0)
-    };
-    // moved to a function so it can be re-called whenever the sort mode changes
-    function sortGroups() {
-      // this fallback *should* be impossible
-      return [...groups].sort(sortModes[sortBy] ?? ((a, b) => 0));
-    }
-  
-    // sort mode menu stuff
-    const sortModeMenuData = Object.keys(sortModes).map(
-      i => { return { label: `Sort by ${i}`, value: i }; }
-    );
-  
-    const sortedGroups = sortGroups();
+  const sortModes: { [key: string]: (a: Groups.Group, b: Groups.Group)=>number } = {
+    name: (a, b) => a.title.localeCompare(b.title),
+    date: (a, b) => 0, // TODO: replace this with an actual sorting function
+    size: (a, b) => (a.description.length ?? 0) - (b.description?.length ?? 0)
+  };
+  // moved to a function so it can be re-called whenever the sort mode changes
+  function sortGroups() {
+    // this fallback *should* be impossible
+    return [...groups].sort(sortModes[sortBy] ?? ((a, b) => 0));
+  }
+
+  // sort mode menu stuff
+  const sortModeMenuData = Object.keys(sortModes).map(
+    i => { return { label: `Sort by ${i}`, value: i }; }
+  );
+
+  const sortedGroups = sortGroups();
 
   function parseGroup(groupToParse: any) {
     console.log(groupToParse);
@@ -47,8 +51,8 @@ export default function Index() {
       numTasks: 0,
       hasNextTask: false,
       /**
-       * Title and due date for the next due task in the group. This will need to be changed once the
-       * backend is actually implemented, but for now I'm just hard-coding things for the demo.
+       * Title and due date for the next due task in the group. This will need to be changed once
+       * the backend is actually implemented, but for now I'm just hard-coding things for the demo.
        */
       nextTaskTitle: "NULL",
     }
@@ -57,9 +61,16 @@ export default function Index() {
   }
 
   /**
-   * Attempts to get all groups that a user is part of.
+   * Attempts to get all groups that a user is part of. If `ForceGetGroupsCrash` is enabled, it
+   * just crashes instead.
    */
-  async function getGroups(_groupOwner: string): Promise<Groups.Group[]>{
+  async function getGroups(_groupOwner: string) {
+    if (forceGetGroupsCrash) {
+      console.error("ERROR: You know what you did.");
+      setDatabaseError(true);
+      return;
+    }
+
     try {
       console.log("Getting Groups...");
 
@@ -71,18 +82,18 @@ export default function Index() {
           }
       });
 
-      if(!response.ok){
+      if (!response.ok) {
         throw new Error(`ERROR: STATUS: ${response.status}`);
       }
 
       const json = await response.json();
 
       let gotGroups: Groups.Group[] = json.map(parseGroup);
-      setGroups([...groups, ...gotGroups])
-      return groups;
+      setGroups([...groups, ...gotGroups]);
+      setDatabaseError(false);
     } catch (error) {
       console.error("Failed to get groups", error);
-      throw new Error("Failed to fetch groups");
+      setDatabaseError(true);
     }
   }
 
@@ -100,87 +111,70 @@ export default function Index() {
   }
 
   /**
-   * Gets the IDs for all tasks in a given group.
-   */
-  async function getTaskIDsForGroup(_groupID : number) : Promise<number[]>{
-    try {
-      console.log("Getting GroupTasks...");
-      const response = await fetch(GroupTaskURL, {
-          method : 'GET',
-          mode : 'cors',
-          headers : {
-            grouptaskgroup : _groupID.toString()
-          }
-      });
-      if (!response.ok) {
-        throw new Error(`ERROR: STATUS: ${response.status}`);
-      }
-      const json = await response.json();
-
-      let taskList = [];
-      for(const o of json){
-        taskList.push(parseTask(o));
-      }
-      console.log(taskList);
-
-
-      return json;
-    } catch (error) {
-      console.error("Failed to get tasks for group", error);
-      throw new Error("Failed to fetch tasks for group");
-    }
-  }
-
-  /**
    * Deletes ***ALL*** groups.
    */
   const remove = async () => {
-    //DELETE ALL GROUPS (HEAVY OPS)
+    // DELETE ALL GROUPS (HEAVY OPS)
     setGroups([]);
   }
+
+  const errorMessage = ErrorMessage({
+    text: "Could not get groups.",
+    // setting this to true (the default is false) will automatically center the message on the
+    // page. for this to work, put the element *outside* of the main container and wrap the entire
+    // thing in a second view
+    fullPage: true
+    // there's also an "icon" property but it defaults to true
+  });
   
-  //Return render of groups page
+  // Return render of groups page
   return (
-    <View style={styles.container}>
-  
-      {/* 🔹 Button Row - Centered with Sort By on the Right */}
-      <View style={styles.buttonRow}>
-  
-        {/* Smaller Action Buttons - Centered */}
-        <View style={{ flexDirection: "row", gap: 10 }}>
-          <PillButton icon={"download"} onPress={() => getGroups(User)}  />
-          <PillButton icon={"trash"} onPress={remove}  />
+    // functions can only return one element, so this has to wrap around both the main page and the
+    // error message. setting flex to 1 is also required to prevent the background from being
+    // completely white, because css is COMPLETELY PERFECT and has NO FLAWS WHATSOEVER.
+    <View style={{ flex: 1 }}>
+      {/* main page container */}
+      <View style={styles.container}>
+        {/* 🔹 Button Row - Centered with Sort By on the Right */}
+        <View style={styles.buttonRow}>
+    
+          {/* Smaller Action Buttons - Centered */}
+          <View style={{ flexDirection: "row", gap: 10 }}>
+            <PillButton icon={"download"} onPress={() => getGroups(User)}  />
+            <PillButton icon={"trash"} onPress={remove}  />
+          </View>
+    
+          {/* Sort By Button - Aligned Right */}
+          <View style={{ marginLeft: "auto" }}>
+            <Dropdown
+              style={dropdownStyles.main}
+              placeholderStyle={dropdownStyles.placeholder}
+              selectedTextStyle={dropdownStyles.selectedText}
+              containerStyle={dropdownStyles.container}
+              itemTextStyle={dropdownStyles.itemText}
+              activeColor="transparent"
+              maxHeight={300}
+              labelField="label"
+              valueField="value"
+              placeholder="Color Theme"
+              data={sortModeMenuData}
+              value={sortBy}
+              onChange={item => {
+                setSortBy(item.value);
+                console.log(`Sort groups by ${item.value}`);
+              }}
+            />
+          </View>
         </View>
-  
-        {/* Sort By Button - Aligned Right */}
-        <View style={{ marginLeft: "auto" }}>
-          <Dropdown
-            style={dropdownStyles.main}
-            placeholderStyle={dropdownStyles.placeholder}
-            selectedTextStyle={dropdownStyles.selectedText}
-            containerStyle={dropdownStyles.container}
-            itemTextStyle={dropdownStyles.itemText}
-            activeColor="transparent"
-            maxHeight={300}
-            labelField="label"
-            valueField="value"
-            placeholder="Color Theme"
-            data={sortModeMenuData}
-            value={sortBy}
-            onChange={item => {
-              setSortBy(item.value);
-              console.log(`Sort groups by ${item.value}`);
-            }}
-          />
-          {/* 🔹 Group List */}
-          <FlatList 
-            style={styles.groupsContainer} 
-            data={groups}  
-            renderItem={({ item }) => <GroupView group={item} id={item.id} />}
-            showsHorizontalScrollIndicator={false}
-          />
-        </View>
+        <FlatList 
+          style={styles.groupsContainer} 
+          data={groups}  
+          renderItem={({ item }) => <GroupView group={item} id={item.id} />}
+          showsHorizontalScrollIndicator={false}
+        />
       </View>
+      {/* this must be outside of the main container! */}
+      {databaseError && errorMessage}
     </View>
   );
 }
@@ -195,7 +189,7 @@ const styles = StyleSheet.create({
   },
   groupsContainer: {
     width: '100%',
-    marginTop: 10,
+    // marginTop: 10,
   },
   buttonRow: {
     flexDirection: "row",
@@ -203,7 +197,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: "100%",
     paddingHorizontal: 10,
-    marginBottom: 10
+    // marginBottom: 10
   }
 });
 
