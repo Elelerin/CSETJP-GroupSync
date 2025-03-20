@@ -206,7 +206,7 @@ export default function GroupHome() {
             icon={"note-plus"}
             iconColor={useThemeColor("textSecondary")}
             size={36}
-            onPress={() => { setModalVisible(true); }}
+            onPress={() => { setModalVisible(true); setGroupTasks([]); getTaskIDsForGroup(groupID); }}
           />
         </View>
       </View>

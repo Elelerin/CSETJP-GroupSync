@@ -66,6 +66,7 @@ export default function Index() {
   function getTasks(taskAuthor: string) {
     return async () => {
       try {
+        clearTasks();
         console.log("Fetching tasks for user:", taskAuthor);
 
         const response = await fetch(TaskURL, {
@@ -102,8 +103,7 @@ export default function Index() {
       {/* everything else */}
       <View style={styles.listContainer}>
         <View style={{ flexDirection: "row", gap: 10 }}>
-          <PillButton icon={"download"} onPress={getTasks(User)} />
-          <PillButton icon={"trash"} onPress={clearTasks} />
+          <PillButton icon={"refresh"} onPress={getTasks(User)} />
           <PillButton icon={"plus"} onPress={()=>{setModalVisible(true)}} />
         </View>
   
