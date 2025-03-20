@@ -1,8 +1,14 @@
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useLocalSearchParams } from "expo-router";
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+} from "react-native";
 import { Card, IconButton } from "react-native-paper";
-import * as Tasks from '@/services/tasks';
+import * as Tasks from "@/services/tasks";
 import TaskView from "@/components/TaskView";
 import { Dropdown, MultiSelect } from "react-native-element-dropdown";
 import { useState } from "react";
@@ -13,15 +19,16 @@ import { useCallback } from "react";
 
 // temporary, will be replaced later
 interface User {
-  name: string
+  name: string;
 }
-const UserGroupURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/groupUser"
+const UserGroupURL =
+  "https://us-east-2cu0pldapg.auth.us-east-2.amazoncognito.com/login?client_id=7lqfc69dea2l377pkc3mnvqvk4&redirect_uri=http://localhost:8081/&response_type=code";
+// "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/groupUser"
 /**
  * Gets list of users in database as an array of userIDs
  * Will change to be DISPLAYNAMES, but that's all backend stuff. For now, if this is loaded in
- * then you won't need to change anything when I push it. 
+ * then you won't need to change anything when I push it.
  */
- 
 
 export default function GroupHome() {
   const { id } = useLocalSearchParams();
@@ -29,30 +36,27 @@ export default function GroupHome() {
   const [modalVisible, setModalVisible] = useState(false);
   const [users, setUsers] = useState<string[]>([]);
 
-  async function getGroupUsers(groupID: Number) : Promise<string[]>{ 
+  async function getGroupUsers(groupID: Number): Promise<string[]> {
     try {
       console.log("Tset");
       const response = await fetch(UserGroupURL, {
-        method : 'GET',
-        headers : {
-          'usergroupgroup' : groupID.toString()
-        }
+        method: "GET",
+        headers: {
+          usergroupgroup: groupID.toString(),
+        },
       });
 
-      if(!response.ok){
+      if (!response.ok) {
         throw new Error("Group Users Retrieval error");
       }
-      
+
       const userIds: string[] = await response.json();
       setUsers([...users, ...userIds]);
       console.log(users);
-    } catch {
-
-    }
+    } catch {}
     throw console.error();
-    
   }
-  
+
   useFocusEffect(
     useCallback(() => {
       const fetchUsers = async () => {
@@ -71,28 +75,32 @@ export default function GroupHome() {
     {
       id: 1,
       title: "Water plants",
-      description: "Water the plants in the foyer. The spider plant needs two cups of water.",
+      description:
+        "Water the plants in the foyer. The spider plant needs two cups of water.",
       dueDate: new Date("2024-11-26"),
       complete: false,
     },
     {
       id: 2,
       title: "Buy holiday gifts",
-      description: "Peter wants a novelty spoon. Maria wants a go kart. Chet wants a portrait of his dog.",
+      description:
+        "Peter wants a novelty spoon. Maria wants a go kart. Chet wants a portrait of his dog.",
       dueDate: new Date("2024-12-17"),
       complete: false,
     },
     {
       id: 3,
       title: "Hire minions",
-      description: "Consider increasing pay and giving them a health plan this time.",
+      description:
+        "Consider increasing pay and giving them a health plan this time.",
       dueDate: new Date("2025-1-18"),
       complete: false,
     },
     {
       id: 4,
       title: "Find lair location",
-      description: "A volcano island looks cool and even includes its own natural power source.",
+      description:
+        "A volcano island looks cool and even includes its own natural power source.",
       dueDate: new Date("2025-3-31"),
       complete: false,
     },
@@ -106,28 +114,32 @@ export default function GroupHome() {
     {
       id: 6,
       title: "Water plants",
-      description: "Water the plants in the foyer. The spider plant needs two cups of water.",
+      description:
+        "Water the plants in the foyer. The spider plant needs two cups of water.",
       dueDate: new Date("2024-11-26"),
       complete: false,
     },
     {
       id: 7,
       title: "Buy holiday gifts",
-      description: "Peter wants a novelty spoon. Maria wants a go kart. Chet wants a portrait of his dog.",
+      description:
+        "Peter wants a novelty spoon. Maria wants a go kart. Chet wants a portrait of his dog.",
       dueDate: new Date("2024-12-17"),
       complete: false,
     },
     {
       id: 8,
       title: "Hire minions",
-      description: "Consider increasing pay and giving them a health plan this time.",
+      description:
+        "Consider increasing pay and giving them a health plan this time.",
       dueDate: new Date("2025-1-18"),
       complete: false,
     },
     {
       id: 9,
       title: "Find lair location",
-      description: "A volcano island looks cool and even includes its own natural power source.",
+      description:
+        "A volcano island looks cool and even includes its own natural power source.",
       dueDate: new Date("2025-3-31"),
       complete: false,
     },
@@ -144,28 +156,32 @@ export default function GroupHome() {
   const [sortAscending, setSortAscending] = useState(true);
   const [sortMode, setSortMode] = useState<string>();
   const sortModeMenuData = [
-    { label: "Name",          value: "alphabetical" },
+    { label: "Name", value: "alphabetical" },
     { label: "Creation Date", value: "creation date" },
-    { label: "Due Date",      value: "due date" }
+    { label: "Due Date", value: "due date" },
   ];
 
   // for filter menu
   const [filters, setFilters] = useState<string[]>([]);
   const filterMenuData = [
-    { label: "Completed",          value: "completed" },
-    { label: "Uncompleted",        value: "uncompleted" },
-    { label: "Assigned to Me",     value: "assigned to me" },
+    { label: "Completed", value: "completed" },
+    { label: "Uncompleted", value: "uncompleted" },
+    { label: "Assigned to Me", value: "assigned to me" },
     { label: "Assigned to Others", value: "assigned to others" },
-    { label: "Unassigned",         value: "Unassigned" },
+    { label: "Unassigned", value: "Unassigned" },
   ];
-  
+
   // required because react native is a PERFECTLY DESIGNED library with NO FLAWS WHATSOEVER
   const selectedIconColor = useThemeColor("textPrimary");
 
   return (
     <View style={styles.pageContainer}>
-      <TaskCreationModal modalVisible={modalVisible} setModalVisible={setModalVisible} groupID={ groupID }/>
-      
+      <TaskCreationModal
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        groupID={groupID}
+      />
+
       <View style={styles.upperColumnContainer}>
         <Card mode="contained" style={styles.titleCard}>
           <Text style={styles.textTitle}>Group {id} name</Text>
@@ -194,7 +210,7 @@ export default function GroupHome() {
             placeholder="None"
             data={sortModeMenuData}
             value={sortMode}
-            onChange={item => {
+            onChange={(item) => {
               setSortMode(item.value);
             }}
           />
@@ -211,15 +227,21 @@ export default function GroupHome() {
             valueField="value"
             data={filterMenuData}
             value={filters}
-            onChange={item => {
-              setFilters(item)
+            onChange={(item) => {
+              setFilters(item);
             }}
             // renderItem={renderItem}
             renderSelectedItem={(item, unSelect) => (
               <TouchableOpacity onPress={() => unSelect && unSelect(item)}>
                 <View style={multiSelectStyles.selected}>
-                  <Text style={multiSelectStyles.selectedText}>{item.label}</Text>
-                  <MaterialIcons color={selectedIconColor} name="delete" size={20} />
+                  <Text style={multiSelectStyles.selectedText}>
+                    {item.label}
+                  </Text>
+                  <MaterialIcons
+                    color={selectedIconColor}
+                    name="delete"
+                    size={20}
+                  />
                 </View>
               </TouchableOpacity>
             )}
@@ -230,7 +252,9 @@ export default function GroupHome() {
             icon={"note-plus"}
             iconColor={useThemeColor("textSecondary")}
             size={36}
-            onPress={() => { setModalVisible(true); }}
+            onPress={() => {
+              setModalVisible(true);
+            }}
           />
         </View>
       </View>
@@ -243,18 +267,24 @@ export default function GroupHome() {
             <FlatList
               data={users}
               keyExtractor={(item, index) => index.toString()} // Ensures each item has a unique key
-              renderItem={({ item }) => <Text style={styles.textContent}>{item}</Text>}
-              showsHorizontalScrollIndicator={false}/>
+              renderItem={({ item }) => (
+                <Text style={styles.textContent}>{item}</Text>
+              )}
+              showsHorizontalScrollIndicator={false}
+            />
           </Card.Content>
         </Card>
-      
+
         {/* task list */}
         <View style={styles.tasksContainer}>
           <FlatList
-            data={tasks} 
+            data={tasks}
             // onclick currently does nothing - this will need to be changed eventually
-            renderItem={({item}) => <TaskView task={item} onClick={()=>{}}/>}
-            showsHorizontalScrollIndicator={false}/>
+            renderItem={({ item }) => (
+              <TaskView task={item} onClick={() => {}} />
+            )}
+            showsHorizontalScrollIndicator={false}
+          />
         </View>
       </View>
     </View>
@@ -267,12 +297,12 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     backgroundColor: useThemeColor("backgroundPrimary"),
     paddingHorizontal: 30,
-    paddingTop: 20
+    paddingTop: 20,
   },
   upperColumnContainer: {
     flexDirection: "row",
     backgroundColor: useThemeColor("backgroundPrimary"),
-    zIndex: 5
+    zIndex: 5,
   },
   lowerColumnContainer: {
     flex: 1,
@@ -297,10 +327,10 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 20,
     flexDirection: "row",
-    alignItems: "center"
+    alignItems: "center",
   },
   multiSelectContainer: {
-    flexDirection: "row"
+    flexDirection: "row",
   },
   usersCard: {
     backgroundColor: useThemeColor("backgroundSecondary"),
@@ -311,7 +341,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     position: "sticky",
     top: 20,
-    marginTop: 9
+    marginTop: 9,
   },
   tasksContainer: {
     flex: 1,
@@ -321,18 +351,18 @@ const styles = StyleSheet.create({
   textTitle: {
     color: useThemeColor("textPrimary"),
     fontWeight: 600,
-    fontSize: 48
+    fontSize: 48,
   },
   textSubtitle: {
     color: useThemeColor("textPrimary"),
     fontWeight: 600,
     fontSize: 36,
-    marginBottom: 5
+    marginBottom: 5,
   },
   textContent: {
     color: useThemeColor("textSecondary"),
     fontSize: 28,
-  }
+  },
 });
 
 const dropdownStyles = StyleSheet.create({
@@ -343,7 +373,7 @@ const dropdownStyles = StyleSheet.create({
     height: 50,
     borderBottomColor: useThemeColor("highlight"),
     borderBottomWidth: 2,
-    minWidth: 175
+    minWidth: 175,
   },
   icon: {
     marginRight: 5,
@@ -376,7 +406,7 @@ const multiSelectStyles = StyleSheet.create({
     height: 50,
     borderBottomColor: useThemeColor("highlight"),
     borderBottomWidth: 2,
-    minWidth: 175
+    minWidth: 175,
   },
   placeholder: {
     color: useThemeColor("textSecondary"),
@@ -385,7 +415,7 @@ const multiSelectStyles = StyleSheet.create({
   selectedText: {
     color: useThemeColor("textPrimary"),
     fontSize: 16,
-    marginRight: 5
+    marginRight: 5,
   },
   icon: {
     width: 20,
@@ -398,7 +428,7 @@ const multiSelectStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 10,
-    paddingVertical: 5
+    paddingVertical: 5,
   },
   container: {
     backgroundColor: useThemeColor("backgroundSecondary"),
@@ -408,9 +438,9 @@ const multiSelectStyles = StyleSheet.create({
   },
   item: {
     padding: 17,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   itemText: {
     color: useThemeColor("textPrimary"),
