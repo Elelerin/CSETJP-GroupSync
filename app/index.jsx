@@ -6,11 +6,12 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../services/firebaseConfig";
 import { loginUser, registerUser } from "../services/firebaseAuthService";
 
+
 export default function Index() {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [isRegistering, setIsRegistering] = useState(false);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -20,26 +21,19 @@ export default function Index() {
   }, []);
 
 
-  const handleSubmit = async () => {
-    if (!email || !password) return Alert.alert("Missing Info", "Enter email & password");
   
-    console.log("Email:", email);
-    console.log("Password:", password);
+  const handleSubmit = async () => {
+    if (!email || !password) {
+      return Alert.alert("Missing Info", "Please enter email and password.");
+    }
   
     setLoading(true);
     try {
-      if (isRegistering) {
-        console.log("Registering...");
-        await registerUser(email, password);
-      } else {
-        console.log("Logging in...");
-        await loginUser(email, password);
-      }
-      console.log("Redirecting to /groups...");
+      await loginUser(email.trim(), password);
       router.push("/groups");
     } catch (error) {
-      console.error("Firebase Auth Error:", error);
-      Alert.alert("Auth Error", error.message || "Something went wrong");
+      console.error("Login Error:", error);
+      Alert.alert("Login failed", error.message);
     } finally {
       setLoading(false);
     }
@@ -53,7 +47,7 @@ export default function Index() {
     <View style={styles.container}>
       <Text style={styles.title}>Welcome to GroupSync</Text>
       <Text style={styles.subtitle}>
-        {isRegistering ? "Create an account" : "Sign in to continue"}
+        { "Sign in to continue"}
       </Text>
 
       <View style={styles.inputContainer}>
@@ -78,16 +72,16 @@ export default function Index() {
           loading={loading}
           style={styles.button}
         >
-          {loading ? "Processing..." : isRegistering ? "Register" : "Login"}
+          {loading ? "Processing..." : "Login"}
         </Button>
 
         <Button
           mode="outlined"
-          onPress={() => setIsRegistering(!isRegistering)}
+          onPress={() => router.push("/register")}
           style={[styles.button, styles.whiteButton]}
           labelStyle={{ color: "#fff" }}
         >
-          {isRegistering ? "Back to Login" : "Create an Account"}
+          {"Create an Account"}
         </Button>
       </View>
     </View>

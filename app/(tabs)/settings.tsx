@@ -7,6 +7,9 @@ import ChangePasswordModal from "@/components/ChangePasswordModal";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import ChangePreferencesModal from "@/components/PreferencesModal";
+import { logoutUser } from "@/services/firebaseAuthService";
+
+const router = useRouter();
 
 const UserURL =
   "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/User";
@@ -20,9 +23,9 @@ export default function Settings() {
   const [isPreferencesVisible, setPreferencesVisible] = useState(false); //for preferences modal
   const router = useRouter(); // for logout page
 
-  const handleLogout = () => {
-    // reutuns   to the login page
-    router.replace("/");
+  const handleLogout = async () => {
+    await logoutUser(); // Firebase signOut
+    router.replace("/"); // redirect to login
   };
   //end mujtaba late night commit
 
