@@ -44,7 +44,7 @@ export default function Settings() {
   };
   // create an element for the sub line
   let subLineContent: (MultiStyledTextItem|MultiStyledTextDivider)[] = [];
-  if (dummyAccount.pronouns) {
+  if (dummyAccount.pronouns && dummyAccount.pronouns !== "") {
     subLineContent.push({
       type: "text",
       content: dummyAccount.pronouns,
@@ -58,7 +58,7 @@ export default function Settings() {
       style: infoStyles.subLineInfo
     });
   }
-  if (dummyAccount.phoneNumber) {
+  if (dummyAccount.phoneNumber && dummyAccount.phoneNumber !== "") {
     subLineContent.push({
       type: "text",
       content: dummyAccount.phoneNumber,
