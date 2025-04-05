@@ -7,7 +7,7 @@ import ChangePasswordModal from "@/components/ChangePasswordModal";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import ChangePreferencesModal from "@/components/PreferencesModal";
-import MultiStyledText, { MultiStyledTextItem } from "@/components/MultiStyledText";
+import MultiStyledText, { MultiStyledTextDivider, MultiStyledTextItem } from "@/components/MultiStyledText";
 
 const UserURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/User";
 // is this unecessary or just unused for now?
@@ -37,35 +37,40 @@ export default function Settings() {
     displayName: "Joe Williams",
     username: "JustASideQuestNPC",
     pronouns: "he/him",
-    phoneNumber: "(314) 159-265",
+    phoneNumber: "(314) 159-2653",
     birthday: new Date("4/20/1969"),
     bio: "Software engineering student and president of D&D club at Oregon Tech. Plays too much " +
          "Titanfall and occasionally writes code."
   };
   // create an element for the sub line
-  let subLineContent: MultiStyledTextItem[] = [];
+  let subLineContent: (MultiStyledTextItem|MultiStyledTextDivider)[] = [];
   if (dummyAccount.pronouns) {
     subLineContent.push({
+      type: "text",
       content: dummyAccount.pronouns,
       style: infoStyles.subLineInfo
     });
   }
   if (dummyAccount.birthday) {
     subLineContent.push({
+      type: "text",
       content: dummyAccount.birthday.toLocaleDateString(),
       style: infoStyles.subLineInfo
     });
   }
   if (dummyAccount.phoneNumber) {
     subLineContent.push({
+      type: "text",
       content: dummyAccount.phoneNumber,
       style: infoStyles.subLineInfo
     });
   }
   if (subLineContent.length > 0) {
-    const divider: MultiStyledTextItem = {
-      content: " // ",
-      style: infoStyles.subLineDivider
+    const divider: MultiStyledTextDivider = {
+      type: "divider",
+      width: 2,
+      color: useThemeColor("highlight"),
+      margin: 5,
     };
     subLineContent = subLineContent.flatMap((i) => [divider, i]).slice(1);
   }
@@ -262,15 +267,12 @@ const infoStyles = StyleSheet.create({
 
   // pronouns, birthday, and/or phone number
   subLine: {
-    fontSize: 16,
     marginBottom: 8
   },
   subLineInfo: {
-    color: useThemeColor("textSecondary")
+    color: useThemeColor("textSecondary"),
+    fontSize: 20
   },
-  subLineDivider: {
-    color: useThemeColor("highlight")
-  }
 });
 
 const settingsStyles = StyleSheet.create({

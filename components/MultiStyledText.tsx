@@ -1,31 +1,54 @@
-import { ReactNode } from "react";
-import { StyleProp, TextStyle, View, ViewStyle } from "react-native";
+import { Fragment, ReactNode } from "react";
+import { ColorValue, StyleProp, TextStyle, View, ViewStyle } from "react-native";
 import { Text } from "react-native-paper";
 
 export interface MultiStyledTextItem {
-    content: ReactNode,
-    style: StyleProp<TextStyle>
+  type: "text",
+  content: ReactNode,
+  style: StyleProp<TextStyle>
 };
+export interface MultiStyledTextDivider {
+  type: "divider",
+  width: number,
+  color: ColorValue,
+  margin: number
+}
 interface MultiStyledTextProps {
-    content: MultiStyledTextItem[],
-    topLevelStyle?: StyleProp<TextStyle>
+  content: (MultiStyledTextItem | MultiStyledTextDivider)[],
+  topLevelStyle?: StyleProp<ViewStyle>
 }
 
 /**
- * A Text component with multiple styles.
+ * A component with multiple styles of text and/or dividers.
  */
 export default function MultiStyledText({ content, topLevelStyle }: MultiStyledTextProps) {
-    if (content.length === 0) { return null; }
-    // mash the top style onto the first content block
-    content[0].style = [content[0].style, topLevelStyle];
-    return getStyledText(content);
-}
+  if (content.length === 0) {
+    return <View style={topLevelStyle}></View>;
+  }
 
-// recursively generates a text component for the first item in a styled text
-function getStyledText(items: MultiStyledTextItem[]) {
-    if (items.length === 0) { return null; }
-    
-    const thisItem = items[0];
-    items.shift();
-    return <Text style={thisItem.style}>{thisItem.content}{getStyledText(items)}</Text>
+  return (
+    <View style={[topLevelStyle, { display: "flex", flexDirection: "row" }]}>
+      {content.map((c) => {
+        if (c.type === "text") {
+          return (
+            <Fragment>
+              <Text style={[c.style, {}]}>{c.content}</Text>
+            </Fragment>
+          );
+        }
+        else {
+          return (
+            <Fragment>
+              <View style={{
+                width: c.width,
+                height: "100%",
+                backgroundColor: c.color,
+                marginHorizontal: c.margin
+              }} />
+            </Fragment>
+          );
+        }
+      })}
+    </View>
+  );
 }
