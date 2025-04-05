@@ -78,12 +78,14 @@ export default function Settings() {
   return (
     <View style={containerStyles.page}>
       <View style={containerStyles.info}>
-        <Text style={infoStyles.displayName}>{dummyAccount.displayName}</Text>
-        <Text style={infoStyles.username}>@{dummyAccount.username}</Text>
-        <MultiStyledText content={subLineContent} topLevelStyle={infoStyles.subLine} />
-        {dummyAccount.bio != null ?
-          <Text style={infoStyles.bioText}>{dummyAccount.bio}</Text> : null
-        }
+        <View style={infoStyles.container}>
+          <Text style={infoStyles.displayName}>{dummyAccount.displayName}</Text>
+          <Text style={infoStyles.username}>@{dummyAccount.username}</Text>
+          <MultiStyledText content={subLineContent} topLevelStyle={infoStyles.subLine} />
+          {dummyAccount.bio != null ?
+            <Text style={infoStyles.bioText}>{dummyAccount.bio}</Text> : null
+          }
+        </View>
       </View>
       <View style={containerStyles.settings}>
         {/* Title */}
@@ -236,8 +238,8 @@ const containerStyles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "center",
     paddingVertical: 20,
-    paddingLeft: 70,
-    paddingRight: 50
+    paddingLeft: 55,
+    paddingRight: 35
   },
   settings: {
     flex: 1,
@@ -248,26 +250,48 @@ const containerStyles = StyleSheet.create({
 });
 
 const infoStyles = StyleSheet.create({
+  container: {
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+    backgroundColor: useThemeColor("backgroundSecondary"),
+    borderWidth: 3,
+    borderRadius: 15,
+    borderColor: useThemeColor("highlight"),
+  },
+
   displayName: {
     color: useThemeColor("textPrimary"),
     fontSize: 60,
+    lineHeight: 66,
     fontWeight: "bold",
-    marginBottom: 0,
+    alignSelf: "flex-start",
+    marginTop: 0,
+    marginBottom: 7,
+    borderBottomWidth: 2,
+    borderBottomColor: useThemeColor("highlight")
   },
   username: {
     color: useThemeColor("textSecondary"),
     fontSize: 20,
-    marginBottom: 8
+    alignSelf: "flex-start",
+    marginBottom: 7,
+    paddingBottom: 7,
+    borderBottomWidth: 2,
+    borderBottomColor: useThemeColor("highlight")
   },
   bioText: {
     color: useThemeColor("textPrimary"),
-    fontSize: 16,
-    marginBottom: 8
+    fontSize: 18,
+    marginBottom: 8,
   },
 
   // pronouns, birthday, and/or phone number
   subLine: {
-    marginBottom: 8
+    alignSelf: "flex-start",
+    marginBottom: 7,
+    paddingBottom: 7,
+    borderBottomWidth: 2,
+    borderBottomColor: useThemeColor("highlight")
   },
   subLineInfo: {
     color: useThemeColor("textSecondary"),

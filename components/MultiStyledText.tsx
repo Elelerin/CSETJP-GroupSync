@@ -23,7 +23,7 @@ interface MultiStyledTextProps {
  */
 export default function MultiStyledText({ content, topLevelStyle }: MultiStyledTextProps) {
   if (content.length === 0) {
-    return <View style={topLevelStyle}></View>;
+    return null;
   }
 
   return (
