@@ -320,3 +320,19 @@ const infoStyles = StyleSheet.create({
     fontSize: 20,
   },
 });
+
+const settingsStyles = StyleSheet.create({
+  title: {
+    color: useThemeColor("textPrimary"),
+    marginBottom: 20,
+  },
+  card: {
+    width: "80%",
+    marginBottom: 10,
+    backgroundColor: "transparent",
+    borderColor: useThemeColor("highlight"),
+    borderWidth: 2,
+    // guarantees the card will conform to the buttons
+    borderRadius: 1000,
+  },
+});
