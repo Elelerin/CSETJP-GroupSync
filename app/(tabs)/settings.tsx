@@ -8,6 +8,8 @@ import { useState } from "react";
 import { useRouter } from "expo-router";
 import ChangePreferencesModal from "@/components/PreferencesModal";
 import MultiStyledText, { MultiStyledTextDivider, MultiStyledTextItem } from "@/components/MultiStyledText";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 
 const UserURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/User";
 // is this unecessary or just unused for now?
@@ -20,48 +22,62 @@ interface AccountInfo {
   phoneNumber?: string, // will this be a string or a number internally?
   birthday?: Date,
   pronouns?: string,
-  bio?: string
+  description?: string
 }
 
 export default function Settings() {
   const [isModalVisible, setModalVisible] = useState(false); // for change password modal
   const [isPreferencesVisible, setPreferencesVisible] = useState(false); // for preferences modal
-  const router = useRouter(); // for logout page
 
-  const handleLogout = () => {
-    // returns to the login page
-    router.replace("/");
-  };
-
-  const dummyAccount: AccountInfo = {
+  
+  const [userData, setUserData] = useState<AccountInfo | null>({
     displayName: "Joe Williams",
     username: "JustASideQuestNPC",
     pronouns: "he/him",
     phoneNumber: "(314) 159-2653",
     birthday: new Date("4/20/1969"),
-    bio: "Software engineering student and president of D&D club at Oregon Tech. Plays too much " +
-         "Titanfall and occasionally writes code."
+    description: "Software engineering student and president of D&D club at Oregon Tech. Plays too much Titanfall and occasionally writes code."
+  });
+  const router = useRouter(); // for logout page
+  const handleLogout = () => {
+    // returns to the login page
+    router.replace("/");
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchUsers = async () => {
+          getUser("doro");
+      };
+
+      fetchUsers();
+
+      return () => console.log("Screen is unfocused!"); // Cleanup if needed
+    }, [])
+  );
+
+
+
   // create an element for the sub line
   let subLineContent: (MultiStyledTextItem|MultiStyledTextDivider)[] = [];
-  if (dummyAccount.pronouns && dummyAccount.pronouns !== "") {
+  if (userData.pronouns && userData.pronouns !== "") {
     subLineContent.push({
       type: "text",
-      content: dummyAccount.pronouns,
+      content: userData.pronouns,
       style: infoStyles.subLineInfo
     });
   }
-  if (dummyAccount.birthday) {
+  if (userData.birthday) {
     subLineContent.push({
       type: "text",
-      content: dummyAccount.birthday.toLocaleDateString(),
+      content: userData.birthday.toLocaleDateString(),
       style: infoStyles.subLineInfo
     });
   }
-  if (dummyAccount.phoneNumber && dummyAccount.phoneNumber !== "") {
+  if (userData.phoneNumber && userData.phoneNumber !== "") {
     subLineContent.push({
       type: "text",
-      content: dummyAccount.phoneNumber,
+      content: userData.phoneNumber,
       style: infoStyles.subLineInfo
     });
   }
@@ -79,11 +95,11 @@ export default function Settings() {
     <View style={containerStyles.page}>
       <View style={containerStyles.info}>
         <View style={infoStyles.container}>
-          <Text style={infoStyles.displayName}>{dummyAccount.displayName}</Text>
-          <Text style={infoStyles.username}>@{dummyAccount.username}</Text>
+          <Text style={infoStyles.displayName}>{userData.displayName}</Text>
+          <Text style={infoStyles.username}>@{userData.username}</Text>
           <MultiStyledText content={subLineContent} topLevelStyle={infoStyles.subLine} />
-          {dummyAccount.bio != null ?
-            <Text style={infoStyles.bioText}>{dummyAccount.bio}</Text> : null
+          {userData.description != null ?
+            <Text style={infoStyles.bioText}>{userData.description}</Text> : null
           }
         </View>
       </View>
@@ -102,6 +118,17 @@ export default function Settings() {
             onPress={() => setModalVisible(true)}
           >
             Change Password
+          </Button>
+        </Card>
+
+        <Card mode="outlined" style={settingsStyles.card}>
+          <Button
+            mode="contained"
+            buttonColor={useThemeColor("backgroundSecondary")}
+            textColor="white"
+            onPress={getUser("doro")}
+          >
+            USERTEST
           </Button>
         </Card>
 
@@ -138,6 +165,45 @@ export default function Settings() {
       </View>
     </View>
   );
+
+  /**
+ * Gets a user's account from the database.
+ */
+function getUser(_userID: string) {
+  return async () => {
+    try {
+      console.log("Getting userid.");
+      const response = await fetch(UserURL, {
+        method: 'GET',
+        headers: {
+          'userID': _userID,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const json = await response.json();
+      console.log("API response:", json);
+      const mappedAccount: AccountInfo = {
+        displayName: json.displayName || "Joe Williams",  // Fallback to default if not present
+        username: json.userID || "JustASideQuestNPC",
+        pronouns: json.pronouns || "he/him",
+        phoneNumber: json.phoneNumber || "(314) 159-2653",
+        birthday: json.birthday ? new Date(json.birthday) : new Date("4/20/1969"),
+        description: json.description || "Software engineering student and president of D&D club at Oregon Tech. Plays too much Titanfall and occasionally writes code."
+      };
+      setUserData(mappedAccount);
+      console.log(mappedAccount);
+      return mappedAccount;
+    } catch (err: any) {
+      console.error("Error fetching userData:", err.message || err);
+    }
+  };
+}
+
 }
 
 /**
@@ -161,44 +227,14 @@ function registerUser(_userID: string, _username: string, _password: string) {
       }
 
       const json = response;
+
       console.log(response);
       return json;
     } catch {}
   };
 }
 
-//TEST TASK.
-let t: Tasks.Task = {
-  id: 0,
-  title: "Feed da doro",
-  description: "Gotta feed em ",
-  dueDate: new Date(1678886400000),
-  complete: false,
-};
 
-/**
- * Gets a user's account from the database.
- */
-function getUser(_userID: string) {
-  return async () => {
-    try {
-      const response = await fetch(UserURL, {
-        method: "GET",
-        headers: {
-          userID: _userID,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("User retreival error");
-      }
-
-      const json = response;
-      console.log(response);
-      return json;
-    } catch {}
-  };
-}
 
 /**
  * Gets list of users in database as an array of userIDs
@@ -221,7 +257,7 @@ function getGroupUsers(groupID: number) {
       }
 
       const json = response;
-      console.log(response);
+      console.log(json);
       return json;
     } catch {}
   };
