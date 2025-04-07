@@ -7,20 +7,38 @@ import ChangePasswordModal from "@/components/ChangePasswordModal";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import ChangePreferencesModal from "@/components/PreferencesModal";
-import MultiStyledText, { MultiStyledTextDivider, MultiStyledTextItem } from "@/components/MultiStyledText";
+import { logoutUser } from "@/services/firebaseAuthService";
+import MultiStyledText, {
+  MultiStyledTextDivider,
+  MultiStyledTextItem,
+} from "@/components/MultiStyledText";
 
-const UserURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/User";
+const router = useRouter();
+
+const UserURL =
+  "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/User";
 // is this unecessary or just unused for now?
-const TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction";
+const TaskURL =
+  "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction";
 
 interface AccountInfo {
-  displayName: string, // the display name is (eventually) configurable in the settings
-  username: string,
+  displayName: string; // the display name is (eventually) configurable in the settings
+  username: string;
   // i'm assuming none of these are required when creating an account
-  phoneNumber?: string, // will this be a string or a number internally?
-  birthday?: Date,
-  pronouns?: string,
-  bio?: string
+  phoneNumber?: string; // will this be a string or a number internally?
+  birthday?: Date;
+  pronouns?: string;
+  bio?: string;
+}
+
+interface AccountInfo {
+  displayName: string; // the display name is (eventually) configurable in the settings
+  username: string;
+  // i'm assuming none of these are required when creating an account
+  phoneNumber?: string; // will this be a string or a number internally?
+  birthday?: Date;
+  pronouns?: string;
+  bio?: string;
 }
 
 export default function Settings() {
@@ -28,8 +46,8 @@ export default function Settings() {
   const [isPreferencesVisible, setPreferencesVisible] = useState(false); // for preferences modal
   const router = useRouter(); // for logout page
 
-  const handleLogout = () => {
-    // returns to the login page
+  const handleLogout = async () => {
+    await logoutUser(); // Firebase signOut
     router.replace("/");
   };
 
@@ -39,30 +57,31 @@ export default function Settings() {
     pronouns: "he/him",
     phoneNumber: "(314) 159-2653",
     birthday: new Date("4/20/1969"),
-    bio: "Software engineering student and president of D&D club at Oregon Tech. Plays too much " +
-         "Titanfall and occasionally writes code."
+    bio:
+      "Software engineering student and president of D&D club at Oregon Tech. Plays too much " +
+      "Titanfall and occasionally writes code.",
   };
   // create an element for the sub line
-  let subLineContent: (MultiStyledTextItem|MultiStyledTextDivider)[] = [];
+  let subLineContent: (MultiStyledTextItem | MultiStyledTextDivider)[] = [];
   if (dummyAccount.pronouns && dummyAccount.pronouns !== "") {
     subLineContent.push({
       type: "text",
       content: dummyAccount.pronouns,
-      style: infoStyles.subLineInfo
+      style: infoStyles.subLineInfo,
     });
   }
   if (dummyAccount.birthday) {
     subLineContent.push({
       type: "text",
       content: dummyAccount.birthday.toLocaleDateString(),
-      style: infoStyles.subLineInfo
+      style: infoStyles.subLineInfo,
     });
   }
   if (dummyAccount.phoneNumber && dummyAccount.phoneNumber !== "") {
     subLineContent.push({
       type: "text",
       content: dummyAccount.phoneNumber,
-      style: infoStyles.subLineInfo
+      style: infoStyles.subLineInfo,
     });
   }
   if (subLineContent.length > 0) {
@@ -81,10 +100,13 @@ export default function Settings() {
         <View style={infoStyles.container}>
           <Text style={infoStyles.displayName}>{dummyAccount.displayName}</Text>
           <Text style={infoStyles.username}>@{dummyAccount.username}</Text>
-          <MultiStyledText content={subLineContent} topLevelStyle={infoStyles.subLine} />
-          {dummyAccount.bio != null ?
-            <Text style={infoStyles.bioText}>{dummyAccount.bio}</Text> : null
-          }
+          <MultiStyledText
+            content={subLineContent}
+            topLevelStyle={infoStyles.subLine}
+          />
+          {dummyAccount.bio != null ? (
+            <Text style={infoStyles.bioText}>{dummyAccount.bio}</Text>
+          ) : null}
         </View>
       </View>
       <View style={containerStyles.settings}>
@@ -231,7 +253,7 @@ const containerStyles = StyleSheet.create({
   page: {
     flex: 1,
     backgroundColor: useThemeColor("backgroundPrimary"), // Match dark theme
-    flexDirection: "row"
+    flexDirection: "row",
   },
   info: {
     flex: 1,
@@ -239,7 +261,7 @@ const containerStyles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 20,
     paddingLeft: 55,
-    paddingRight: 35
+    paddingRight: 35,
   },
   settings: {
     flex: 1,
@@ -268,7 +290,7 @@ const infoStyles = StyleSheet.create({
     marginTop: 0,
     marginBottom: 7,
     borderBottomWidth: 2,
-    borderBottomColor: useThemeColor("highlight")
+    borderBottomColor: useThemeColor("highlight"),
   },
   username: {
     color: useThemeColor("textSecondary"),
@@ -277,7 +299,7 @@ const infoStyles = StyleSheet.create({
     marginBottom: 7,
     paddingBottom: 7,
     borderBottomWidth: 2,
-    borderBottomColor: useThemeColor("highlight")
+    borderBottomColor: useThemeColor("highlight"),
   },
   bioText: {
     color: useThemeColor("textPrimary"),
@@ -291,26 +313,10 @@ const infoStyles = StyleSheet.create({
     marginBottom: 7,
     paddingBottom: 7,
     borderBottomWidth: 2,
-    borderBottomColor: useThemeColor("highlight")
+    borderBottomColor: useThemeColor("highlight"),
   },
   subLineInfo: {
     color: useThemeColor("textSecondary"),
-    fontSize: 20
-  },
-});
-
-const settingsStyles = StyleSheet.create({
-  title: {
-    color: useThemeColor("textPrimary"),
-    marginBottom: 20,
-  },
-  card: {
-    width: "80%",
-    marginBottom: 10,
-    backgroundColor: "transparent",
-    borderColor: useThemeColor("highlight"),
-    borderWidth: 2,
-    // guarantees the card will conform to the buttons
-    borderRadius: 1000,
+    fontSize: 20,
   },
 });
