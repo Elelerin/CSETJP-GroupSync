@@ -1,56 +1,41 @@
 import { FlatList, View, StyleSheet } from "react-native";
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import * as Tasks from "@/services/tasks";
 import PillButton from '@/components/PillButton'
 import TaskView from "@/components/TaskView";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import TaskCreationModal from "@/components/TaskCreationModal";
-import { Dropdown } from "react-native-element-dropdown";
+
+import { Menu, Button } from "react-native-paper";
 
 export default function Index() {
-  const [selectedTasks, setSelectedTasks] = useState<Number[]>([]);
+  const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
   const [tasks, setTasks] = useState<Tasks.Task[]>([]);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [sortBy, setSortBy] = useState<string>("name");
-  const User = 'doro';
+  //sort by button
+  const [sortBy, setSortBy] = useState<"name" | "date" | "size">("name");
+  const [menuVisible, setMenuVisible] = useState(false);
+  var User = 'doro';
   const TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
 
-  // sort modes and their associated sorting functions
-  const sortModes: { [key: string]: (a: Tasks.Task, b: Tasks.Task)=>number } = {
-    name: (a, b) => a.title.localeCompare(b.title),
-    date: (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime(),
-    size: (a, b) => (a.description.length ?? 0) - (b.description?.length ?? 0)
-  };
-  // moved to a function so it can be re-called whenever the sort mode changes
-  function sortTasks() {
-    // this fallback *should* be impossible
-    return [...tasks].sort(sortModes[sortBy] ?? ((a, b) => 0));
-  }
-
-  // sort mode menu stuff
-  const sortModeMenuData = Object.keys(sortModes).map(
-    i => { return { label: `Sort by ${i}`, value: i }; }
-  );
-
-  const sortedTasks = sortTasks();
-
+  //TODO: Remove nested 'then' chain-hell. 
+  const sortedTasks = [...tasks].sort((a, b) => {
+    if (sortBy === "name") return a.title.localeCompare(b.title);
+    if (sortBy === "date") return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+    if (sortBy === "size") return (a.description?.length || 0) - (b.description?.length || 0);
+    return 0;
+  });
   const onLoad = async () => {
     getTasks(User);
-    setTasks(await Tasks.getTasks()); // typescript says this doesn't exist??
+    setTasks(await Tasks.getTasks());
   }
 
   function clearTasks() {
     setTasks([]);
   }
   
-  /**
-   * Converts a task's database entry to a useable object
-   * @param taskToParse What type is this?
-   */
-  function parseTask(taskToParse: any) {
+  function parseTask(taskToParse: any){
     console.log(taskToParse);
-    const taskToAdd = {
+    var taskToAdd = {
       title: taskToParse[1],
       id: taskToParse[0],
       description: taskToParse[2],
@@ -63,32 +48,54 @@ export default function Index() {
     return taskToAdd;
   }
 
-  function getTasks(taskAuthor: string) {
+  function getTasks(_taskAuthor: string){
+    var toReturn = "ERROR";
     return async () => {
-      try {
-        clearTasks();
-        console.log("Fetching tasks for user:", taskAuthor);
-
+      try{
+        console.log("Trying");
+        
         const response = await fetch(TaskURL, {
-          method: 'GET',
-          headers: {
-            'taskAuthor': taskAuthor,
-            'Content-Type': 'application/json'
+          method : 'GET',
+          mode : 'cors',
+          headers : {
+            taskAuthor : _taskAuthor
           }
+        }).then((response) => {
+          
+          if (!response.body) {
+            throw new Error("Response body is null");
+          }
+          const reader = response.body.getReader();
+          return new ReadableStream({
+            start(controller){
+              return pump();
+              function pump(): Promise<void> {
+                return reader.read().then(({done, value}) =>{
+                  if(done){
+                    controller.close();
+                    return;
+                  }
+                  controller.enqueue(value);
+                  return pump();
+                })
+              }
+            }
+          })
+        })
+        .then((stream) => new Response(stream))
+        .then((response) => response.json())
+        .then((json) => {
+          let toPushBack : Tasks.Task[] = [];
+          for(var i = 0; i < json.length; i++){
+             toPushBack.push(parseTask(json[i]));
+          }
+
+          setTasks(tasks.concat(toPushBack));
         });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const json = await response.json();
-        console.log("API response:", json);
-
-        const newTasks: Tasks.Task[] = json.map((task: any) => parseTask(task));
-        setTasks(tasks.concat(newTasks));
-        console.log("Updated tasks:", tasks.concat(newTasks));
-      } catch (err: any) {
-        console.error("Error fetching tasks:", err.message || err);
+        console.log(tasks);
+        return toReturn;
+      }catch{
+          throw "Darn, response retrieval error";
       }
     };
   }
@@ -97,40 +104,36 @@ export default function Index() {
 //Return render of tasks page
   return (
     <View style={styles.container}>
-      {/* task creation modal - this is invisible until the button is clicked */}
-      <TaskCreationModal modalVisible={modalVisible} setModalVisible={setModalVisible}/>
-      
-      {/* everything else */}
-      <View style={styles.listContainer}>
+  
+     
+      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", width: "100%", paddingHorizontal: 10, marginBottom: 10 }}>
+  
+  
         <View style={{ flexDirection: "row", gap: 10 }}>
-          <PillButton icon={"refresh"} onPress={getTasks(User)} />
-          <PillButton icon={"plus"} onPress={()=>{setModalVisible(true)}} />
+          <PillButton icon={"download"} onPress={getTasks(User)} />
+          <PillButton icon={"trash"} onPress={clearTasks} />
         </View>
   
-        {/* sorting menu */}
+        
         <View style={{ marginLeft: "auto" }}>
-          <Dropdown
-            style={dropdownStyles.main}
-            placeholderStyle={dropdownStyles.placeholder}
-            selectedTextStyle={dropdownStyles.selectedText}
-            containerStyle={dropdownStyles.container}
-            itemTextStyle={dropdownStyles.itemText}
-            activeColor="transparent"
-            maxHeight={300}
-            labelField="label"
-            valueField="value"
-            placeholder="Color Theme"
-            data={sortModeMenuData}
-            value={sortBy}
-            onChange={item => {
-              setSortBy(item.value);
-              console.log(`Sort tasks by ${item.value}`);
-            }}
-          />
+          <Menu
+            visible={menuVisible}
+            onDismiss={() => setMenuVisible(false)}
+            anchor={
+              <Button mode="contained" onPress={() => setMenuVisible(true)}>
+                Sort By
+              </Button>
+            }
+          >
+            <Menu.Item onPress={() => setSortBy("name")} title="Name" />
+            <Menu.Item onPress={() => setSortBy("date")} title="Date" />
+            <Menu.Item onPress={() => setSortBy("size")} title="Size" />
+          </Menu>
         </View>
+  
       </View>
+  
  
-      {/* main task list */}
       <FlatList 
         style={styles.tasksContainer} 
         data={sortedTasks}  
@@ -152,7 +155,13 @@ export default function Index() {
   
     </View>
   );
+  
+
+  
 }
+
+
+
 
 const styles = StyleSheet.create({
   container: {
@@ -162,51 +171,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 10,
   },
-  listContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
-    paddingHorizontal: 10,
-    marginBottom: 10
-  },
   tasksContainer: {
     width: '100%',
     marginTop: 10,
   }
-});
-
-const dropdownStyles = StyleSheet.create({
-  main: {
-    marginHorizontal: 12,
-    marginTop: 14,
-    marginBottom: 18,
-    height: 50,
-    borderBottomColor: useThemeColor("highlight"),
-    borderBottomWidth: 2,
-    minWidth: 175
-  },
-  icon: {
-    marginRight: 5,
-  },
-  placeholder: {
-    color: useThemeColor("textSecondary"),
-    fontSize: 18,
-  },
-  selectedText: {
-    color: useThemeColor("textPrimary"),
-    fontSize: 18,
-  },
-  itemText: {
-    color: useThemeColor("textPrimary"),
-    fontSize: 18,
-  },
-  container: {
-    backgroundColor: useThemeColor("backgroundSecondary"),
-    borderRadius: 10,
-    borderColor: useThemeColor("highlight"),
-    borderWidth: 2,
-  },
 });
 
 function addToSelectedList(item: Tasks.Task): Tasks.Task {
