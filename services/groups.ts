@@ -1,5 +1,16 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { getIdToken } from "./firebaseAuthService";
+export const BASE_API_URL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync";
+export const fetchUserTasks = async () => {
+  const token = await getIdToken();
+  const res = await fetch(`${BASE_API_URL}/tasks`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+  return res.json();
+};
 /**
  * Frontend data for each group.
  */

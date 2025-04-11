@@ -37,6 +37,7 @@
     "expo-web-browser": "~14.0.1",
     "express": "^4.21.2",
     "firebase": "^11.6.0",
+    "firebase-admin": "^13.2.0",
     "jest-fixed-jsdom": "github:mswjs/jest-fixed-jsdom",
     "lottie-react-native": "^7.2.2",
     "native-base": "^3.4.28",
