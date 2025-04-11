@@ -7,12 +7,17 @@ import TaskView from "@/components/TaskView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import TaskCreationModal from "@/components/TaskCreationModal";
 import { Dropdown } from "react-native-element-dropdown";
+import ErrorMessage from "@/components/ErrorMessage";
+
+/** Self-explanatory (for testing). */
+const forceGetTasksCrash = false;
 
 export default function Index() {
   const [selectedTasks, setSelectedTasks] = useState<Number[]>([]);
   const [tasks, setTasks] = useState<Tasks.Task[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [sortBy, setSortBy] = useState<string>("name");
+  const [databaseError, setDatabaseError] = useState<boolean>(false);
   const User = 'doro';
   const TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
 
@@ -64,6 +69,12 @@ export default function Index() {
   }
 
   function getTasks(_taskAuthor: string) {
+    if (forceGetTasksCrash) {
+      console.error("ERROR: You know what you did.");
+      setDatabaseError(true);
+      return;
+    }
+
     const toReturn = "ERROR";
     return async () => {
       try{
@@ -116,64 +127,75 @@ export default function Index() {
     };
   }
   
+  const errorMessage = ErrorMessage({
+      text: "Could not get tasks.",
+      // setting this to true (the default is false) will automatically center the message on the
+      // page. for this to work, put the element *outside* of the main container and wrap the entire
+      // thing in a second view
+      fullPage: true
+      // there's also an "icon" property but it defaults to true
+    });
 
 //Return render of tasks page
   return (
-    <View style={styles.container}>
-      {/* task creation modal - this is invisible until the button is clicked */}
-      <TaskCreationModal modalVisible={modalVisible} setModalVisible={setModalVisible}/>
-      
-      {/* everything else */}
-      <View style={styles.listContainer}>
-        <View style={{ flexDirection: "row", gap: 10 }}>
-          <PillButton icon={"download"} onPress={getTasks(User)} />
-          <PillButton icon={"trash"} onPress={clearTasks} />
-          <PillButton icon={"plus"} onPress={()=>{setModalVisible(true)}} />
+    <View style={{ flex: 1 }}>
+      <View style={styles.container}>
+        {/* task creation modal - this is invisible until the button is clicked */}
+        <TaskCreationModal modalVisible={modalVisible} setModalVisible={setModalVisible}/>
+        
+        {/* everything else */}
+        <View style={styles.listContainer}>
+          <View style={{ flexDirection: "row", gap: 10 }}>
+            <PillButton icon={"download"} onPress={()=>{getTasks(User)}} />
+            <PillButton icon={"trash"} onPress={clearTasks} />
+            <PillButton icon={"plus"} onPress={()=>{setModalVisible(true)}} />
+          </View>
+    
+          {/* sorting menu */}
+          <View style={{ marginLeft: "auto" }}>
+            <Dropdown
+              style={dropdownStyles.main}
+              placeholderStyle={dropdownStyles.placeholder}
+              selectedTextStyle={dropdownStyles.selectedText}
+              containerStyle={dropdownStyles.container}
+              itemTextStyle={dropdownStyles.itemText}
+              activeColor="transparent"
+              maxHeight={300}
+              labelField="label"
+              valueField="value"
+              placeholder="Color Theme"
+              data={sortModeMenuData}
+              value={sortBy}
+              onChange={item => {
+                setSortBy(item.value);
+                console.log(`Sort tasks by ${item.value}`);
+              }}
+            />
+          </View>
         </View>
   
-        {/* sorting menu */}
-        <View style={{ marginLeft: "auto" }}>
-          <Dropdown
-            style={dropdownStyles.main}
-            placeholderStyle={dropdownStyles.placeholder}
-            selectedTextStyle={dropdownStyles.selectedText}
-            containerStyle={dropdownStyles.container}
-            itemTextStyle={dropdownStyles.itemText}
-            activeColor="transparent"
-            maxHeight={300}
-            labelField="label"
-            valueField="value"
-            placeholder="Color Theme"
-            data={sortModeMenuData}
-            value={sortBy}
-            onChange={item => {
-              setSortBy(item.value);
-              console.log(`Sort tasks by ${item.value}`);
-            }}
-          />
-        </View>
+        {/* main task list */}
+        <FlatList 
+          style={styles.tasksContainer} 
+          data={sortedTasks}  
+          renderItem={({ item }) => (
+            <TaskView 
+              task={item} 
+              onClick={() => {
+                if (!selectedTasks.includes(item.id)) {
+                  setSelectedTasks([...selectedTasks, item.id]);
+                } else {
+                  setSelectedTasks(selectedTasks.filter(taskId => taskId !== item.id));
+                }
+                console.log(selectedTasks);
+              }}
+            />
+          )}
+          showsHorizontalScrollIndicator={false}
+        />
       </View>
- 
-      {/* main task list */}
-      <FlatList 
-        style={styles.tasksContainer} 
-        data={sortedTasks}  
-        renderItem={({ item }) => (
-          <TaskView 
-            task={item} 
-            onClick={() => {
-              if (!selectedTasks.includes(item.id)) {
-                setSelectedTasks([...selectedTasks, item.id]);
-              } else {
-                setSelectedTasks(selectedTasks.filter(taskId => taskId !== item.id));
-              }
-              console.log(selectedTasks);
-            }}
-          />
-        )}
-        showsHorizontalScrollIndicator={false}
-      />
-  
+      {/* this must be outside of the main container! */}
+      {databaseError && errorMessage}
     </View>
   );
 }
