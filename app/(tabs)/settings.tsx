@@ -1,10 +1,12 @@
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { getAuth } from "firebase/auth";
+
 import React from "react";
 import * as Tasks from "@/services/tasks";
 import { View, StyleSheet } from "react-native";
 import { Button, Card, Text } from "react-native-paper";
 import ChangePasswordModal from "@/components/ChangePasswordModal";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "expo-router";
 import ChangePreferencesModal from "@/components/PreferencesModal";
 import { logoutUser } from "@/services/firebaseAuthService";
@@ -16,7 +18,8 @@ import MultiStyledText, {
 const router = useRouter();
 
 const UserURL =
-  "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/User";
+  "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/march17/User";
+
 // is this unecessary or just unused for now?
 const TaskURL =
   "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction";
@@ -45,10 +48,61 @@ export default function Settings() {
   const [isModalVisible, setModalVisible] = useState(false); // for change password modal
   const [isPreferencesVisible, setPreferencesVisible] = useState(false); // for preferences modal
   const router = useRouter(); // for logout page
+  const [userData, setUserData] = useState<AccountInfo | null>(null);
 
   const handleLogout = async () => {
     await logoutUser(); // Firebase signOut
     router.replace("/");
+  };
+  useEffect(() => {
+    const fetchUserFromAWS = async () => {
+      try {
+        const auth = getAuth();
+        const token = await auth.currentUser?.getIdToken();
+
+        if (!token) return;
+
+        const res = await fetch(UserURL, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!res.ok) return;
+
+        const json = await res.json();
+
+        const fetchedUser: AccountInfo = {
+          displayName: json.displayName ?? "User",
+          username: json.userID ?? "anonymous",
+          pronouns: json.pronouns ?? "",
+          phoneNumber: json.phoneNumber ?? "",
+          birthday: json.birthday ? new Date(json.birthday) : undefined,
+          bio: json.bio ?? "",
+        };
+
+        setUserData(fetchedUser);
+      } catch (err) {
+        console.error("Error fetching user info:", err);
+      }
+    };
+
+    fetchUserFromAWS();
+  }, []);
+
+  const handleGetToken = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (user) {
+      const token = await user.getIdToken();
+      console.log("🔥 Firebase ID Token:", token);
+      alert("Token printed to console!");
+    } else {
+      alert("No user is logged in.");
+    }
   };
 
   const dummyAccount: AccountInfo = {
@@ -153,10 +207,16 @@ export default function Settings() {
           onDismiss={() => setModalVisible(false)}
         />
 
-        <ChangePreferencesModal
-          visible={isPreferencesVisible} // ✅ Now linked to the Preferences Button
-          onDismiss={() => setPreferencesVisible(false)}
-        />
+        <Card mode="outlined" style={settingsStyles.card}>
+          <Button
+            mode="contained"
+            buttonColor={useThemeColor("backgroundSecondary")}
+            textColor={useThemeColor("textPrimary")}
+            onPress={handleGetToken}
+          >
+            Get Token
+          </Button>
+        </Card>
       </View>
     </View>
   );
