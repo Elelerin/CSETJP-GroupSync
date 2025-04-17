@@ -224,7 +224,6 @@ const styles = StyleSheet.create({
   textTitle: {
     color: useThemeColor("textPrimary"),
     fontWeight: 600,
-    fontSize: 36,
     marginBottom: -10
   },
   textInputContainer: {
