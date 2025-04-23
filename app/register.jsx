@@ -18,6 +18,7 @@ export default function RegisterScreen() {
     setLoading(true);
     try {
       await registerUser(email.trim(), password);
+      await syncUserWithAWS(); 
       Alert.alert("Success", "Account created!");
       router.replace("/groups");
     } catch (error) {
