@@ -10,7 +10,7 @@ export const syncUserWithAWS = async () => {
 
   return axios.post(
     "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync",
-    { uid },
+    null, 
     {
       headers: {
         Authorization: `Bearer ${token}`, 

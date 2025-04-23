@@ -4,7 +4,7 @@ import { View, Alert } from "react-native";
 import { Button, Text, TextInput } from "react-native-paper";
 import { useRouter } from "expo-router";
 import { registerUser } from "../services/firebaseAuthService";
-
+import { syncUserWithAWS } from "../services/awsService"; // Import your AWS sync function
 export default function RegisterScreen() {
   const router = useRouter();
   const [email, setEmail] = useState("");
