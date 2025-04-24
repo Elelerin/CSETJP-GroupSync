@@ -196,12 +196,12 @@ async function registerTask(inputTask: Tasks.Task, userID: string){
 const paperTheme = {
     ...MD3DarkTheme, // use the default theme for anything we don't override
     colors: {
-      primary: '#a548e2',
-      secondary: '#ffffff',
-      onSecondary: '#ffffff',
-      surfaceVariant: '#c3c3c3',
-      surface: '#202020',
-      onSurface: '#c3c3c3'
+      primary: useThemeColor("primary"),
+      secondary: useThemeColor("secondary"),
+      onSecondary: useThemeColor("onSecondary"),
+      surfaceVariant: useThemeColor("surfaceVariant"),
+      surface: useThemeColor("surface"),
+      onSurface: useThemeColor("onSurface")
     }
 };
 
