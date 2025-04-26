@@ -4,6 +4,7 @@ import { View, Alert } from "react-native";
 import { Button, Text, TextInput } from "react-native-paper";
 import { useRouter } from "expo-router";
 import { registerUser } from "../services/firebaseAuthService";
+// import { syncUserWithAWS } from "../services/awsService"; // Import your AWS sync function _>legacy needs to be removed
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -58,7 +59,7 @@ export default function RegisterScreen() {
 
       <Button
         mode="text"
-        onPress={() => router.replace("/")}
+        onPress={() => router.replace("/groups")}
         style={styles.button}
       >
         Back to Login

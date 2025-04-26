@@ -5,6 +5,7 @@ import { Redirect, useRouter } from "expo-router";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../services/firebaseConfig";
 import { loginUser, registerUser } from "../services/firebaseAuthService";
+import { syncUserWithAWS } from "../services/awsService"; 
 
 
 export default function Index() {

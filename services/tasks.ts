@@ -9,3 +9,7 @@ export type Task = {
   dueDate: Date,
   complete: boolean
 }
+
+export function getTasks(): SetStateAction<Task[]> | PromiseLike<SetStateAction<Task[]>> {
+  throw new Error("Function not implemented.");
+}

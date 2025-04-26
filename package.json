@@ -24,6 +24,7 @@
     "@react-native-picker/picker": "2.9.0",
     "@react-navigation/native": "^6.0.2",
     "aws-sdk": "^2.1692.0",
+    "axios": "^1.8.4",
     "expo": "^52.0.28",
     "expo-auth-session": "^6.0.2",
     "expo-constants": "~17.0.3",
@@ -63,6 +64,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@types/axios": "^0.9.36",
     "@types/jest": "^29.5.12",
     "@types/react": "~18.3.12",
     "@types/react-native": "^0.72.8",
