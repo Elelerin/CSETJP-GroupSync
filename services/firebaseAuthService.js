@@ -1,4 +1,3 @@
-// services/firebaseAuthService.js
 import { auth } from './firebaseConfig';
 import {
   createUserWithEmailAndPassword,

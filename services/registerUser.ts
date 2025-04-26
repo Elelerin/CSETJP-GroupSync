@@ -1,4 +1,3 @@
-// file: services/registerUser.ts
 import { getAuth } from "firebase/auth";
 import { useState, useCallback } from "react";
 
@@ -19,7 +18,7 @@ export function useRegisterUser(): RegisterUserResult {
     setError(null);
 
     try {
-      await syncUserToDatabase(); // <- Call the real function inside hook
+      await syncUserToDatabase();
     } catch (err: any) {
       console.error("registerUser error:", err);
       setError(err.message || "An unknown error occurred");
@@ -32,7 +31,6 @@ export function useRegisterUser(): RegisterUserResult {
   return { loading, error, registerUser };
 }
 
-// ✅ 2. Plain function (for services/firebaseAuthService.js)
 export async function syncUserToDatabase() {
   const auth = getAuth();
   const user = auth.currentUser;
