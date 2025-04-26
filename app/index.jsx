@@ -31,7 +31,6 @@ export default function Index() {
     setLoading(true);
     try {
       await loginUser(email.trim(), password);
-      await syncUserWithAWS(); //-> this is lets you syc w/ aws
       router.push("/groups");
     } catch (error) {
       console.error("Login Error:", error);

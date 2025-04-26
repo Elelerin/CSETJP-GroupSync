@@ -1,8 +1,8 @@
-// file: src/hooks/useRegisterUser.ts
-import { useState, useCallback } from "react";
+// file: services/registerUser.ts
 import { getAuth } from "firebase/auth";
+import { useState, useCallback } from "react";
 
-const USER_REGISTRATION_URL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/UserFunctionAuth";
+const USER_REGISTRATION_URL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/User";
 
 interface RegisterUserResult {
   loading: boolean;
@@ -19,30 +19,7 @@ export function useRegisterUser(): RegisterUserResult {
     setError(null);
 
     try {
-      const auth = getAuth();
-      const user = auth.currentUser;
-
-      if (!user) {
-        throw new Error("No logged-in user found.");
-      }
-
-      const authToken = await user.getIdToken();
-
-      const response = await fetch(USER_REGISTRATION_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Registration failed: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      console.log("User registered:", data);
-      return data;
+      await syncUserToDatabase(); // <- Call the real function inside hook
     } catch (err: any) {
       console.error("registerUser error:", err);
       setError(err.message || "An unknown error occurred");
@@ -53,4 +30,32 @@ export function useRegisterUser(): RegisterUserResult {
   }, []);
 
   return { loading, error, registerUser };
+}
+
+// ✅ 2. Plain function (for services/firebaseAuthService.js)
+export async function syncUserToDatabase() {
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  if (!user) {
+    throw new Error("No logged-in user found.");
+  }
+
+  const authToken = await user.getIdToken();
+
+  const response = await fetch(USER_REGISTRATION_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${authToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Registration failed: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  console.log("User registered to database:", data);
+  return data;
 }

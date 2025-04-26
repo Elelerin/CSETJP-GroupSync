@@ -4,7 +4,8 @@ import { View, Alert } from "react-native";
 import { Button, Text, TextInput } from "react-native-paper";
 import { useRouter } from "expo-router";
 import { registerUser } from "../services/firebaseAuthService";
-import { syncUserWithAWS } from "../services/awsService"; // Import your AWS sync function
+// import { syncUserWithAWS } from "../services/awsService"; // Import your AWS sync function _>legacy needs to be removed
+
 export default function RegisterScreen() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -18,7 +19,6 @@ export default function RegisterScreen() {
     setLoading(true);
     try {
       await registerUser(email.trim(), password);
-      await syncUserWithAWS(); 
       Alert.alert("Success", "Account created!");
       router.replace("/groups");
     } catch (error) {
@@ -59,7 +59,7 @@ export default function RegisterScreen() {
 
       <Button
         mode="text"
-        onPress={() => router.replace("/")}
+        onPress={() => router.replace("/groups")}
         style={styles.button}
       >
         Back to Login
