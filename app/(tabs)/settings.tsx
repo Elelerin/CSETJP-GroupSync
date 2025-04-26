@@ -158,6 +158,17 @@ export default function Settings() {
             mode="contained"
             buttonColor={useThemeColor("backgroundSecondary")}
             textColor="white"
+            onPress={getUser("doro")}
+          >
+            USERTEST
+          </Button>
+        </Card>
+
+        <Card mode="outlined" style={settingsStyles.card}>
+          <Button
+            mode="contained"
+            buttonColor={useThemeColor("backgroundSecondary")}
+            textColor="white"
             onPress={() => setPreferencesVisible(true)}
           >
             Preferences
@@ -186,6 +197,45 @@ export default function Settings() {
       </View>
     </View>
   );
+
+  /**
+ * Gets a user's account from the database.
+ */
+function getUser(_userID: string) {
+  return async () => {
+    try {
+      console.log("Getting userid.");
+      const response = await fetch(UserURL, {
+        method: 'GET',
+        headers: {
+          'userID': _userID,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const json = await response.json();
+      console.log("API response:", json);
+      const mappedAccount: AccountInfo = {
+        displayName: json.displayName || "Joe Williams",  // Fallback to default if not present
+        username: json.userID || "JustASideQuestNPC",
+        pronouns: json.pronouns || "he/him",
+        phoneNumber: json.phoneNumber || "(314) 159-2653",
+        birthday: json.birthday ? new Date(json.birthday) : new Date("4/20/1969"),
+        description: json.description || "Software engineering student and president of D&D club at Oregon Tech. Plays too much Titanfall and occasionally writes code."
+      };
+      setUserData(mappedAccount);
+      console.log(mappedAccount);
+      return mappedAccount;
+    } catch (err: any) {
+      console.error("Error fetching userData:", err.message || err);
+    }
+  };
+}
+
 }
 
 /**
@@ -209,44 +259,14 @@ function registerUser(_userID: string, _username: string, _password: string) {
       }
 
       const json = response;
+
       console.log(response);
       return json;
     } catch {}
   };
 }
 
-//TEST TASK.
-let t: Tasks.Task = {
-  id: 0,
-  title: "Feed da doro",
-  description: "Gotta feed em ",
-  dueDate: new Date(1678886400000),
-  complete: false,
-};
 
-/**
- * Gets a user's account from the database.
- */
-function getUser(_userID: string) {
-  return async () => {
-    try {
-      const response = await fetch(UserURL, {
-        method: "GET",
-        headers: {
-          userID: _userID,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("User retreival error");
-      }
-
-      const json = response;
-      console.log(response);
-      return json;
-    } catch {}
-  };
-}
 
 /**
  * Gets list of users in database as an array of userIDs
@@ -269,7 +289,7 @@ function getGroupUsers(groupID: number) {
       }
 
       const json = response;
-      console.log(response);
+      console.log(json);
       return json;
     } catch {}
   };
