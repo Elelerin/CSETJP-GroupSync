@@ -1,8 +1,8 @@
 import { useThemeColor } from "@/hooks/useThemeColor";
-import React from "react";
+import React, { useEffect } from "react";
 import * as Tasks from "@/services/tasks";
 import { View, StyleSheet } from "react-native";
-import { Button, Card, Text } from "react-native-paper";
+import { Button, Card, IconButton, Text } from "react-native-paper";
 import ChangePasswordModal from "@/components/ChangePasswordModal";
 import { useState } from "react";
 import { useRouter } from "expo-router";
@@ -12,6 +12,7 @@ import MultiStyledText, {
   MultiStyledTextDivider,
   MultiStyledTextItem,
 } from "@/components/MultiStyledText";
+import ChangeAccountInfoModal from "@/components/ChangeAccountInfoModal";
 
 const router = useRouter();
 
@@ -21,7 +22,7 @@ const UserURL =
 const TaskURL =
   "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction";
 
-interface AccountInfo {
+interface UserAccount {
   displayName: string; // the display name is (eventually) configurable in the settings
   username: string;
   // i'm assuming none of these are required when creating an account
@@ -31,17 +32,59 @@ interface AccountInfo {
   bio?: string;
 }
 
-interface AccountInfo {
-  displayName: string; // the display name is (eventually) configurable in the settings
-  username: string;
-  // i'm assuming none of these are required when creating an account
-  phoneNumber?: string; // will this be a string or a number internally?
-  birthday?: Date;
-  pronouns?: string;
-  bio?: string;
+// needs to be outside the function because react be like that
+const subLineDivider: MultiStyledTextDivider = {
+  type: "divider",
+  width: 2,
+  color: useThemeColor("highlight"),
+  margin: 5,
+};
+
+function getSubLineContent(account: UserAccount): (MultiStyledTextItem | MultiStyledTextDivider)[] {
+  let content: (MultiStyledTextItem | MultiStyledTextDivider)[] = [];
+
+  if (account.pronouns && account.pronouns !== "") {
+    content.push({
+      type: "text",
+      content: account.pronouns,
+      style: infoStyles.subLineInfo,
+    });
+  }
+  if (account.birthday) {
+    content.push({
+      type: "text",
+      content: account.birthday.toLocaleDateString(),
+      style: infoStyles.subLineInfo,
+    });
+  }
+  if (account.phoneNumber && account.phoneNumber !== "") {
+    content.push({
+      type: "text",
+      content: account.phoneNumber,
+      style: infoStyles.subLineInfo,
+    });
+  }
+  if (content.length > 0) {
+    content = content.flatMap((i) => [subLineDivider, i]).slice(1);
+  }
+
+  return content;
 }
+
+const dummyAccount = {
+  displayName: "Joe Williams",
+  username: "JustASideQuestNPC",
+  pronouns: "he/him",
+  phoneNumber: "(314) 159-2653",
+  birthday: new Date("4/20/1969"),
+  bio: (
+    "Software engineering student and president of D&D club at Oregon Tech. Plays too much " +
+    "Titanfall and occasionally writes code."
+  ),
+};
 
 export default function Settings() {
+  const [infoModalVisible, setInfoModalVisible] = useState(false); // for account info modal
   const [isModalVisible, setModalVisible] = useState(false); // for change password modal
   const [isPreferencesVisible, setPreferencesVisible] = useState(false); // for preferences modal
   const router = useRouter(); // for logout page
@@ -51,61 +94,44 @@ export default function Settings() {
     router.replace("/");
   };
 
-  const dummyAccount: AccountInfo = {
-    displayName: "Joe Williams",
-    username: "JustASideQuestNPC",
-    pronouns: "he/him",
-    phoneNumber: "(314) 159-2653",
-    birthday: new Date("4/20/1969"),
-    bio:
-      "Software engineering student and president of D&D club at Oregon Tech. Plays too much " +
-      "Titanfall and occasionally writes code.",
-  };
-  // create an element for the sub line
-  let subLineContent: (MultiStyledTextItem | MultiStyledTextDivider)[] = [];
-  if (dummyAccount.pronouns && dummyAccount.pronouns !== "") {
-    subLineContent.push({
-      type: "text",
-      content: dummyAccount.pronouns,
-      style: infoStyles.subLineInfo,
-    });
-  }
-  if (dummyAccount.birthday) {
-    subLineContent.push({
-      type: "text",
-      content: dummyAccount.birthday.toLocaleDateString(),
-      style: infoStyles.subLineInfo,
-    });
-  }
-  if (dummyAccount.phoneNumber && dummyAccount.phoneNumber !== "") {
-    subLineContent.push({
-      type: "text",
-      content: dummyAccount.phoneNumber,
-      style: infoStyles.subLineInfo,
-    });
-  }
-  if (subLineContent.length > 0) {
-    const divider: MultiStyledTextDivider = {
-      type: "divider",
-      width: 2,
-      color: useThemeColor("highlight"),
-      margin: 5,
-    };
-    subLineContent = subLineContent.flatMap((i) => [divider, i]).slice(1);
-  }
+  // TODO: make this pull from the database
+  let accountData: UserAccount = dummyAccount;
+
+  // required because react is a PERFECT library with NO FLAWS WHATSOEVER
+  const [accountDisplayName, setAccountDisplayName] = useState(accountData.displayName);
+  const [subLineContent, setSubLineContent] = useState(getSubLineContent(accountData));
+  const [accountBio, setAccountBio] = useState(accountData.bio);
 
   return (
     <View style={containerStyles.page}>
+      <ChangeAccountInfoModal
+        modalVisible={infoModalVisible}
+        setModalVisible={setInfoModalVisible}
+        account={accountData}
+        onSubmission={(newAccountInfo: UserAccount) => {
+          accountData = newAccountInfo;
+          setAccountDisplayName(accountData.displayName);
+          setSubLineContent(getSubLineContent(accountData));
+          setAccountBio(accountData.bio);
+        }}
+      />
+
       <View style={containerStyles.info}>
+        <IconButton
+          icon={"pencil"}
+          iconColor={useThemeColor("textSecondary")}
+          size={36}
+          onPress={() => { setInfoModalVisible(true); }}
+        />
         <View style={infoStyles.container}>
-          <Text style={infoStyles.displayName}>{dummyAccount.displayName}</Text>
-          <Text style={infoStyles.username}>@{dummyAccount.username}</Text>
+          <Text style={infoStyles.displayName}>{accountDisplayName}</Text>
+          <Text style={infoStyles.username}>@{accountData.username}</Text>
           <MultiStyledText
             content={subLineContent}
             topLevelStyle={infoStyles.subLine}
           />
-          {dummyAccount.bio != null ? (
-            <Text style={infoStyles.bioText}>{dummyAccount.bio}</Text>
+          {accountBio != null && accountBio != "" ? (
+            <Text style={infoStyles.bioText}>{accountData.bio}</Text>
           ) : null}
         </View>
       </View>
@@ -280,14 +306,13 @@ const infoStyles = StyleSheet.create({
     borderRadius: 15,
     borderColor: useThemeColor("highlight"),
   },
-
   displayName: {
     color: useThemeColor("textPrimary"),
-    fontSize: 60,
-    lineHeight: 66,
+    fontSize: 50,
+    lineHeight: 55,
     fontWeight: "bold",
     alignSelf: "flex-start",
-    marginTop: 0,
+    marginTop: 3,
     marginBottom: 7,
     borderBottomWidth: 2,
     borderBottomColor: useThemeColor("highlight"),
