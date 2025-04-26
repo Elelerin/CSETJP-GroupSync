@@ -1,11 +1,11 @@
 import { useThemeColor } from '@/hooks/useThemeColor';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
-import { Provider as PaperProvider } from 'react-native-paper'; // ✅ Import PaperProvider
+import { Provider as PaperProvider } from 'react-native-paper'; 
 
 export default function TabLayout() {
   return (
-    <PaperProvider> {/* required to make react native paper work */}
+    <PaperProvider> 
       <Tabs screenOptions={{
         headerStyle: {
           backgroundColor: useThemeColor("backgroundSecondary"),

@@ -1,102 +1,63 @@
-import { useState, useMemo, useEffect } from "react";
-import * as WebBrowser from "expo-web-browser";
-import {
-  useAuthRequest,
-  exchangeCodeAsync,
-  revokeAsync,
-  ResponseType,
-} from "expo-auth-session";
+import { useState, useEffect } from "react";
 import { View, Alert } from "react-native";
 import { Button, Text, TextInput } from "react-native-paper";
 import { Redirect, useRouter } from "expo-router";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../services/firebaseConfig";
+import { loginUser, registerUser } from "../services/firebaseAuthService";
+import { syncUserWithAWS } from "../services/awsService"; 
 
-WebBrowser.maybeCompleteAuthSession();
-
-const clientId = "13524tn38254dqsrm1tsn52hc9";
-const userPoolUrl =
-  "https://us-east-2gnixjqqd3.auth.us-east-2.amazoncognito.com";
-const redirectUri = "myapp://groups";
 
 export default function Index() {
   const router = useRouter();
-  const [authTokens, setAuthTokens] = useState(null);
-  const [loading, setLoading] = useState(false); 
-  const [username, setUsername] = useState("");
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const discoveryDocument = useMemo(
-    () => ({
-      authorizationEndpoint: userPoolUrl + "/oauth2/authorize",
-      tokenEndpoint: userPoolUrl + "/oauth2/token",
-      revocationEndpoint: userPoolUrl + "/oauth2/revoke",
-    }),
-    []
-  );
-
-  const [request, response, promptAsync] = useAuthRequest(
-    { clientId, responseType: ResponseType.Code, redirectUri, usePKCE: true },
-    discoveryDocument
-  );
-
   useEffect(() => {
-    const exchangeFn = async (exchangeTokenReq) => {
-      try {
-        setLoading(true);
-        const exchangeTokenResponse = await exchangeCodeAsync(
-          exchangeTokenReq,
-          discoveryDocument
-        );
-        setAuthTokens(exchangeTokenResponse);
-        router.push("/groups"); 
-      } catch (error) {
-        console.error(error);
-        Alert.alert("Login Failed", "Please try again.");
-      } finally {
-        setLoading(false);
-      }
-    };
+    const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
+    return () => unsubscribe();
+  }, []);
 
-    if (response) {
-      if (response.error) {
-        Alert.alert(
-          "Authentication error",
-          response.params.error_description || "Something went wrong"
-        );
-        return;
-      }
-      if (response.type === "success") {
-        exchangeFn({
-          clientId,
-          code: response.params.code,
-          redirectUri,
-          extraParams: { code_verifier: request.codeVerifier },
-        });
-      }
+
+  
+  const handleSubmit = async () => {
+    if (!email || !password) {
+      return Alert.alert("Missing Info", "Please enter email and password.");
     }
-  }, [discoveryDocument, request, response, router]);
-
-  const logout = async () => {
-    await revokeAsync({ clientId, token: authTokens?.refreshToken }, discoveryDocument);
-    setAuthTokens(null);
+  
+    setLoading(true);
+    try {
+      await loginUser(email.trim(), password);
+      router.push("/groups");
+    } catch (error) {
+      console.error("Login Error:", error);
+      Alert.alert("Login failed", error.message);
+    } finally {
+      setLoading(false);
+    }
   };
+  
+  
 
-  if (authTokens) {
-    return <Redirect href="/groups" />;s
-  }
+  if (user) return <Redirect href="/groups" />;
 
   return (
     <View style={styles.container}>
-
       <Text style={styles.title}>Welcome to GroupSync</Text>
-      <Text style={styles.subtitle}>Sign in to continue</Text>
-  
-      {/* 🔹 Login Inputs */}
+      <Text style={styles.subtitle}>
+        { "Sign in to continue"}
+      </Text>
+
       <View style={styles.inputContainer}>
         <TextInput
-          label="Username"
-          value={username}
-          onChangeText={setUsername}
+          label="Email"
+          value={email}
+          onChangeText={(text) => setEmail(text.trim())}
           style={styles.input}
+          autoCapitalize="none"
         />
         <TextInput
           label="Password"
@@ -105,24 +66,23 @@ export default function Index() {
           secureTextEntry
           style={styles.input}
         />
-  
+
         <Button
           mode="contained"
-          onPress={() => promptAsync()}
+          onPress={handleSubmit}
           loading={loading}
           style={styles.button}
         >
-          {loading ? "Signing In..." : "Sign In"}
+          {loading ? "Processing..." : "Login"}
         </Button>
 
         <Button
           mode="outlined"
-          onPress={() => promptAsync()}
-          loading={loading}
-          style={[styles.button, styles.whiteButton]} 
+          onPress={() => router.push("/register")}
+          style={[styles.button, styles.whiteButton]}
           labelStyle={{ color: "#fff" }}
         >
-          {loading ? "Redirecting to Sign Up..." : "Create an Account"}
+          {"Create an Account"}
         </Button>
       </View>
     </View>
@@ -151,8 +111,8 @@ const styles = {
     textAlign: "center",
   },
   inputContainer: {
-    width: "85%", 
-    maxWidth: 300, 
+    width: "85%",
+    maxWidth: 300,
   },
   input: {
     width: "100%",
@@ -162,5 +122,8 @@ const styles = {
   button: {
     width: "100%",
     marginTop: 10,
+  },
+  whiteButton: {
+    borderColor: "#fff",
   },
 };

@@ -1,106 +1,138 @@
 import { useThemeColor } from "@/hooks/useThemeColor";
-import React from "react";
+import React, { useEffect } from "react";
 import * as Tasks from "@/services/tasks";
 import { View, StyleSheet } from "react-native";
-import { Button, Card, Text } from "react-native-paper";
+import { Button, Card, IconButton, Text } from "react-native-paper";
 import ChangePasswordModal from "@/components/ChangePasswordModal";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import ChangePreferencesModal from "@/components/PreferencesModal";
-import MultiStyledText, { MultiStyledTextDivider, MultiStyledTextItem } from "@/components/MultiStyledText";
-import { useFocusEffect } from "@react-navigation/native";
-import { useCallback } from "react";
+import { logoutUser } from "@/services/firebaseAuthService";
+import MultiStyledText, {
+  MultiStyledTextDivider,
+  MultiStyledTextItem,
+} from "@/components/MultiStyledText";
+import ChangeAccountInfoModal from "@/components/ChangeAccountInfoModal";
 
-const UserURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/User";
+const router = useRouter();
+
+const UserURL =
+  "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/User";
 // is this unecessary or just unused for now?
-const TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction";
+const TaskURL =
+  "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction";
 
-interface AccountInfo {
-  displayName: string, // the display name is (eventually) configurable in the settings
-  username: string,
+interface UserAccount {
+  displayName: string; // the display name is (eventually) configurable in the settings
+  username: string;
   // i'm assuming none of these are required when creating an account
-  phoneNumber?: string, // will this be a string or a number internally?
-  birthday?: Date,
-  pronouns?: string,
-  description?: string
+  phoneNumber?: string; // will this be a string or a number internally?
+  birthday?: Date;
+  pronouns?: string;
+  bio?: string;
 }
 
+// needs to be outside the function because react be like that
+const subLineDivider: MultiStyledTextDivider = {
+  type: "divider",
+  width: 2,
+  color: useThemeColor("highlight"),
+  margin: 5,
+};
+
+function getSubLineContent(account: UserAccount): (MultiStyledTextItem | MultiStyledTextDivider)[] {
+  let content: (MultiStyledTextItem | MultiStyledTextDivider)[] = [];
+
+  if (account.pronouns && account.pronouns !== "") {
+    content.push({
+      type: "text",
+      content: account.pronouns,
+      style: infoStyles.subLineInfo,
+    });
+  }
+  if (account.birthday) {
+    content.push({
+      type: "text",
+      content: account.birthday.toLocaleDateString(),
+      style: infoStyles.subLineInfo,
+    });
+  }
+  if (account.phoneNumber && account.phoneNumber !== "") {
+    content.push({
+      type: "text",
+      content: account.phoneNumber,
+      style: infoStyles.subLineInfo,
+    });
+  }
+  if (content.length > 0) {
+    content = content.flatMap((i) => [subLineDivider, i]).slice(1);
+  }
+
+  return content;
+}
+
+const dummyAccount = {
+  displayName: "Joe Williams",
+  username: "JustASideQuestNPC",
+  pronouns: "he/him",
+  phoneNumber: "(314) 159-2653",
+  birthday: new Date("4/20/1969"),
+  bio: (
+    "Software engineering student and president of D&D club at Oregon Tech. Plays too much " +
+    "Titanfall and occasionally writes code."
+  ),
+};
+
 export default function Settings() {
+  const [infoModalVisible, setInfoModalVisible] = useState(false); // for account info modal
   const [isModalVisible, setModalVisible] = useState(false); // for change password modal
   const [isPreferencesVisible, setPreferencesVisible] = useState(false); // for preferences modal
-
-  
-  const [userData, setUserData] = useState<AccountInfo | null>({
-    displayName: "Joe Williams",
-    username: "JustASideQuestNPC",
-    pronouns: "he/him",
-    phoneNumber: "(314) 159-2653",
-    birthday: new Date("4/20/1969"),
-    description: "Software engineering student and president of D&D club at Oregon Tech. Plays too much Titanfall and occasionally writes code."
-  });
   const router = useRouter(); // for logout page
-  const handleLogout = () => {
-    // returns to the login page
+
+  const handleLogout = async () => {
+    await logoutUser(); // Firebase signOut
     router.replace("/");
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      const fetchUsers = async () => {
-          getUser("doro");
-      };
+  // TODO: make this pull from the database
+  let accountData: UserAccount = dummyAccount;
 
-      fetchUsers();
-
-      return () => console.log("Screen is unfocused!"); // Cleanup if needed
-    }, [])
-  );
-
-
-
-  // create an element for the sub line
-  let subLineContent: (MultiStyledTextItem|MultiStyledTextDivider)[] = [];
-  if (userData.pronouns && userData.pronouns !== "") {
-    subLineContent.push({
-      type: "text",
-      content: userData.pronouns,
-      style: infoStyles.subLineInfo
-    });
-  }
-  if (userData.birthday) {
-    subLineContent.push({
-      type: "text",
-      content: userData.birthday.toLocaleDateString(),
-      style: infoStyles.subLineInfo
-    });
-  }
-  if (userData.phoneNumber && userData.phoneNumber !== "") {
-    subLineContent.push({
-      type: "text",
-      content: userData.phoneNumber,
-      style: infoStyles.subLineInfo
-    });
-  }
-  if (subLineContent.length > 0) {
-    const divider: MultiStyledTextDivider = {
-      type: "divider",
-      width: 2,
-      color: useThemeColor("highlight"),
-      margin: 5,
-    };
-    subLineContent = subLineContent.flatMap((i) => [divider, i]).slice(1);
-  }
+  // required because react is a PERFECT library with NO FLAWS WHATSOEVER
+  const [accountDisplayName, setAccountDisplayName] = useState(accountData.displayName);
+  const [subLineContent, setSubLineContent] = useState(getSubLineContent(accountData));
+  const [accountBio, setAccountBio] = useState(accountData.bio);
 
   return (
     <View style={containerStyles.page}>
+      <ChangeAccountInfoModal
+        modalVisible={infoModalVisible}
+        setModalVisible={setInfoModalVisible}
+        account={accountData}
+        onSubmission={(newAccountInfo: UserAccount) => {
+          accountData = newAccountInfo;
+          setAccountDisplayName(accountData.displayName);
+          setSubLineContent(getSubLineContent(accountData));
+          setAccountBio(accountData.bio);
+        }}
+      />
+
       <View style={containerStyles.info}>
+        <IconButton
+          icon={"pencil"}
+          iconColor={useThemeColor("textSecondary")}
+          size={36}
+          onPress={() => { setInfoModalVisible(true); }}
+        />
         <View style={infoStyles.container}>
-          <Text style={infoStyles.displayName}>{userData.displayName}</Text>
-          <Text style={infoStyles.username}>@{userData.username}</Text>
-          <MultiStyledText content={subLineContent} topLevelStyle={infoStyles.subLine} />
-          {userData.description != null ?
-            <Text style={infoStyles.bioText}>{userData.description}</Text> : null
-          }
+          <Text style={infoStyles.displayName}>{accountDisplayName}</Text>
+          <Text style={infoStyles.username}>@{accountData.username}</Text>
+          <MultiStyledText
+            content={subLineContent}
+            topLevelStyle={infoStyles.subLine}
+          />
+          {accountBio != null && accountBio != "" ? (
+            <Text style={infoStyles.bioText}>{accountData.bio}</Text>
+          ) : null}
         </View>
       </View>
       <View style={containerStyles.settings}>
@@ -267,7 +299,7 @@ const containerStyles = StyleSheet.create({
   page: {
     flex: 1,
     backgroundColor: useThemeColor("backgroundPrimary"), // Match dark theme
-    flexDirection: "row"
+    flexDirection: "row",
   },
   info: {
     flex: 1,
@@ -275,7 +307,7 @@ const containerStyles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 20,
     paddingLeft: 55,
-    paddingRight: 35
+    paddingRight: 35,
   },
   settings: {
     flex: 1,
@@ -294,17 +326,16 @@ const infoStyles = StyleSheet.create({
     borderRadius: 15,
     borderColor: useThemeColor("highlight"),
   },
-
   displayName: {
     color: useThemeColor("textPrimary"),
-    fontSize: 60,
-    lineHeight: 66,
+    fontSize: 50,
+    lineHeight: 55,
     fontWeight: "bold",
     alignSelf: "flex-start",
-    marginTop: 0,
+    marginTop: 3,
     marginBottom: 7,
     borderBottomWidth: 2,
-    borderBottomColor: useThemeColor("highlight")
+    borderBottomColor: useThemeColor("highlight"),
   },
   username: {
     color: useThemeColor("textSecondary"),
@@ -313,7 +344,7 @@ const infoStyles = StyleSheet.create({
     marginBottom: 7,
     paddingBottom: 7,
     borderBottomWidth: 2,
-    borderBottomColor: useThemeColor("highlight")
+    borderBottomColor: useThemeColor("highlight"),
   },
   bioText: {
     color: useThemeColor("textPrimary"),
@@ -327,11 +358,11 @@ const infoStyles = StyleSheet.create({
     marginBottom: 7,
     paddingBottom: 7,
     borderBottomWidth: 2,
-    borderBottomColor: useThemeColor("highlight")
+    borderBottomColor: useThemeColor("highlight"),
   },
   subLineInfo: {
     color: useThemeColor("textSecondary"),
-    fontSize: 20
+    fontSize: 20,
   },
 });
 
