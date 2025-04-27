@@ -10,20 +10,16 @@ import { MaterialIcons } from "@expo/vector-icons";
 import TaskCreationModal from "@/components/TaskCreationModal";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
+import Globals from "@/services/globals";
 
-// temporary, will be replaced later
-interface User {
-  name: string
-}
-const UserGroupURL = 
-"https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/groupUser"
+// this is now a property on Globals
+// const UserGroupURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/groupUser";
+
 /**
  * Gets list of users in database as an array of userIDs
  * Will change to be DISPLAYNAMES, but that's all backend stuff. For now, if this is loaded in
  * then you won't need to change anything when I push it. 
  */
- 
-
 export default function GroupHome() {
   const { id } = useLocalSearchParams();
   const groupID = Number(id);
@@ -33,7 +29,7 @@ export default function GroupHome() {
   async function getGroupUsers(groupID: Number) : Promise<string[]>{ 
     try {
       console.log("Tset");
-      const response = await fetch(UserGroupURL, {
+      const response = await fetch(Globals.groupUserURL, {
         method : 'GET',
         headers : {
           'usergroupgroup' : groupID.toString()

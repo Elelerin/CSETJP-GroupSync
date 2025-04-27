@@ -11,6 +11,7 @@ import { logoutUser } from "@/services/firebaseAuthService";
 import ChangePasswordModal from "@/components/ChangePasswordModal";
 import ChangePreferencesModal from "@/components/PreferencesModal";
 import ChangeAccountInfoModal from "@/components/ChangeAccountInfoModal";
+import Globals, { UserAccount } from "@/services/globals";
 
 import MultiStyledText, {
   MultiStyledTextDivider,
@@ -18,17 +19,6 @@ import MultiStyledText, {
 } from "@/components/MultiStyledText";
 
 const router = useRouter();
-
-
-interface UserAccount {
-  displayName: string; // the display name is (eventually) configurable in the settings
-  username: string;
-  // i'm assuming none of these are required when creating an account
-  phoneNumber?: string; // will this be a string or a number internally?
-  birthday?: Date;
-  pronouns?: string;
-  bio?: string;
-}
 
 // needs to be outside the function because react be like that
 const subLineDivider: MultiStyledTextDivider = {
@@ -99,6 +89,8 @@ export default function Settings() {
   const [accountDisplayName, setAccountDisplayName] = useState(accountData.displayName);
   const [subLineContent, setSubLineContent] = useState(getSubLineContent(accountData));
   const [accountBio, setAccountBio] = useState(accountData.bio);
+
+  console.log("page: settings");
 
   return (
     <View style={containerStyles.page}>
@@ -186,42 +178,42 @@ export default function Settings() {
   );
 
   /**
- * Gets a user's account from the database.
- */
-function getUser(_userID: string) {
-  return async () => {
-    try {
-      console.log("Getting userid.");
-      const response = await fetch(UserURL, {
-        method: 'GET',
-        headers: {
-          'userID': _userID,
-          'Content-Type': 'application/json'
+   * Gets a user's account from the database.
+   */
+  function getUser(_userID: string) {
+    return async () => {
+      try {
+        console.log("Getting userid.");
+        const response = await fetch(Globals.userURL, {
+          method: 'GET',
+          headers: {
+            'userID': _userID,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
         }
-      });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        const json = await response.json();
+        console.log("API response:", json);
+        const mappedAccount: UserAccount = {
+          displayName: json.displayName || "Joe Williams",  // Fallback to default if not present
+          username: json.userID || "JustASideQuestNPC",
+          pronouns: json.pronouns || "he/him",
+          phoneNumber: json.phoneNumber || "(314) 159-2653",
+          birthday: json.birthday ? new Date(json.birthday) : new Date("4/20/1969"),
+          bio: json.description || "Software engineering student and president of D&D club at Oregon Tech. Plays too much Titanfall and occasionally writes code."
+        };
+        // setUserData(mappedAccount);
+        console.log(mappedAccount);
+        return mappedAccount;
+      } catch (err: any) {
+        console.error("Error fetching userData:", err.message || err);
       }
-
-      const json = await response.json();
-      console.log("API response:", json);
-      const mappedAccount: AccountInfo = {
-        displayName: json.displayName || "Joe Williams",  // Fallback to default if not present
-        username: json.userID || "JustASideQuestNPC",
-        pronouns: json.pronouns || "he/him",
-        phoneNumber: json.phoneNumber || "(314) 159-2653",
-        birthday: json.birthday ? new Date(json.birthday) : new Date("4/20/1969"),
-        description: json.description || "Software engineering student and president of D&D club at Oregon Tech. Plays too much Titanfall and occasionally writes code."
-      };
-      setUserData(mappedAccount);
-      console.log(mappedAccount);
-      return mappedAccount;
-    } catch (err: any) {
-      console.error("Error fetching userData:", err.message || err);
-    }
-  };
-}
+    };
+  }
 
 }
 
@@ -232,7 +224,7 @@ function getUser(_userID: string) {
 function registerUser(_userID: string, _username: string, _password: string) {
   return async () => {
     try {
-      const response = await fetch(UserURL, {
+      const response = await fetch(Globals.userURL, {
         method: "POST",
         body: JSON.stringify({
           userID: _userID,
@@ -253,8 +245,6 @@ function registerUser(_userID: string, _username: string, _password: string) {
   };
 }
 
-
-
 /**
  * Gets list of users in database as an array of userIDs
  * Will change to be DISPLAYNAMES, but that's all backend stuff. For now, if this is loaded in
@@ -264,7 +254,7 @@ function registerUser(_userID: string, _username: string, _password: string) {
 function getGroupUsers(groupID: number) {
   return async () => {
     try {
-      const response = await fetch(UserURL, {
+      const response = await fetch(Globals.userURL, {
         method: "GET",
         headers: {
           usergroupgroup: groupID.toString(),

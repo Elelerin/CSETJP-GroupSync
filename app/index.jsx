@@ -24,6 +24,7 @@ export default function Index() {
 
   
   const handleSubmit = async () => {
+    console.log("handleSubmit");
     if (!email || !password) {
       return Alert.alert("Missing Info", "Please enter email and password.");
     }
@@ -40,9 +41,9 @@ export default function Index() {
     }
   };
   
-  
-
-  if (user) return <Redirect href="/groups" />;
+  // if (user) {
+  //   return <Redirect href="/groups" />;
+  // }
 
   return (
     <View style={styles.container}>

@@ -2,7 +2,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import React from "react";
 import * as Tasks from "@/services/tasks";
 import { Modal, View, StyleSheet, Text } from "react-native";
-import { user, setUser } from "@/services/variables" 
+import Globals from "@/services/globals" 
 import {
   IconButton,
   TextInput,
@@ -21,9 +21,8 @@ interface Props {
   groupID?: Number;
 }
 
-
-const TaskURL =
-  "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction";
+// this is now a property on Globals
+// const TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction";
 
 export default function TaskCreationModal({
   modalVisible,
@@ -156,7 +155,7 @@ export default function TaskCreationModal({
                   // REGISTER NORMAL TASK TO GROUP
                 } else {
                   // REGISTER NORMAL TASK TO USER
-                  registerTask(taskToAdd, user);
+                  registerTask(taskToAdd, Globals.user);
                 }
 
                 setModalVisible(false);
@@ -192,7 +191,7 @@ async function registerTask(inputTask: Tasks.Task, userID: string) {
     };
     console.log(fetchBody);
 
-    const response = await fetch(TaskURL, {
+    const response = await fetch(Globals.taskURL, {
       method: "POST",
       body: JSON.stringify(fetchBody),
     });

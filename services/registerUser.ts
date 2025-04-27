@@ -1,8 +1,9 @@
 import { getAuth } from "firebase/auth";
 import { useState, useCallback } from "react";
-import { user, setUser} from "./variables"
+import Globals from "./globals"
 
-const USER_REGISTRATION_URL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/User";
+// this is now Globals.userURL
+// const USER_REGISTRATION_URL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/User";
 
 interface RegisterUserResult {
   loading: boolean;
@@ -42,7 +43,7 @@ export async function syncUserToDatabase() {
 
   const authToken = await user.getIdToken();
 
-  const response = await fetch(USER_REGISTRATION_URL, {
+  const response = await fetch(Globals.userURL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -55,8 +56,8 @@ export async function syncUserToDatabase() {
   }
 
   const data = await response.json();
-  console.log("User registered to database:", data);
-  setUser(data.user.userID);
+  console.log("User synced to database:", data);
+  Globals.user = data.user.userID;
   console.log(data.user.userID);
   return data;
 }

@@ -8,8 +8,8 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import TaskCreationModal from "@/components/TaskCreationModal";
 import { Dropdown } from "react-native-element-dropdown";
 import ErrorMessage from "@/components/ErrorMessage";
+import Globals from "@/services/globals";
 
-import { TaskURL, user, setUser } from "@/services/variables";
 /** Self-explanatory (for testing). */
 const forceGetTasksCrash = false;
 
@@ -43,7 +43,7 @@ export default function Index() {
   const sortedTasks = sortTasks();
 
   const onLoad = async () => {
-    getTasks(user);
+    getTasks(Globals.user);
     setTasks(await Tasks.getTasks()); // typescript says this doesn't exist??
   };
 
@@ -74,7 +74,7 @@ export default function Index() {
     if (forceGetTasksCrash) {
       console.error("ERROR: You know what you did.");
       setDatabaseError(true);
-      return;
+      return () => {};
     }
 
     const toReturn = "ERROR";
@@ -83,7 +83,7 @@ export default function Index() {
         console.log("Trying");
 
         // why is all of this unused?
-        const response = await fetch(TaskURL, {
+        const response = await fetch(Globals.taskURL, {
           method: "GET",
           mode: "cors",
           headers: {
@@ -138,6 +138,8 @@ export default function Index() {
     // there's also an "icon" property but it defaults to true
   });
 
+  console.log("page: tasks");
+
   //Return render of tasks page
   return (
     <View style={{ flex: 1 }}>
@@ -154,7 +156,9 @@ export default function Index() {
             <PillButton
               icon={"download"}
               onPress={() => {
-                getTasks(user);
+                console.log("getting tasks...");
+                // why does this return a function?
+                getTasks(Globals.user)();
               }}
             />
             <PillButton icon={"trash"} onPress={clearTasks} />

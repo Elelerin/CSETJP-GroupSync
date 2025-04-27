@@ -8,15 +8,16 @@ import GroupView from "@/components/GroupView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Dropdown } from "react-native-element-dropdown";
 import ErrorMessage from "@/components/ErrorMessage";
+import Globals from "@/services/globals";
 
 /** Self-explanatory (for testing). */
 const forceGetGroupsCrash = false;
 
 const User = 'doro';
-const GroupTaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/groupTasks"
-// is this unecessary or just unused for now?
-const TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
-const GroupURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/GroupFunction"
+// these are now properties on Globals
+// const GroupTaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/groupTasks"
+// const TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
+// const GroupURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/GroupFunction"
 export default function Index() {
   const [groups, setGroups] = useState<Groups.Group[]>([]);
   const [sortBy, setSortBy] = useState<"name" | "date" | "size">("name");
@@ -74,7 +75,7 @@ export default function Index() {
     try {
       console.log("Getting Groups...");
 
-      const response = await fetch(GroupURL, {
+      const response = await fetch(Globals.groupURL, {
           method : 'GET',
           mode : 'cors',
           headers : {
@@ -127,6 +128,8 @@ export default function Index() {
     // there's also an "icon" property but it defaults to true
   });
   
+  console.log("page: groups");
+
   // Return render of groups page
   return (
     // functions can only return one element, so this has to wrap around both the main page and the
