@@ -4,7 +4,6 @@ import { Modal, View, StyleSheet, Text } from "react-native";
 import { IconButton, TextInput, Button, MD3DarkTheme, Icon, PaperProvider } from "react-native-paper";
 import { DatePickerModal } from "react-native-paper-dates";
 import { CalendarDate } from "react-native-paper-dates/lib/typescript/Date/Calendar";
-import { PhoneNumberInput } from "react-native-paper-phone-number-input";
 
 interface Props {
   modalVisible: boolean,

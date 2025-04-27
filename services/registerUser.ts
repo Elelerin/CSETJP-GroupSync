@@ -1,5 +1,6 @@
 import { getAuth } from "firebase/auth";
 import { useState, useCallback } from "react";
+import { user, setUser} from "./variables"
 
 const USER_REGISTRATION_URL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/User";
 
@@ -55,5 +56,6 @@ export async function syncUserToDatabase() {
 
   const data = await response.json();
   console.log("User registered to database:", data);
+  setUser(data[0]);
   return data;
 }

@@ -1,9 +1,10 @@
-import { View, StyleSheet, Text } from 'react-native'
+import React, { useState } from 'react';
 
 import * as Tasks from '@/services/tasks'
+
+import { View, StyleSheet, Text } from 'react-native'
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { Card } from 'react-native-paper';
-import React, { useState } from 'react';
 import { Checkbox } from 'react-native-paper';
 
 type Props = {

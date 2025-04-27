@@ -1,26 +1,24 @@
-import { useThemeColor } from "@/hooks/useThemeColor";
-import React, { useEffect } from "react";
-import * as Tasks from "@/services/tasks";
+
+import React from "react";
 import { View, StyleSheet } from "react-native";
 import { Button, Card, IconButton, Text } from "react-native-paper";
-import ChangePasswordModal from "@/components/ChangePasswordModal";
+
+import { useThemeColor } from "@/hooks/useThemeColor";
 import { useState } from "react";
 import { useRouter } from "expo-router";
-import ChangePreferencesModal from "@/components/PreferencesModal";
 import { logoutUser } from "@/services/firebaseAuthService";
+
+import ChangePasswordModal from "@/components/ChangePasswordModal";
+import ChangePreferencesModal from "@/components/PreferencesModal";
+import ChangeAccountInfoModal from "@/components/ChangeAccountInfoModal";
+
 import MultiStyledText, {
   MultiStyledTextDivider,
   MultiStyledTextItem,
 } from "@/components/MultiStyledText";
-import ChangeAccountInfoModal from "@/components/ChangeAccountInfoModal";
 
 const router = useRouter();
 
-const UserURL =
-  "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/User";
-// is this unecessary or just unused for now?
-const TaskURL =
-  "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction";
 
 interface UserAccount {
   displayName: string; // the display name is (eventually) configurable in the settings
@@ -150,17 +148,6 @@ export default function Settings() {
             onPress={() => setModalVisible(true)}
           >
             Change Password
-          </Button>
-        </Card>
-
-        <Card mode="outlined" style={settingsStyles.card}>
-          <Button
-            mode="contained"
-            buttonColor={useThemeColor("backgroundSecondary")}
-            textColor="white"
-            onPress={getUser("doro")}
-          >
-            USERTEST
           </Button>
         </Card>
 

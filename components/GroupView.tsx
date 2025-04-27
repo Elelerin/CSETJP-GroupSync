@@ -1,5 +1,4 @@
 import { View, StyleSheet, Text } from "react-native"
-
 import * as Groups from "@/services/groups"
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Link } from "expo-router";

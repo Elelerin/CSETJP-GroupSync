@@ -1,5 +1,5 @@
 import { FlatList, View, StyleSheet } from "react-native";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 
 import * as Tasks from "@/services/tasks";
 import PillButton from "@/components/PillButton";
@@ -8,7 +8,8 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import TaskCreationModal from "@/components/TaskCreationModal";
 import { Dropdown } from "react-native-element-dropdown";
 import ErrorMessage from "@/components/ErrorMessage";
-import { Menu, Button } from "react-native-paper";
+
+import { TaskURL, user, setUser } from "@/services/variables";
 /** Self-explanatory (for testing). */
 const forceGetTasksCrash = false;
 
@@ -18,11 +19,8 @@ export default function Index() {
   const [modalVisible, setModalVisible] = useState(false);
   const [sortBy, setSortBy] = useState<string>("name");
   const [databaseError, setDatabaseError] = useState<boolean>(false);
-  const User = "doro";
-  const TaskURL =
-    "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction";
 
-  // sort modes and their associated sorting functions
+  //Sort modes and their associated sorting functions
   const sortModes: { [key: string]: (a: Tasks.Task, b: Tasks.Task) => number } =
     {
       name: (a, b) => a.title.localeCompare(b.title),
@@ -45,7 +43,7 @@ export default function Index() {
   const sortedTasks = sortTasks();
 
   const onLoad = async () => {
-    getTasks(User);
+    getTasks(user);
     setTasks(await Tasks.getTasks()); // typescript says this doesn't exist??
   };
 
@@ -156,7 +154,7 @@ export default function Index() {
             <PillButton
               icon={"download"}
               onPress={() => {
-                getTasks(User);
+                getTasks(user);
               }}
             />
             <PillButton icon={"trash"} onPress={clearTasks} />

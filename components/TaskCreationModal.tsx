@@ -2,6 +2,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import React from "react";
 import * as Tasks from "@/services/tasks";
 import { Modal, View, StyleSheet, Text } from "react-native";
+import { user, setUser } from "@/services/variables" 
 import {
   IconButton,
   TextInput,
@@ -20,7 +21,7 @@ interface Props {
   groupID?: Number;
 }
 
-var User = "doro";
+
 const TaskURL =
   "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction";
 
@@ -155,7 +156,7 @@ export default function TaskCreationModal({
                   // REGISTER NORMAL TASK TO GROUP
                 } else {
                   // REGISTER NORMAL TASK TO USER
-                  registerTask(taskToAdd, User);
+                  registerTask(taskToAdd, user);
                 }
 
                 setModalVisible(false);
