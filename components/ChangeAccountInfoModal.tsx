@@ -15,8 +15,7 @@ interface Props {
 interface UserAccount {
   displayName: string; // the display name is (eventually) configurable in the settings
   username: string;
-  // i'm assuming none of these are required when creating an account
-  phoneNumber?: string; // will this be a string or a number internally?
+  phoneNumber?: string;
   birthday?: Date;
   pronouns?: string;
   bio?: string;

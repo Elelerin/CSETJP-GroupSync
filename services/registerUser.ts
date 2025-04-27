@@ -56,6 +56,7 @@ export async function syncUserToDatabase() {
 
   const data = await response.json();
   console.log("User registered to database:", data);
-  setUser(data[0]);
+  setUser(data.user.userID);
+  console.log(data.user.userID);
   return data;
 }
