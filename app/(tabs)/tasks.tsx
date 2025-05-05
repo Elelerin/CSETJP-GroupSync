@@ -43,7 +43,7 @@ export default function Index() {
   const sortedTasks = sortTasks();
 
   const onLoad = async () => {
-    getTasks(Globals.user);
+    getTasks(Globals.user());
     setTasks(await Tasks.getTasks()); // typescript says this doesn't exist??
   };
 
@@ -158,7 +158,7 @@ export default function Index() {
               onPress={() => {
                 console.log("getting tasks...");
                 // why does this return a function?
-                getTasks(Globals.user)();
+                getTasks(Globals.user())();
               }}
             />
             <PillButton icon={"trash"} onPress={clearTasks} />

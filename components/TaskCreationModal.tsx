@@ -155,7 +155,7 @@ export default function TaskCreationModal({
                   // REGISTER NORMAL TASK TO GROUP
                 } else {
                   // REGISTER NORMAL TASK TO USER
-                  registerTask(taskToAdd, Globals.user);
+                  registerTask(taskToAdd, Globals.user());
                 }
 
                 setModalVisible(false);

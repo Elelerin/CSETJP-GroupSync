@@ -57,7 +57,7 @@ export async function syncUserToDatabase() {
 
   const data = await response.json();
   console.log("User synced to database:", data);
-  Globals.user = data.user.userID;
+  Globals.setUser(data.user.userID);
   console.log(data.user.userID);
   return data;
 }
