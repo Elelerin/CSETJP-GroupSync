@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { View, StyleSheet } from "react-native";
 import { Button, Card, IconButton, Text } from "react-native-paper";
 
@@ -82,7 +82,7 @@ export default function Settings() {
     router.replace("/");
   };
 
-  // TODO: make this pull from the database
+  let loading = true;
   let accountData: UserAccount = dummyAccount;
 
   // required because react is a PERFECT library with NO FLAWS WHATSOEVER
@@ -90,7 +90,25 @@ export default function Settings() {
   const [subLineContent, setSubLineContent] = useState(getSubLineContent(accountData));
   const [accountBio, setAccountBio] = useState(accountData.bio);
 
-  console.log("page: settings");
+  // pull the account from the database
+  useEffect(() => {
+    // cursed iife to make async stuff work
+    (async()=>{
+      console.log(`Loading data for account ${Globals.user()}`);
+      const temp = await getUser(Globals.user())();
+      if (temp) {
+        console.log("loaded account");
+        accountData = temp;
+        // update everything - useEffect only runs once, so this won't spawn an endless re-render
+        setAccountDisplayName(accountData.displayName);
+        setSubLineContent(getSubLineContent(accountData));
+        setAccountBio(accountData.bio);
+      }
+      else {
+        console.log("loading failed");
+      }
+    })();
+  }, []);
 
   return (
     <View style={containerStyles.page}>
@@ -180,7 +198,7 @@ export default function Settings() {
   /**
    * Gets a user's account from the database.
    */
-  function getUser(_userID: string) {
+  function getUser(_userID: string): () => Promise<UserAccount | undefined> {
     return async () => {
       try {
         console.log("Getting userid.");
@@ -199,15 +217,16 @@ export default function Settings() {
         const json = await response.json();
         console.log("API response:", json);
         const mappedAccount: UserAccount = {
-          displayName: json.displayName || "Joe Williams",  // Fallback to default if not present
-          username: json.userID || "JustASideQuestNPC",
-          pronouns: json.pronouns || "he/him",
-          phoneNumber: json.phoneNumber || "(314) 159-2653",
-          birthday: json.birthday ? new Date(json.birthday) : new Date("4/20/1969"),
-          bio: json.description || "Software engineering student and president of D&D club at Oregon Tech. Plays too much Titanfall and occasionally writes code."
-        };
+          displayName: json.displayName ?? json.userID ?? "<no display name>",
+          username: json.userID ?? "<no user id>",
+          pronouns: json.pronouns,
+          phoneNumber: json.phoneNumber,
+          birthday: json.birthday ? new Date(json.birthday) : undefined,
+          bio: json.description
+        }
+
         // setUserData(mappedAccount);
-        console.log(mappedAccount);
+        // console.log(mappedAccount);
         return mappedAccount;
       } catch (err: any) {
         console.error("Error fetching userData:", err.message || err);

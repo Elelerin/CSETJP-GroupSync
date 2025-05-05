@@ -7,7 +7,9 @@ const Globals = {
     groupTaskURL: "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/groupTasks",
     groupUserURL: "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/groupUser",
     user() { return _user; },
-    setUser(user: string) { _user = user; }
+    setUser(user: string) {
+      _user = user;
+    }
 };
 export default Globals;
 
