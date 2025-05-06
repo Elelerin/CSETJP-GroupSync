@@ -122,7 +122,7 @@ export default function Settings() {
             mode="contained"
             buttonColor={useThemeColor("backgroundSecondary")}
             textColor="white"
-            onPress={getUser("doro")}
+            onPress={getUser(Globals.user())}
           >
             USERTEST
           </Button>
@@ -168,12 +168,14 @@ export default function Settings() {
 function getUser(_userID: string) {
   return async () => {
     try {
-      console.log(`Getting ${Globals.user()}`);
+      console.log(`Getting ${_userID}`);
       const response = await fetch(Globals.userURL, {
         method: 'GET',
+        mode: "cors",
         headers: {
           'userID': _userID,
           'Content-Type': 'application/json'
+
         }
       });
 
