@@ -1,5 +1,5 @@
 import { FlatList, View, StyleSheet } from "react-native";
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 
 import * as Groups from '@/services/groups'
 import * as Tasks from "@/services/tasks";
@@ -143,7 +143,7 @@ export default function Index() {
     
           {/* Smaller Action Buttons - Centered */}
           <View style={{ flexDirection: "row", gap: 10 }}>
-            <PillButton icon={"download"} onPress={() => getGroups(User)}  />
+            <PillButton icon={"download"} onPress={() => getGroups(Globals.user())}  />
             <PillButton icon={"trash"} onPress={remove}  />
           </View>
     

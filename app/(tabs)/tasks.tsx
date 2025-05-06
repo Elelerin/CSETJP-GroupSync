@@ -70,19 +70,9 @@ export default function Index() {
     return taskToAdd;
   }
 
-  function getTasks(_taskAuthor: string) {
-    if (forceGetTasksCrash) {
-      console.error("ERROR: You know what you did.");
-      setDatabaseError(true);
-      return () => {};
-    }
-
-    const toReturn = "ERROR";
-    return async () => {
-      try {
-        console.log("Trying");
-
-        // why is all of this unused?
+  async function getTasks(_taskAuthor: string) {
+    try {
+        console.log("Fetching Tasks");
         const response = await fetch(Globals.taskURL, {
           method: "GET",
           mode: "cors",
@@ -90,43 +80,42 @@ export default function Index() {
             taskAuthor: _taskAuthor,
           },
         })
-          .then((response) => {
-            if (!response.body) {
-              throw new Error("Response body is null");
-            }
-            const reader = response.body.getReader();
-            return new ReadableStream({
-              start(controller) {
-                return pump();
-                function pump(): Promise<void> {
-                  return reader.read().then(({ done, value }) => {
-                    if (done) {
-                      controller.close();
-                      return;
-                    }
-                    controller.enqueue(value);
-                    return pump();
-                  });
-                }
-              },
-            });
-          })
-          .then((stream) => new Response(stream))
-          .then((response) => response.json())
-          .then((json) => {
-            let toPushBack: Tasks.Task[] = [];
-            for (var i = 0; i < json.length; i++) {
-              toPushBack.push(parseTask(json[i]));
-            }
 
-            setTasks(tasks.concat(toPushBack));
-          });
-        console.log(tasks);
-        return toReturn;
-      } catch (err: any) {
+        const json = await response.json();
+        let gotTasks: Tasks.Task[] = json.map(parseTask);
+        setTasks([...tasks, ...gotTasks]);
+        setDatabaseError(false);
+      } 
+      catch (err: any) {
         console.error("Error occurred:", err.message || err);
       }
-    };
+  }
+
+
+  async function deleteTasks(_taskID: string) {
+    if (forceGetTasksCrash) {
+      console.error("ERROR: You know what you did.");
+      setDatabaseError(true);
+      return () => {};
+    }
+
+    try {
+        const response = await fetch(Globals.taskURL, {
+          method: "DELETE",
+          mode: "cors",
+          headers: {
+            taskID: _taskID,
+          },
+        })
+
+        const json = await response.json();
+        let gotTasks: Tasks.Task[] = json.map(parseTask);
+        setTasks([...tasks, ...gotTasks]);
+        setDatabaseError(false);
+      } 
+      catch (err: any) {
+        console.error("Error occurred:", err.message || err);
+      }
   }
 
   const errorMessage = ErrorMessage({
@@ -157,8 +146,7 @@ export default function Index() {
               icon={"download"}
               onPress={() => {
                 console.log("getting tasks...");
-                // why does this return a function?
-                getTasks(Globals.user())();
+                getTasks(Globals.user());
               }}
             />
             <PillButton icon={"trash"} onPress={clearTasks} />
