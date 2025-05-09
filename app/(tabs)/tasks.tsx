@@ -244,6 +244,12 @@ export default function Index() {
               }}
             />
           </View>
+          <View style={{ marginTop: 10 }}>
+            <PillButton
+              text="Mark All Complete"
+              onPress={markAllTasksComplete}
+            />
+          </View>
 
           {/* sorting menu */}
           <View style={{ marginLeft: "auto" }}>
