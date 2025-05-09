@@ -58,6 +58,7 @@ export default function Index() {
         task.id === taskId ? { ...task, complete: !task.complete } : task
       )
     );
+    toggleTaskCompletion(taskId.toString());
   }
   function markAllTasksComplete() {
     //->copilot recommended this one so needs testing
@@ -85,7 +86,9 @@ export default function Index() {
     return taskToAdd;
   }
 
+  
   async function getTasks(_taskAuthor: string) {
+    setTasks([]);
     try {
       console.log("Fetching Tasks");
       const response = await fetch(Globals.taskURL, {
@@ -98,8 +101,30 @@ export default function Index() {
 
       const json = await response.json();
       let gotTasks: Tasks.Task[] = json.map(parseTask);
-      setTasks([...tasks, ...gotTasks]);
+
+      setTasks([...gotTasks]);
       setDatabaseError(false);
+    } catch (err: any) {
+      console.error("Error occurred:", err.message || err);
+    }
+  }
+
+  async function toggleTaskCompletion(_taskID: string) {
+    console.log("Patching Task Completion");
+    try {
+      const fetchBody = {
+        taskID: _taskID
+      };
+      console.log(fetchBody);
+      const response = await fetch(Globals.taskURL, {
+        method: "PATCH",
+        mode: "cors",
+        body: JSON.stringify(fetchBody)
+      });
+
+      if (response) {
+        setDatabaseError(false);
+      }
     } catch (err: any) {
       console.error("Error occurred:", err.message || err);
     }
@@ -116,6 +141,7 @@ export default function Index() {
       });
       if (response) {
         setDatabaseError(false);
+        
       }
     } catch (err: any) {
       console.error("Error occurred:", err.message || err);
@@ -130,8 +156,6 @@ export default function Index() {
     fullPage: true,
     // there's also an "icon" property but it defaults to true
   });
-
-  console.log("page: tasks");
 
   const styles = StyleSheet.create({
     container: {
