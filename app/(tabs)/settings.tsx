@@ -122,17 +122,6 @@ export default function Settings() {
             mode="contained"
             buttonColor={useThemeColor("backgroundSecondary")}
             textColor="white"
-            onPress={getUser(Globals.user())}
-          >
-            USERTEST
-          </Button>
-        </Card>
-
-        <Card mode="outlined" style={settingsStyles.card}>
-          <Button
-            mode="contained"
-            buttonColor={useThemeColor("backgroundSecondary")}
-            textColor="white"
             onPress={() => setPreferencesVisible(true)}
           >
             Preferences

@@ -92,13 +92,7 @@ export default function Index() {
   }
 
 
-  async function deleteTasks(_taskID: string) {
-    if (forceGetTasksCrash) {
-      console.error("ERROR: You know what you did.");
-      setDatabaseError(true);
-      return () => {};
-    }
-
+  async function deleteTask(_taskID: string) {
     try {
         const response = await fetch(Globals.taskURL, {
           method: "DELETE",
@@ -107,15 +101,14 @@ export default function Index() {
             taskID: _taskID,
           },
         })
-
-        const json = await response.json();
-        let gotTasks: Tasks.Task[] = json.map(parseTask);
-        setTasks([...tasks, ...gotTasks]);
-        setDatabaseError(false);
-      } 
-      catch (err: any) {
-        console.error("Error occurred:", err.message || err);
-      }
+        if(response){
+          setDatabaseError(false);
+      
+        } 
+    }
+    catch (err: any) {
+      console.error("Error occurred:", err.message || err);
+    }
   }
 
   const errorMessage = ErrorMessage({
