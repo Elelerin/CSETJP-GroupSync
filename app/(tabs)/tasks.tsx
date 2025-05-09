@@ -9,7 +9,8 @@ import TaskCreationModal from "@/components/TaskCreationModal";
 import { Dropdown } from "react-native-element-dropdown";
 import ErrorMessage from "@/components/ErrorMessage";
 import Globals from "@/services/globals";
-
+import { Checkbox } from "react-native-paper";
+import * as React from "react";
 /** Self-explanatory (for testing). */
 const forceGetTasksCrash = false;
 
@@ -51,6 +52,20 @@ export default function Index() {
     setTasks([]);
   }
 
+  function markTaskComplete(taskId: number) {
+    setTasks((prev) =>
+      prev.map((task) =>
+        task.id === taskId ? { ...task, complete: !task.complete } : task
+      )
+    );
+  }
+  function markAllTasksComplete() {
+    //->copilot recommended this one so needs testing
+    setTasks((prev) =>
+      prev.map((task) => ({ ...task, complete: !task.complete }))
+    );
+  }
+
   /**
    * Converts a task's database entry to a useable object
    * @param taskToParse What type is this?
@@ -72,41 +87,37 @@ export default function Index() {
 
   async function getTasks(_taskAuthor: string) {
     try {
-        console.log("Fetching Tasks");
-        const response = await fetch(Globals.taskURL, {
-          method: "GET",
-          mode: "cors",
-          headers: {
-            taskAuthor: _taskAuthor,
-          },
-        })
+      console.log("Fetching Tasks");
+      const response = await fetch(Globals.taskURL, {
+        method: "GET",
+        mode: "cors",
+        headers: {
+          taskAuthor: _taskAuthor,
+        },
+      });
 
-        const json = await response.json();
-        let gotTasks: Tasks.Task[] = json.map(parseTask);
-        setTasks([...tasks, ...gotTasks]);
-        setDatabaseError(false);
-      } 
-      catch (err: any) {
-        console.error("Error occurred:", err.message || err);
-      }
+      const json = await response.json();
+      let gotTasks: Tasks.Task[] = json.map(parseTask);
+      setTasks([...tasks, ...gotTasks]);
+      setDatabaseError(false);
+    } catch (err: any) {
+      console.error("Error occurred:", err.message || err);
+    }
   }
-
 
   async function deleteTask(_taskID: string) {
     try {
-        const response = await fetch(Globals.taskURL, {
-          method: "DELETE",
-          mode: "cors",
-          headers: {
-            taskID: _taskID,
-          },
-        })
-        if(response){
-          setDatabaseError(false);
-      
-        } 
-    }
-    catch (err: any) {
+      const response = await fetch(Globals.taskURL, {
+        method: "DELETE",
+        mode: "cors",
+        headers: {
+          taskID: _taskID,
+        },
+      });
+      if (response) {
+        setDatabaseError(false);
+      }
+    } catch (err: any) {
       console.error("Error occurred:", err.message || err);
     }
   }
@@ -121,6 +132,65 @@ export default function Index() {
   });
 
   console.log("page: tasks");
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      alignItems: "center",
+      backgroundColor: useThemeColor("backgroundPrimary"),
+      paddingHorizontal: 20,
+      paddingTop: 10,
+    },
+    listContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      width: "100%",
+      paddingHorizontal: 10,
+      marginBottom: 10,
+    },
+    tasksContainer: {
+      width: "100%",
+      marginTop: 10,
+    },
+  });
+
+  const dropdownStyles = StyleSheet.create({
+    main: {
+      marginHorizontal: 12,
+      marginTop: 14,
+      marginBottom: 18,
+      height: 50,
+      borderBottomColor: useThemeColor("highlight"),
+      borderBottomWidth: 2,
+      minWidth: 175,
+    },
+    icon: {
+      marginRight: 5,
+    },
+    placeholder: {
+      color: useThemeColor("textSecondary"),
+      fontSize: 18,
+    },
+    selectedText: {
+      color: useThemeColor("textPrimary"),
+      fontSize: 18,
+    },
+    itemText: {
+      color: useThemeColor("textPrimary"),
+      fontSize: 18,
+    },
+    dropdownBox: {
+      backgroundColor: useThemeColor("backgroundSecondary"),
+      borderRadius: 10,
+      borderColor: useThemeColor("highlight"),
+      borderWidth: 2,
+    },
+  });
+
+  function addToSelectedList(item: Tasks.Task): Tasks.Task {
+    throw new Error("Function not implemented.");
+  }
 
   //Return render of tasks page
   return (
@@ -157,7 +227,7 @@ export default function Index() {
               style={dropdownStyles.main}
               placeholderStyle={dropdownStyles.placeholder}
               selectedTextStyle={dropdownStyles.selectedText}
-              containerStyle={dropdownStyles.container}
+              containerStyle={dropdownStyles.dropdownBox}
               itemTextStyle={dropdownStyles.itemText}
               activeColor="transparent"
               maxHeight={300}
@@ -179,84 +249,36 @@ export default function Index() {
           style={styles.tasksContainer}
           data={sortedTasks}
           renderItem={({ item }) => (
-            <TaskView
-              task={item}
-              onClick={() => {
-                if (!selectedTasks.includes(item.id)) {
-                  setSelectedTasks([...selectedTasks, item.id]);
-                } else {
-                  setSelectedTasks(
-                    selectedTasks.filter((taskId) => taskId !== item.id)
-                  );
-                }
-                console.log(selectedTasks);
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginBottom: 8,
               }}
-            />
+            >
+              <Checkbox
+                status={item.complete ? "checked" : "unchecked"}
+                onPress={() => markTaskComplete(item.id)}
+              />
+              <TaskView
+                task={item}
+                onClick={() => {
+                  if (!selectedTasks.includes(item.id)) {
+                    setSelectedTasks([...selectedTasks, item.id]);
+                  } else {
+                    setSelectedTasks(
+                      selectedTasks.filter((taskId) => taskId !== item.id)
+                    );
+                  }
+                  console.log(selectedTasks);
+                }}
+              />
+            </View>
           )}
           showsHorizontalScrollIndicator={false}
         />
       </View>
-      {/* this must be outside of the main container! */}
       {databaseError && errorMessage}
     </View>
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    backgroundColor: useThemeColor("backgroundPrimary"),
-    paddingHorizontal: 20,
-    paddingTop: 10,
-  },
-  listContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
-    paddingHorizontal: 10,
-    marginBottom: 10,
-  },
-  tasksContainer: {
-    width: "100%",
-    marginTop: 10,
-  },
-});
-
-const dropdownStyles = StyleSheet.create({
-  main: {
-    marginHorizontal: 12,
-    marginTop: 14,
-    marginBottom: 18,
-    height: 50,
-    borderBottomColor: useThemeColor("highlight"),
-    borderBottomWidth: 2,
-    minWidth: 175,
-  },
-  icon: {
-    marginRight: 5,
-  },
-  placeholder: {
-    color: useThemeColor("textSecondary"),
-    fontSize: 18,
-  },
-  selectedText: {
-    color: useThemeColor("textPrimary"),
-    fontSize: 18,
-  },
-  itemText: {
-    color: useThemeColor("textPrimary"),
-    fontSize: 18,
-  },
-  container: {
-    backgroundColor: useThemeColor("backgroundSecondary"),
-    borderRadius: 10,
-    borderColor: useThemeColor("highlight"),
-    borderWidth: 2,
-  },
-});
-
-function addToSelectedList(item: Tasks.Task): Tasks.Task {
-  throw new Error("Function not implemented.");
 }

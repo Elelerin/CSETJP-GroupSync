@@ -7,7 +7,7 @@ import { auth } from "../services/firebaseConfig";
 import { loginUser, registerUser } from "../services/firebaseAuthService";
 import Globals from "@/services/globals"
 import { syncUserWithAWS } from "../services/awsService"; 
-
+import * as React from 'react';
 
 export default function Index() {
   const router = useRouter();
