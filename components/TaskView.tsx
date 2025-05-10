@@ -10,19 +10,48 @@ type Props = {
 };
 
 export default function TaskView({ task, onClick }: Props) {
-  const [checked, setChecked] = useState(false);
+  // const [checked, setChecked] = useState(false); ->doesn't seem to be used here
 
   return (
     <Card mode="contained" style={styles.boxContainer}>
       <Card.Content>
         <View style={styles.titleRow}>
-          <Text style={styles.textTitle}>{task.title}</Text>
-          <Text style={styles.textDate}>
+          <Text
+            style={[
+              styles.textTitle,
+              task.complete && {
+                textDecorationLine: "line-through",
+                opacity: 0.5,
+              },
+            ]}
+          >
+            {task.title}
+          </Text>
+
+          <Text
+            style={[
+              styles.textDate,
+              task.complete && {
+                textDecorationLine: "line-through",
+                opacity: 0.5,
+              },
+            ]}
+          >
             Due: {new Date(task.dueDate).toLocaleDateString()}
           </Text>
         </View>
         <View>
-          <Text style={styles.textDescription}>{task.description}</Text>
+          <Text
+            style={[
+              styles.textDescription,
+              task.complete && {
+                textDecorationLine: "line-through",
+                opacity: 0.5,
+              },
+            ]}
+          >
+            {task.description}
+          </Text>
         </View>
       </Card.Content>
     </Card>
@@ -32,7 +61,7 @@ export default function TaskView({ task, onClick }: Props) {
 const styles = StyleSheet.create({
   boxContainer: {
     marginVertical: 10,
-    width: "100%",
+    width: "70%",
     flex: 1,
     flexDirection: "column",
     alignContent: "flex-start",

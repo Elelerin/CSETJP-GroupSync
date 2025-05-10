@@ -60,6 +60,13 @@ export default function Index() {
     );
     toggleTaskCompletion(taskId.toString());
   }
+
+  function markSelectedTasksComplete() {
+    selectedTasks.forEach((taskId) => {
+      markTaskComplete(taskId.valueOf());
+    });
+  }
+
   function markAllTasksComplete() {
     //->copilot recommended this one so needs testing
     setTasks((prev) =>
@@ -86,7 +93,6 @@ export default function Index() {
     return taskToAdd;
   }
 
-  
   async function getTasks(_taskAuthor: string) {
     setTasks([]);
     try {
@@ -113,13 +119,13 @@ export default function Index() {
     console.log("Patching Task Completion");
     try {
       const fetchBody = {
-        taskID: _taskID
+        taskID: _taskID,
       };
       console.log(fetchBody);
       const response = await fetch(Globals.taskURL, {
         method: "PATCH",
         mode: "cors",
-        body: JSON.stringify(fetchBody)
+        body: JSON.stringify(fetchBody),
       });
 
       if (response) {
@@ -141,7 +147,6 @@ export default function Index() {
       });
       if (response) {
         setDatabaseError(false);
-        
       }
     } catch (err: any) {
       console.error("Error occurred:", err.message || err);
@@ -246,8 +251,37 @@ export default function Index() {
           </View>
           <View style={{ marginTop: 10 }}>
             <PillButton
+              text="Mark Selected Complete"
+              onPress={markSelectedTasksComplete}
+            />
+          </View>
+          <View style={{ marginTop: 10 }}>
+            <PillButton
               text="Mark All Complete"
               onPress={markAllTasksComplete}
+            />
+          </View>
+          <View style={{ marginTop: 10 }}>
+            <PillButton
+              text="Delete Selected"
+              onPress={() => {
+                selectedTasks.forEach((taskId) => {
+                  deleteTask(taskId.toString());
+                });
+                setSelectedTasks([]);
+              }}
+            />
+          </View>
+          <View style={{ marginTop: 10 }}>
+            <PillButton
+              text="Delete All"
+              onPress={() => {
+                tasks.forEach((task) => {
+                  deleteTask(task.id.toString());
+                });
+                setTasks([]);
+                setSelectedTasks([]);
+              }}
             />
           </View>
 
@@ -287,9 +321,20 @@ export default function Index() {
               }}
             >
               <Checkbox
-                status={item.complete ? "checked" : "unchecked"}
-                onPress={() => markTaskComplete(item.id)}
+                status={
+                  selectedTasks.includes(item.id) ? "checked" : "unchecked"
+                }
+                onPress={() => {
+                  if (!selectedTasks.includes(item.id)) {
+                    setSelectedTasks([...selectedTasks, item.id]);
+                  } else {
+                    setSelectedTasks(
+                      selectedTasks.filter((taskId) => taskId !== item.id)
+                    );
+                  }
+                }}
               />
+
               <TaskView
                 task={item}
                 onClick={() => {
