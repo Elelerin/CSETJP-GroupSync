@@ -7,32 +7,36 @@ import ChangePasswordModal from "@/components/ChangePasswordModal";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import ChangePreferencesModal from "@/components/PreferencesModal";
-import MultiStyledText, { MultiStyledTextDivider, MultiStyledTextItem } from "@/components/MultiStyledText";
+import MultiStyledText, {
+  MultiStyledTextDivider,
+  MultiStyledTextItem,
+} from "@/components/MultiStyledText";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
+import { syncUserToDatabase } from "@/services/registerUser";
 
 interface AccountInfo {
-  displayName: string, // the display name is (eventually) configurable in the settings
-  username: string,
+  displayName: string; // the display name is (eventually) configurable in the settings
+  username: string;
   // i'm assuming none of these are required when creating an account
-  phoneNumber?: string, // will this be a string or a number internally?
-  birthday?: Date,
-  pronouns?: string,
-  description?: string
+  phoneNumber?: string; // will this be a string or a number internally?
+  birthday?: Date;
+  pronouns?: string;
+  description?: string;
 }
 
 export default function Settings() {
   const [isModalVisible, setModalVisible] = useState(false); // for change password modal
   const [isPreferencesVisible, setPreferencesVisible] = useState(false); // for preferences modal
 
-  
   const [userData, setUserData] = useState<AccountInfo | null>({
     displayName: "Joe Williams",
     username: "JustASideQuestNPC",
     pronouns: "he/him",
     phoneNumber: "(314) 159-2653",
     birthday: new Date("4/20/1969"),
-    description: "Software engineering student and president of D&D club at Oregon Tech. Plays too much Titanfall and occasionally writes code."
+    description:
+      "Software engineering student and president of D&D club at Oregon Tech. Plays too much Titanfall and occasionally writes code.",
   });
   const router = useRouter(); // for logout page
   const handleLogout = () => {
@@ -40,10 +44,12 @@ export default function Settings() {
     router.replace("/");
   };
 
+  //button for syncing
+  const handleSync = () => {};
   useFocusEffect(
     useCallback(() => {
       const fetchUsers = async () => {
-          getUser(Globals.user());
+        getUser(Globals.user());
       };
 
       fetchUsers();
@@ -52,29 +58,27 @@ export default function Settings() {
     }, [])
   );
 
-
-
   // create an element for the sub line
-  let subLineContent: (MultiStyledTextItem|MultiStyledTextDivider)[] = [];
-  if (userData.pronouns && userData.pronouns !== "") {
+  let subLineContent: (MultiStyledTextItem | MultiStyledTextDivider)[] = [];
+  if (userData && userData.pronouns && userData.pronouns !== "") {
     subLineContent.push({
       type: "text",
       content: userData.pronouns,
-      style: infoStyles.subLineInfo
+      style: infoStyles.subLineInfo,
     });
   }
-  if (userData.birthday) {
+  if (userData && userData.birthday) {
     subLineContent.push({
       type: "text",
-      content: userData.birthday.toLocaleDateString(),
-      style: infoStyles.subLineInfo
+      content: userData?.birthday?.toLocaleDateString() || "",
+      style: infoStyles.subLineInfo,
     });
   }
-  if (userData.phoneNumber && userData.phoneNumber !== "") {
+  if (userData && userData.phoneNumber && userData.phoneNumber !== "") {
     subLineContent.push({
       type: "text",
       content: userData.phoneNumber,
-      style: infoStyles.subLineInfo
+      style: infoStyles.subLineInfo,
     });
   }
   if (subLineContent.length > 0) {
@@ -91,12 +95,19 @@ export default function Settings() {
     <View style={containerStyles.page}>
       <View style={containerStyles.info}>
         <View style={infoStyles.container}>
-          <Text style={infoStyles.displayName}>{userData.displayName}</Text>
-          <Text style={infoStyles.username}>@{userData.username}</Text>
-          <MultiStyledText content={subLineContent} topLevelStyle={infoStyles.subLine} />
-          {userData.description != null ?
-            <Text style={infoStyles.bioText}>{userData.description}</Text> : null
-          }
+          {userData && (
+            <Text style={infoStyles.displayName}>{userData.displayName}</Text>
+          )}
+          {userData && (
+            <Text style={infoStyles.username}>@{userData.username}</Text>
+          )}
+          <MultiStyledText
+            content={subLineContent}
+            topLevelStyle={infoStyles.subLine}
+          />
+          {userData && userData.description != null ? (
+            <Text style={infoStyles.bioText}>{userData.description}</Text>
+          ) : null}
         </View>
       </View>
       <View style={containerStyles.settings}>
@@ -142,7 +153,18 @@ export default function Settings() {
           visible={isModalVisible}
           onDismiss={() => setModalVisible(false)}
         />
-
+        <Card mode="outlined" style={settingsStyles.card}>
+          <Button
+            mode="contained"
+            buttonColor={useThemeColor("backgroundSecondary")}
+            textColor={useThemeColor("textPrimary")}
+            onPress={handleSync}
+            // onPress={syncUserToDatabase(userData)}?
+            //for now pointing to empty function
+          >
+            Sync
+          </Button>
+        </Card>
         <ChangePreferencesModal
           visible={isPreferencesVisible}
           onDismiss={() => setPreferencesVisible(false)}
@@ -152,45 +174,47 @@ export default function Settings() {
   );
 
   /**
- * Gets a user's account from the database.
- */
-function getUser(_userID: string) {
-  return async () => {
-    try {
-      console.log(`Getting ${_userID}`);
-      const response = await fetch(Globals.userURL, {
-        method: 'GET',
-        mode: "cors",
-        headers: {
-          'userID': _userID,
-          'Content-Type': 'application/json'
+   * Gets a user's account from the database.
+   */
+  function getUser(_userID: string) {
+    return async () => {
+      try {
+        console.log(`Getting ${_userID}`);
+        const response = await fetch(Globals.userURL, {
+          method: "GET",
+          mode: "cors",
+          headers: {
+            userID: _userID,
+            "Content-Type": "application/json",
+          },
+        });
 
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
         }
-      });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        const json = await response.json();
+        console.log("API response:", json);
+        const mappedAccount: AccountInfo = {
+          displayName: json.displayName || "Joe Williams", // Fallback to default if not present
+          username: json.userID || "JustASideQuestNPC",
+          pronouns: json.pronouns || "he/him",
+          phoneNumber: json.phoneNumber || "(314) 159-2653",
+          birthday: json.birthday
+            ? new Date(json.birthday)
+            : new Date("4/20/1969"),
+          description:
+            json.description ||
+            "Software engineering student and president of D&D club at Oregon Tech. Plays too much Titanfall and occasionally writes code.",
+        };
+        setUserData(mappedAccount);
+        console.log(mappedAccount);
+        return mappedAccount;
+      } catch (err: any) {
+        console.error("Error fetching userData:", err.message || err);
       }
-
-      const json = await response.json();
-      console.log("API response:", json);
-      const mappedAccount: AccountInfo = {
-        displayName: json.displayName || "Joe Williams",  // Fallback to default if not present
-        username: json.userID || "JustASideQuestNPC",
-        pronouns: json.pronouns || "he/him",
-        phoneNumber: json.phoneNumber || "(314) 159-2653",
-        birthday: json.birthday ? new Date(json.birthday) : new Date("4/20/1969"),
-        description: json.description || "Software engineering student and president of D&D club at Oregon Tech. Plays too much Titanfall and occasionally writes code."
-      };
-      setUserData(mappedAccount);
-      console.log(mappedAccount);
-      return mappedAccount;
-    } catch (err: any) {
-      console.error("Error fetching userData:", err.message || err);
-    }
-  };
-}
-
+    };
+  }
 }
 
 /**
@@ -220,8 +244,6 @@ function registerUser(_userID: string, _username: string, _password: string) {
     } catch {}
   };
 }
-
-
 
 /**
  * Gets list of users in database as an array of userIDs
@@ -254,7 +276,7 @@ const containerStyles = StyleSheet.create({
   page: {
     flex: 1,
     backgroundColor: useThemeColor("backgroundPrimary"), // Match dark theme
-    flexDirection: "row"
+    flexDirection: "row",
   },
   info: {
     flex: 1,
@@ -262,7 +284,7 @@ const containerStyles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 20,
     paddingLeft: 55,
-    paddingRight: 35
+    paddingRight: 35,
   },
   settings: {
     flex: 1,
@@ -291,7 +313,7 @@ const infoStyles = StyleSheet.create({
     marginTop: 0,
     marginBottom: 7,
     borderBottomWidth: 2,
-    borderBottomColor: useThemeColor("highlight")
+    borderBottomColor: useThemeColor("highlight"),
   },
   username: {
     color: useThemeColor("textSecondary"),
@@ -300,7 +322,7 @@ const infoStyles = StyleSheet.create({
     marginBottom: 7,
     paddingBottom: 7,
     borderBottomWidth: 2,
-    borderBottomColor: useThemeColor("highlight")
+    borderBottomColor: useThemeColor("highlight"),
   },
   bioText: {
     color: useThemeColor("textPrimary"),
@@ -314,11 +336,11 @@ const infoStyles = StyleSheet.create({
     marginBottom: 7,
     paddingBottom: 7,
     borderBottomWidth: 2,
-    borderBottomColor: useThemeColor("highlight")
+    borderBottomColor: useThemeColor("highlight"),
   },
   subLineInfo: {
     color: useThemeColor("textSecondary"),
-    fontSize: 20
+    fontSize: 20,
   },
 });
 
