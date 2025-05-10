@@ -1,9 +1,9 @@
 import { FlatList, View, StyleSheet } from "react-native";
-import { useState } from 'react';
+import { useState } from "react";
 
-import * as Groups from '@/services/groups'
+import * as Groups from "@/services/groups";
 import * as Tasks from "@/services/tasks";
-import PillButton from '@/components/PillButton'
+import PillButton from "@/components/PillButton";
 import GroupView from "@/components/GroupView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Dropdown } from "react-native-element-dropdown";
@@ -13,7 +13,9 @@ import Globals from "@/services/globals";
 /** Self-explanatory (for testing). */
 const forceGetGroupsCrash = false;
 
-const User = 'doro';
+const [createGroupVisible, setCreateGroupVisible] = useState(false);
+
+const User = "doro";
 // these are now properties on Globals
 // const GroupTaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/groupTasks"
 // const TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
@@ -24,10 +26,12 @@ export default function Index() {
   const [databaseError, setDatabaseError] = useState<boolean>(false);
 
   // sort modes and their associated sorting functions
-  const sortModes: { [key: string]: (a: Groups.Group, b: Groups.Group)=>number } = {
+  const sortModes: {
+    [key: string]: (a: Groups.Group, b: Groups.Group) => number;
+  } = {
     name: (a, b) => a.title.localeCompare(b.title),
     date: (a, b) => 0, // TODO: replace this with an actual sorting function
-    size: (a, b) => (a.description.length ?? 0) - (b.description?.length ?? 0)
+    size: (a, b) => (a.description.length ?? 0) - (b.description?.length ?? 0),
   };
   // moved to a function so it can be re-called whenever the sort mode changes
   function sortGroups() {
@@ -36,9 +40,9 @@ export default function Index() {
   }
 
   // sort mode menu stuff
-  const sortModeMenuData = Object.keys(sortModes).map(
-    i => { return { label: `Sort by ${i}`, value: i }; }
-  );
+  const sortModeMenuData = Object.keys(sortModes).map((i) => {
+    return { label: `Sort by ${i}`, value: i };
+  });
 
   const sortedGroups = sortGroups();
 
@@ -46,7 +50,7 @@ export default function Index() {
     console.log(groupToParse);
     const groupToAdd = {
       id: groupToParse[0],
-      title:groupToParse[1],
+      title: groupToParse[1],
       description: groupToParse[2],
 
       numTasks: 0,
@@ -56,7 +60,7 @@ export default function Index() {
        * the backend is actually implemented, but for now I'm just hard-coding things for the demo.
        */
       nextTaskTitle: "NULL",
-    }
+    };
 
     return groupToAdd;
   }
@@ -76,11 +80,11 @@ export default function Index() {
       console.log("Getting Groups...");
 
       const response = await fetch(Globals.groupURL, {
-          method : 'GET',
-          mode : 'cors',
-          headers : {
-            groupOwner : _groupOwner
-          }
+        method: "GET",
+        mode: "cors",
+        headers: {
+          groupOwner: _groupOwner,
+        },
       });
 
       if (!response.ok) {
@@ -100,14 +104,14 @@ export default function Index() {
 
   function parseTask(taskToParse: any) {
     console.log(taskToParse);
-    const taskToAdd : Tasks.Task = {
+    const taskToAdd: Tasks.Task = {
       title: taskToParse[1],
       id: taskToParse[0],
       description: taskToParse[2],
-      
+
       dueDate: taskToParse[4],
-      complete: taskToParse[5]
-    }
+      complete: taskToParse[5],
+    };
     return taskToAdd;
   }
 
@@ -117,17 +121,17 @@ export default function Index() {
   const remove = async () => {
     // DELETE ALL GROUPS (HEAVY OPS)
     setGroups([]);
-  }
+  };
 
   const errorMessage = ErrorMessage({
     text: "Could not get groups.",
     // setting this to true (the default is false) will automatically center the message on the
     // page. for this to work, put the element *outside* of the main container and wrap the entire
     // thing in a second view
-    fullPage: true
+    fullPage: true,
     // there's also an "icon" property but it defaults to true
   });
-  
+
   console.log("page: groups");
 
   // Return render of groups page
@@ -140,13 +144,15 @@ export default function Index() {
       <View style={styles.container}>
         {/* 🔹 Button Row - Centered with Sort By on the Right */}
         <View style={styles.buttonRow}>
-    
           {/* Smaller Action Buttons - Centered */}
           <View style={{ flexDirection: "row", gap: 10 }}>
-            <PillButton icon={"download"} onPress={() => getGroups(Globals.user())}  />
-            <PillButton icon={"trash"} onPress={remove}  />
+            <PillButton
+              icon={"download"}
+              onPress={() => getGroups(Globals.user())}
+            />
+            <PillButton icon={"trash"} onPress={remove} />
           </View>
-    
+
           {/* Sort By Button - Aligned Right */}
           <View style={{ marginLeft: "auto" }}>
             <Dropdown
@@ -162,16 +168,16 @@ export default function Index() {
               placeholder="Color Theme"
               data={sortModeMenuData}
               value={sortBy}
-              onChange={item => {
+              onChange={(item) => {
                 setSortBy(item.value);
                 console.log(`Sort groups by ${item.value}`);
               }}
             />
           </View>
         </View>
-        <FlatList 
-          style={styles.groupsContainer} 
-          data={groups}  
+        <FlatList
+          style={styles.groupsContainer}
+          data={groups}
           renderItem={({ item }) => <GroupView group={item} id={item.id} />}
           showsHorizontalScrollIndicator={false}
         />
@@ -185,13 +191,13 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
     backgroundColor: useThemeColor("backgroundPrimary"),
     paddingHorizontal: 20,
     paddingTop: 10,
   },
   groupsContainer: {
-    width: '100%',
+    width: "100%",
     // marginTop: 10,
   },
   buttonRow: {
@@ -201,7 +207,7 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingHorizontal: 10,
     // marginBottom: 10
-  }
+  },
 });
 
 const dropdownStyles = StyleSheet.create({
@@ -212,7 +218,7 @@ const dropdownStyles = StyleSheet.create({
     height: 50,
     borderBottomColor: useThemeColor("highlight"),
     borderBottomWidth: 2,
-    minWidth: 175
+    minWidth: 175,
   },
   icon: {
     marginRight: 5,
