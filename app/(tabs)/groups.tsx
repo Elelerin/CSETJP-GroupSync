@@ -9,11 +9,10 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { Dropdown } from "react-native-element-dropdown";
 import ErrorMessage from "@/components/ErrorMessage";
 import Globals from "@/services/globals";
+import CreateGroupModal from "@/components/CreateGroupModal";
 
 /** Self-explanatory (for testing). */
 const forceGetGroupsCrash = false;
-
-const [createGroupVisible, setCreateGroupVisible] = useState(false);
 
 const User = "doro";
 // these are now properties on Globals
@@ -21,9 +20,64 @@ const User = "doro";
 // const TaskURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction"
 // const GroupURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/GroupFunction"
 export default function Index() {
+  const [createGroupVisible, setCreateGroupVisible] = useState(false);
   const [groups, setGroups] = useState<Groups.Group[]>([]);
   const [sortBy, setSortBy] = useState<"name" | "date" | "size">("name");
   const [databaseError, setDatabaseError] = useState<boolean>(false);
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      alignItems: "center",
+      backgroundColor: useThemeColor("backgroundPrimary"),
+      paddingHorizontal: 20,
+      paddingTop: 10,
+    },
+    groupsContainer: {
+      width: "100%",
+      // marginTop: 10,
+    },
+    buttonRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      width: "100%",
+      paddingHorizontal: 10,
+      // marginBottom: 10
+    },
+  });
+  const dropdownStyles = StyleSheet.create({
+    main: {
+      marginHorizontal: 12,
+      marginTop: 14,
+      marginBottom: 18,
+      height: 50,
+      borderBottomColor: useThemeColor("highlight"),
+      borderBottomWidth: 2,
+      minWidth: 175,
+    },
+    icon: {
+      marginRight: 5,
+    },
+    placeholder: {
+      color: useThemeColor("textSecondary"),
+      fontSize: 18,
+    },
+    selectedText: {
+      color: useThemeColor("textPrimary"),
+      fontSize: 18,
+    },
+    itemText: {
+      color: useThemeColor("textPrimary"),
+      fontSize: 18,
+    },
+    container: {
+      backgroundColor: useThemeColor("backgroundSecondary"),
+      borderRadius: 10,
+      borderColor: useThemeColor("highlight"),
+      borderWidth: 2,
+    },
+  });
 
   // sort modes and their associated sorting functions
   const sortModes: {
@@ -151,6 +205,11 @@ export default function Index() {
               onPress={() => getGroups(Globals.user())}
             />
             <PillButton icon={"trash"} onPress={remove} />
+            <PillButton
+              // icon={"plus"}
+              text={"Create Group"}
+              onPress={() => setCreateGroupVisible(true)}
+            />
           </View>
 
           {/* Sort By Button - Aligned Right */}
@@ -181,64 +240,18 @@ export default function Index() {
           renderItem={({ item }) => <GroupView group={item} id={item.id} />}
           showsHorizontalScrollIndicator={false}
         />
+        {/* Create Group Modal */}
+        <CreateGroupModal
+          visible={createGroupVisible}
+          onDismiss={() => setCreateGroupVisible(false)}
+          onSubmit={(name) => {
+            console.log("Creating group:", name);
+            setCreateGroupVisible(false);
+          }}
+        />
       </View>
       {/* this must be outside of the main container! */}
       {databaseError && errorMessage}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    backgroundColor: useThemeColor("backgroundPrimary"),
-    paddingHorizontal: 20,
-    paddingTop: 10,
-  },
-  groupsContainer: {
-    width: "100%",
-    // marginTop: 10,
-  },
-  buttonRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
-    paddingHorizontal: 10,
-    // marginBottom: 10
-  },
-});
-
-const dropdownStyles = StyleSheet.create({
-  main: {
-    marginHorizontal: 12,
-    marginTop: 14,
-    marginBottom: 18,
-    height: 50,
-    borderBottomColor: useThemeColor("highlight"),
-    borderBottomWidth: 2,
-    minWidth: 175,
-  },
-  icon: {
-    marginRight: 5,
-  },
-  placeholder: {
-    color: useThemeColor("textSecondary"),
-    fontSize: 18,
-  },
-  selectedText: {
-    color: useThemeColor("textPrimary"),
-    fontSize: 18,
-  },
-  itemText: {
-    color: useThemeColor("textPrimary"),
-    fontSize: 18,
-  },
-  container: {
-    backgroundColor: useThemeColor("backgroundSecondary"),
-    borderRadius: 10,
-    borderColor: useThemeColor("highlight"),
-    borderWidth: 2,
-  },
-});
