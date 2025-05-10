@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Globals from "@/services/globals";
 import { View, StyleSheet } from "react-native";
 import {
   Modal,
@@ -36,6 +37,7 @@ export default function CreateGroupModal({
       setError("Group name is required.");
       return;
     }
+    registerGroup(groupName, description)
     setError("");
     onSubmit(groupName.trim(), description.trim(), visibility);
     setGroupName("");
@@ -44,6 +46,30 @@ export default function CreateGroupModal({
     onDismiss();
   };
 
+
+  async function registerGroup(_groupName: string, _groupDescription: string) {
+    try {
+      const fetchBody = {
+        groupName: _groupName,
+        groupDesc: _groupDescription
+      };
+      console.log(fetchBody);
+  
+      const response = await fetch(Globals.groupURL, {
+        method: "POST",
+        body: JSON.stringify(fetchBody),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Error registering group.");
+      }
+  
+      const json = response;
+      return json;
+    } catch {}
+  }
+
+  
   return (
     <Portal>
       <Modal

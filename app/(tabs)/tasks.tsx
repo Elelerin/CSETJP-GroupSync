@@ -60,6 +60,7 @@ export default function Index() {
     );
     toggleTaskCompletion(taskId.toString());
   }
+  
   function markAllTasksComplete() {
     //->copilot recommended this one so needs testing
     setTasks((prev) =>
