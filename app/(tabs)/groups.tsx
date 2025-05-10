@@ -148,7 +148,7 @@ export default function Index() {
       const json = await response.json();
 
       let gotGroups: Groups.Group[] = json.map(parseGroup);
-      setGroups([...groups, ...gotGroups]);
+      setGroups([...gotGroups]);
       setDatabaseError(false);
     } catch (error) {
       console.error("Failed to get groups", error);
