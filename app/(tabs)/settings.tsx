@@ -164,19 +164,47 @@ export default function Settings() {
         modalVisible={infoEditorVisible}
         setModalVisible={setInfoEditorVisible}
         account={userData}
+        // this is called whenever the confirm button is pressed to close the modal, and gets passed
+        // the updated account info from the modal's input fields
         onSubmission={(newUserData: AccountInfo) => {
-          // updates display name and bio automatically
-          console.log(newUserData);
+          // newUserData will *always* be correctly updated
+          console.log(
+            `newUserData: {\n` +
+            `  displayName: "${newUserData.displayName}"\n` +
+            `  pronouns: "${newUserData.pronouns}\n` +
+            `  birthday: ${newUserData.birthday}\n` +
+            `  description: ${newUserData.description}\n` +
+            `}`
+          );
+          // this has to be done with a callback function because react is dumb
           setUserData(prevUser => ({
+            // carries over any properties that don't get set in here, which is just the username
             ...prevUser,
+
+            // displayName and description always update immediately when the modal closes
             displayName: newUserData.displayName,
-            phoneNumber: newUserData.phoneNumber,
+            description: newUserData.description,
+
+            // birthday and pronouns don't update when the modal changes, but opening and closing
+            // the modal again (even without changing anything) will make them update. if you check
+            // the browser console you can see that userData hasn't been updated, so i'm pretty
+            // sure it's a logic error and not a ui error
             birthday: newUserData.birthday,
             pronouns: newUserData.pronouns,
-            description: newUserData.description
+            
+            // currently unused
+            phoneNumber: newUserData.phoneNumber,
           }));
-          console.log(userData);
-          // update sub line
+          console.log(
+            `userData: {\n` +
+            `  displayName: "${userData.displayName}"\n` +
+            `  pronouns: "${userData.pronouns}\n"` +
+            `  birthday: ${userData.birthday}\n` +
+            `  description: "${userData.description}"\n` +
+            `}`
+          );
+
+          // update sub line - everything after this seems fine at this point
           buffer = [];
           if (userData.pronouns && userData.pronouns !== "") {
             buffer.push({
