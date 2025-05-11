@@ -18,7 +18,7 @@ interface UserAccount {
   phoneNumber?: string;
   birthday?: Date;
   pronouns?: string;
-  bio?: string;
+  description?: string;
 }
 
 export default function ChangeAccountInfoModal({
@@ -31,7 +31,7 @@ export default function ChangeAccountInfoModal({
   const [phoneNumber, setPhoneNumber] = useState(account.phoneNumber);
   const [birthday, setBirthday] = useState(account.birthday);
   const [pronouns, setPronouns] = useState(account.pronouns);
-  const [bio, setBio] = useState(account.bio);
+  const [description, setBio] = useState(account.description);
 
   const onDateSelectorDismiss = React.useCallback(() => {
       setDateSelectorOpen(false);
@@ -143,8 +143,8 @@ export default function ChangeAccountInfoModal({
               {/* bio */}
               <View style={styles.inputContainer}>
                 <TextInput
-                  label="Bio"
-                  defaultValue={account.bio || ""}
+                  label="description"
+                  defaultValue={account.description || ""}
                   style={styles.bioInput}
                   onChangeText={setBio}
                   textColor={useThemeColor("textPrimary")}
@@ -176,7 +176,7 @@ export default function ChangeAccountInfoModal({
                       phoneNumber: phoneNumber,
                       birthday: birthday,
                       pronouns: pronouns,
-                      bio: bio
+                      description: description
                     });
                     setModalVisible(false);
                   }}

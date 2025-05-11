@@ -10,6 +10,7 @@ import ChangePreferencesModal from "@/components/PreferencesModal";
 import MultiStyledText, { MultiStyledTextDivider, MultiStyledTextItem } from "@/components/MultiStyledText";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
+import ChangeAccountInfoModal from "@/components/ChangeAccountInfoModal";
 
 interface AccountInfo {
   displayName: string, // the display name is (eventually) configurable in the settings
@@ -24,9 +25,9 @@ interface AccountInfo {
 export default function Settings() {
   const [isModalVisible, setModalVisible] = useState(false); // for change password modal
   const [isPreferencesVisible, setPreferencesVisible] = useState(false); // for preferences modal
-
+  const [infoEditorVisible, setInfoEditorVisible] = useState(false);
   
-  const [userData, setUserData] = useState<AccountInfo | null>({
+  const [userData, setUserData] = useState<AccountInfo>({
     displayName: "Joe Williams",
     username: "JustASideQuestNPC",
     pronouns: "he/him",
@@ -43,7 +44,8 @@ export default function Settings() {
   useFocusEffect(
     useCallback(() => {
       const fetchUsers = async () => {
-          getUser(Globals.user());
+          console.log("getting users...");
+          await getUser(Globals.user())();
       };
 
       fetchUsers();
@@ -52,44 +54,54 @@ export default function Settings() {
     }, [])
   );
 
-
-
   // create an element for the sub line
-  let subLineContent: (MultiStyledTextItem|MultiStyledTextDivider)[] = [];
+  const highlightColor = useThemeColor("highlight"); // required because react is react
+  let buffer: (MultiStyledTextItem|MultiStyledTextDivider)[] = [];
   if (userData.pronouns && userData.pronouns !== "") {
-    subLineContent.push({
+    buffer.push({
       type: "text",
       content: userData.pronouns,
       style: infoStyles.subLineInfo
     });
   }
   if (userData.birthday) {
-    subLineContent.push({
+    buffer.push({
       type: "text",
       content: userData.birthday.toLocaleDateString(),
       style: infoStyles.subLineInfo
     });
   }
   if (userData.phoneNumber && userData.phoneNumber !== "") {
-    subLineContent.push({
+    buffer.push({
       type: "text",
       content: userData.phoneNumber,
       style: infoStyles.subLineInfo
     });
   }
-  if (subLineContent.length > 0) {
+  if (buffer.length > 0) {
     const divider: MultiStyledTextDivider = {
       type: "divider",
       width: 2,
-      color: useThemeColor("highlight"),
+      color: highlightColor,
       margin: 5,
     };
-    subLineContent = subLineContent.flatMap((i) => [divider, i]).slice(1);
+    buffer = buffer.flatMap((i) => [divider, i]).slice(1);
   }
+  const [subLineContent, setSubLineContent] = useState(buffer);
 
   return (
     <View style={containerStyles.page}>
       <View style={containerStyles.info}>
+        <Card mode="outlined" style={infoStyles.editButton}>
+          <Button
+            mode="contained"
+            buttonColor={useThemeColor("backgroundSecondary")}
+            textColor={useThemeColor("textPrimary")}
+            onPress={() => setInfoEditorVisible(true)}
+          >
+            Edit
+          </Button>
+        </Card>
         <View style={infoStyles.container}>
           <Text style={infoStyles.displayName}>{userData.displayName}</Text>
           <Text style={infoStyles.username}>@{userData.username}</Text>
@@ -148,6 +160,58 @@ export default function Settings() {
           onDismiss={() => setPreferencesVisible(false)}
         />
       </View>
+      <ChangeAccountInfoModal
+        modalVisible={infoEditorVisible}
+        setModalVisible={setInfoEditorVisible}
+        account={userData}
+        onSubmission={(newUserData: AccountInfo) => {
+          // updates display name and bio automatically
+          console.log(newUserData);
+          setUserData(prevUser => ({
+            ...prevUser,
+            displayName: newUserData.displayName,
+            phoneNumber: newUserData.phoneNumber,
+            birthday: newUserData.birthday,
+            pronouns: newUserData.pronouns,
+            description: newUserData.description
+          }));
+          console.log(userData);
+          // update sub line
+          buffer = [];
+          if (userData.pronouns && userData.pronouns !== "") {
+            buffer.push({
+              type: "text",
+              content: userData.pronouns,
+              style: infoStyles.subLineInfo
+            });
+          }
+          if (userData.birthday) {
+            buffer.push({
+              type: "text",
+              content: userData.birthday.toLocaleDateString(),
+              style: infoStyles.subLineInfo
+            });
+          }
+          if (userData.phoneNumber && userData.phoneNumber !== "") {
+            buffer.push({
+              type: "text",
+              content: userData.phoneNumber,
+              style: infoStyles.subLineInfo
+            });
+          }
+          if (buffer.length > 0) {
+            const divider: MultiStyledTextDivider = {
+              type: "divider",
+              width: 2,
+              color: highlightColor,
+              margin: 5,
+            };
+            buffer = buffer.flatMap((i) => [divider, i]).slice(1);
+            console.log(buffer);
+          }
+          setSubLineContent(buffer);
+        }}
+      />
     </View>
   );
 
@@ -221,8 +285,6 @@ function registerUser(_userID: string, _username: string, _password: string) {
   };
 }
 
-
-
 /**
  * Gets list of users in database as an array of userIDs
  * Will change to be DISPLAYNAMES, but that's all backend stuff. For now, if this is loaded in
@@ -281,7 +343,6 @@ const infoStyles = StyleSheet.create({
     borderRadius: 15,
     borderColor: useThemeColor("highlight"),
   },
-
   displayName: {
     color: useThemeColor("textPrimary"),
     fontSize: 60,
@@ -290,6 +351,7 @@ const infoStyles = StyleSheet.create({
     alignSelf: "flex-start",
     marginTop: 0,
     marginBottom: 7,
+    paddingBottom: 8,
     borderBottomWidth: 2,
     borderBottomColor: useThemeColor("highlight")
   },
@@ -318,6 +380,17 @@ const infoStyles = StyleSheet.create({
   },
   subLineInfo: {
     color: useThemeColor("textSecondary"),
+    fontSize: 20
+  },
+
+  editButton: {
+    marginBottom: 10,
+    backgroundColor: "transparent",
+    borderColor: useThemeColor("highlight"),
+    borderWidth: 2,
+    // guarantees the card will conform to the buttons
+    borderRadius: 1000,
+    alignSelf: "flex-start",
     fontSize: 20
   },
 });
