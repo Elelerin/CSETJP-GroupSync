@@ -1,137 +1,112 @@
 import { useThemeColor } from "@/hooks/useThemeColor";
-import React, { useEffect } from "react";
-import * as Tasks from "@/services/tasks";
+import React from "react";
+import Globals from "@/services/globals";
 import { View, StyleSheet } from "react-native";
-import { Button, Card, IconButton, Text } from "react-native-paper";
+import { Button, Card, Text } from "react-native-paper";
 import ChangePasswordModal from "@/components/ChangePasswordModal";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import ChangePreferencesModal from "@/components/PreferencesModal";
-import { logoutUser } from "@/services/firebaseAuthService";
 import MultiStyledText, {
   MultiStyledTextDivider,
   MultiStyledTextItem,
 } from "@/components/MultiStyledText";
-import ChangeAccountInfoModal from "@/components/ChangeAccountInfoModal";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
+import { syncUserToDatabase } from "@/services/registerUser";
 
-const router = useRouter();
-
-const UserURL =
-  "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/User";
-// is this unecessary or just unused for now?
-const TaskURL =
-  "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/TaskFunction";
-
-interface UserAccount {
+interface AccountInfo {
   displayName: string; // the display name is (eventually) configurable in the settings
   username: string;
   // i'm assuming none of these are required when creating an account
   phoneNumber?: string; // will this be a string or a number internally?
   birthday?: Date;
   pronouns?: string;
-  bio?: string;
+  description?: string;
 }
-
-// needs to be outside the function because react be like that
-const subLineDivider: MultiStyledTextDivider = {
-  type: "divider",
-  width: 2,
-  color: useThemeColor("highlight"),
-  margin: 5,
-};
-
-function getSubLineContent(account: UserAccount): (MultiStyledTextItem | MultiStyledTextDivider)[] {
-  let content: (MultiStyledTextItem | MultiStyledTextDivider)[] = [];
-
-  if (account.pronouns && account.pronouns !== "") {
-    content.push({
-      type: "text",
-      content: account.pronouns,
-      style: infoStyles.subLineInfo,
-    });
-  }
-  if (account.birthday) {
-    content.push({
-      type: "text",
-      content: account.birthday.toLocaleDateString(),
-      style: infoStyles.subLineInfo,
-    });
-  }
-  if (account.phoneNumber && account.phoneNumber !== "") {
-    content.push({
-      type: "text",
-      content: account.phoneNumber,
-      style: infoStyles.subLineInfo,
-    });
-  }
-  if (content.length > 0) {
-    content = content.flatMap((i) => [subLineDivider, i]).slice(1);
-  }
-
-  return content;
-}
-
-const dummyAccount = {
-  displayName: "Joe Williams",
-  username: "JustASideQuestNPC",
-  pronouns: "he/him",
-  phoneNumber: "(314) 159-2653",
-  birthday: new Date("4/20/1969"),
-  bio: (
-    "Software engineering student and president of D&D club at Oregon Tech. Plays too much " +
-    "Titanfall and occasionally writes code."
-  ),
-};
 
 export default function Settings() {
-  const [infoModalVisible, setInfoModalVisible] = useState(false); // for account info modal
   const [isModalVisible, setModalVisible] = useState(false); // for change password modal
   const [isPreferencesVisible, setPreferencesVisible] = useState(false); // for preferences modal
-  const router = useRouter(); // for logout page
 
-  const handleLogout = async () => {
-    await logoutUser(); // Firebase signOut
+  const [userData, setUserData] = useState<AccountInfo | null>({
+    displayName: "Joe Williams",
+    username: "JustASideQuestNPC",
+    pronouns: "he/him",
+    phoneNumber: "(314) 159-2653",
+    birthday: new Date("4/20/1969"),
+    description:
+      "Software engineering student and president of D&D club at Oregon Tech. Plays too much Titanfall and occasionally writes code.",
+  });
+  const router = useRouter(); // for logout page
+  const handleLogout = () => {
+    // returns to the login page
     router.replace("/");
   };
 
-  // TODO: make this pull from the database
-  let accountData: UserAccount = dummyAccount;
+  //button for syncing
+  const handleSync = () => {};
+  useFocusEffect(
+    useCallback(() => {
+      const fetchUsers = async () => {
+        getUser(Globals.user());
+      };
 
-  // required because react is a PERFECT library with NO FLAWS WHATSOEVER
-  const [accountDisplayName, setAccountDisplayName] = useState(accountData.displayName);
-  const [subLineContent, setSubLineContent] = useState(getSubLineContent(accountData));
-  const [accountBio, setAccountBio] = useState(accountData.bio);
+      fetchUsers();
+
+      return () => console.log("Screen is unfocused!"); // Cleanup if needed
+    }, [])
+  );
+
+  // create an element for the sub line
+  let subLineContent: (MultiStyledTextItem | MultiStyledTextDivider)[] = [];
+  if (userData && userData.pronouns && userData.pronouns !== "") {
+    subLineContent.push({
+      type: "text",
+      content: userData.pronouns,
+      style: infoStyles.subLineInfo,
+    });
+  }
+  if (userData && userData.birthday) {
+    subLineContent.push({
+      type: "text",
+      content: userData?.birthday?.toLocaleDateString() || "",
+      style: infoStyles.subLineInfo,
+    });
+  }
+  if (userData && userData.phoneNumber && userData.phoneNumber !== "") {
+    subLineContent.push({
+      type: "text",
+      content: userData.phoneNumber,
+      style: infoStyles.subLineInfo,
+    });
+  }
+  if (subLineContent.length > 0) {
+    const divider: MultiStyledTextDivider = {
+      type: "divider",
+      width: 2,
+      color: useThemeColor("highlight"),
+      margin: 5,
+    };
+    subLineContent = subLineContent.flatMap((i) => [divider, i]).slice(1);
+  }
 
   return (
     <View style={containerStyles.page}>
-      <ChangeAccountInfoModal
-        modalVisible={infoModalVisible}
-        setModalVisible={setInfoModalVisible}
-        account={accountData}
-        onSubmission={(newAccountInfo: UserAccount) => {
-          accountData = newAccountInfo;
-          setAccountDisplayName(accountData.displayName);
-          setSubLineContent(getSubLineContent(accountData));
-          setAccountBio(accountData.bio);
-        }}
-      />
-
       <View style={containerStyles.info}>
-        <IconButton
-          icon={"pencil"}
-          iconColor={useThemeColor("textSecondary")}
-          size={36}
-          onPress={() => { setInfoModalVisible(true); }}
-        />
         <View style={infoStyles.container}>
-          <Text style={infoStyles.displayName}>{accountDisplayName}</Text>
-          <Text style={infoStyles.username}>@{accountData.username}</Text>
+          {userData && (
+            <Text style={infoStyles.displayName}>{userData.displayName}</Text>
+          )}
+          {userData && (
+            <Text style={infoStyles.username}>@{userData.username}</Text>
+          )}
           <MultiStyledText
             content={subLineContent}
             topLevelStyle={infoStyles.subLine}
           />
-          {accountBio != null && accountBio != "" ? (
-            <Text style={infoStyles.bioText}>{accountData.bio}</Text>
+          {userData && userData.description != null ? (
+            <Text style={infoStyles.bioText}>{userData.description}</Text>
           ) : null}
         </View>
       </View>
@@ -150,17 +125,6 @@ export default function Settings() {
             onPress={() => setModalVisible(true)}
           >
             Change Password
-          </Button>
-        </Card>
-
-        <Card mode="outlined" style={settingsStyles.card}>
-          <Button
-            mode="contained"
-            buttonColor={useThemeColor("backgroundSecondary")}
-            textColor="white"
-            onPress={getUser("doro")}
-          >
-            USERTEST
           </Button>
         </Card>
 
@@ -189,9 +153,20 @@ export default function Settings() {
           visible={isModalVisible}
           onDismiss={() => setModalVisible(false)}
         />
-
+        <Card mode="outlined" style={settingsStyles.card}>
+          <Button
+            mode="contained"
+            buttonColor={useThemeColor("backgroundSecondary")}
+            textColor={useThemeColor("textPrimary")}
+            onPress={handleSync}
+            // onPress={syncUserToDatabase(userData)}?
+            //for now pointing to empty function
+          >
+            Sync
+          </Button>
+        </Card>
         <ChangePreferencesModal
-          visible={isPreferencesVisible} // ✅ Now linked to the Preferences Button
+          visible={isPreferencesVisible}
           onDismiss={() => setPreferencesVisible(false)}
         />
       </View>
@@ -199,43 +174,47 @@ export default function Settings() {
   );
 
   /**
- * Gets a user's account from the database.
- */
-function getUser(_userID: string) {
-  return async () => {
-    try {
-      console.log("Getting userid.");
-      const response = await fetch(UserURL, {
-        method: 'GET',
-        headers: {
-          'userID': _userID,
-          'Content-Type': 'application/json'
+   * Gets a user's account from the database.
+   */
+  function getUser(_userID: string) {
+    return async () => {
+      try {
+        console.log(`Getting ${_userID}`);
+        const response = await fetch(Globals.userURL, {
+          method: "GET",
+          mode: "cors",
+          headers: {
+            userID: _userID,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
         }
-      });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        const json = await response.json();
+        console.log("API response:", json);
+        const mappedAccount: AccountInfo = {
+          displayName: json.displayName || "Joe Williams", // Fallback to default if not present
+          username: json.userID || "JustASideQuestNPC",
+          pronouns: json.pronouns || "he/him",
+          phoneNumber: json.phoneNumber || "(314) 159-2653",
+          birthday: json.birthday
+            ? new Date(json.birthday)
+            : new Date("4/20/1969"),
+          description:
+            json.description ||
+            "Software engineering student and president of D&D club at Oregon Tech. Plays too much Titanfall and occasionally writes code.",
+        };
+        setUserData(mappedAccount);
+        console.log(mappedAccount);
+        return mappedAccount;
+      } catch (err: any) {
+        console.error("Error fetching userData:", err.message || err);
       }
-
-      const json = await response.json();
-      console.log("API response:", json);
-      const mappedAccount: AccountInfo = {
-        displayName: json.displayName || "Joe Williams",  // Fallback to default if not present
-        username: json.userID || "JustASideQuestNPC",
-        pronouns: json.pronouns || "he/him",
-        phoneNumber: json.phoneNumber || "(314) 159-2653",
-        birthday: json.birthday ? new Date(json.birthday) : new Date("4/20/1969"),
-        description: json.description || "Software engineering student and president of D&D club at Oregon Tech. Plays too much Titanfall and occasionally writes code."
-      };
-      setUserData(mappedAccount);
-      console.log(mappedAccount);
-      return mappedAccount;
-    } catch (err: any) {
-      console.error("Error fetching userData:", err.message || err);
-    }
-  };
-}
-
+    };
+  }
 }
 
 /**
@@ -245,7 +224,7 @@ function getUser(_userID: string) {
 function registerUser(_userID: string, _username: string, _password: string) {
   return async () => {
     try {
-      const response = await fetch(UserURL, {
+      const response = await fetch(Globals.userURL, {
         method: "POST",
         body: JSON.stringify({
           userID: _userID,
@@ -266,8 +245,6 @@ function registerUser(_userID: string, _username: string, _password: string) {
   };
 }
 
-
-
 /**
  * Gets list of users in database as an array of userIDs
  * Will change to be DISPLAYNAMES, but that's all backend stuff. For now, if this is loaded in
@@ -277,7 +254,7 @@ function registerUser(_userID: string, _username: string, _password: string) {
 function getGroupUsers(groupID: number) {
   return async () => {
     try {
-      const response = await fetch(UserURL, {
+      const response = await fetch(Globals.userURL, {
         method: "GET",
         headers: {
           usergroupgroup: groupID.toString(),
@@ -326,13 +303,14 @@ const infoStyles = StyleSheet.create({
     borderRadius: 15,
     borderColor: useThemeColor("highlight"),
   },
+
   displayName: {
     color: useThemeColor("textPrimary"),
-    fontSize: 50,
-    lineHeight: 55,
+    fontSize: 60,
+    lineHeight: 66,
     fontWeight: "bold",
     alignSelf: "flex-start",
-    marginTop: 3,
+    marginTop: 0,
     marginBottom: 7,
     borderBottomWidth: 2,
     borderBottomColor: useThemeColor("highlight"),

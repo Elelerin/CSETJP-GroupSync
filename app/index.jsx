@@ -5,8 +5,9 @@ import { Redirect, useRouter } from "expo-router";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../services/firebaseConfig";
 import { loginUser, registerUser } from "../services/firebaseAuthService";
+import Globals from "@/services/globals"
 import { syncUserWithAWS } from "../services/awsService"; 
-
+import * as React from 'react';
 
 export default function Index() {
   const router = useRouter();
@@ -24,6 +25,8 @@ export default function Index() {
 
   
   const handleSubmit = async () => {
+    console.log("handleSubmit");
+    Globals.setUser("Wdd2FIDVF5b6EfLLbO5xGS6JhWM2");
     if (!email || !password) {
       return Alert.alert("Missing Info", "Please enter email and password.");
     }
@@ -39,17 +42,11 @@ export default function Index() {
       setLoading(false);
     }
   };
-  
-  
-
-  if (user) return <Redirect href="/groups" />;
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome to GroupSync</Text>
-      <Text style={styles.subtitle}>
-        { "Sign in to continue"}
-      </Text>
+      <Text style={styles.subtitle}>Sign in to continue</Text>
 
       <View style={styles.inputContainer}>
         <TextInput
@@ -65,6 +62,7 @@ export default function Index() {
           onChangeText={setPassword}
           secureTextEntry
           style={styles.input}
+          autoCapitalize="none"
         />
 
         <Button
@@ -82,7 +80,7 @@ export default function Index() {
           style={[styles.button, styles.whiteButton]}
           labelStyle={{ color: "#fff" }}
         >
-          {"Create an Account"}
+          Create an Account
         </Button>
       </View>
     </View>

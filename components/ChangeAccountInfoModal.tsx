@@ -4,7 +4,6 @@ import { Modal, View, StyleSheet, Text } from "react-native";
 import { IconButton, TextInput, Button, MD3DarkTheme, Icon, PaperProvider } from "react-native-paper";
 import { DatePickerModal } from "react-native-paper-dates";
 import { CalendarDate } from "react-native-paper-dates/lib/typescript/Date/Calendar";
-import { PhoneNumberInput } from "react-native-paper-phone-number-input";
 
 interface Props {
   modalVisible: boolean,
@@ -16,8 +15,7 @@ interface Props {
 interface UserAccount {
   displayName: string; // the display name is (eventually) configurable in the settings
   username: string;
-  // i'm assuming none of these are required when creating an account
-  phoneNumber?: string; // will this be a string or a number internally?
+  phoneNumber?: string;
   birthday?: Date;
   pronouns?: string;
   bio?: string;

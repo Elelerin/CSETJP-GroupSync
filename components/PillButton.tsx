@@ -1,18 +1,24 @@
-import { View, Pressable, StyleSheet } from 'react-native';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { View, Pressable, StyleSheet, Text } from "react-native";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 type Props = {
-  onPress: () => any,
-  icon: keyof typeof FontAwesome.glyphMap,
+  onPress?: () => any;
+  icon?: keyof typeof FontAwesome.glyphMap;
+  text?: string;
 };
 
-export default function PillButton({ onPress, icon }: Props) {
+export default function PillButton({ onPress, icon, text }: Props) {
+  const textColor = useThemeColor("textPrimary");
+
   return (
     <View style={styles.pillButtonContainer}>
       <Pressable style={styles.pillButton} onPress={onPress}>
-        <FontAwesome name={icon} size={24} color={useThemeColor("textPrimary")} />
+        {icon && <FontAwesome name={icon} size={20} color={textColor} />}
+        {text && (
+          <Text style={[styles.text, { color: textColor }]}>{text}</Text>
+        )}
       </Pressable>
     </View>
   );
@@ -20,15 +26,21 @@ export default function PillButton({ onPress, icon }: Props) {
 
 const styles = StyleSheet.create({
   pillButtonContainer: {
-    height: 42,
-    width: '100%',
+    // height: 42,
+    // width: "100%",
     marginVertical: 10,
   },
   pillButton: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 8,
-    backgroundColor: useThemeColor("highlight"),
+    height: 42,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+
+  text: {
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
