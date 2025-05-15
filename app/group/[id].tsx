@@ -1,5 +1,5 @@
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams } from "expo-router";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
 import { Card, IconButton, PaperProvider } from "react-native-paper";
 import * as Tasks from '@/services/tasks';
@@ -161,6 +161,8 @@ export default function GroupHome() {
   const selectedIconColor = useThemeColor("textPrimary");
 
   return (
+    <>
+    <Stack.Screen options={{headerShown: false}} />
     <PaperProvider>
       <View style={styles.pageContainer}>
         <TaskCreationModal modalVisible={modalVisible} setModalVisible={setModalVisible} groupID={ groupID }/>
@@ -258,6 +260,7 @@ export default function GroupHome() {
         </View>
       </View>
     </PaperProvider>
+    </>
   );
 }
 
