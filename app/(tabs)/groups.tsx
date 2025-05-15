@@ -10,6 +10,7 @@ import { Dropdown } from "react-native-element-dropdown";
 import ErrorMessage from "@/components/ErrorMessage";
 import Globals from "@/services/globals";
 import CreateGroupModal from "@/components/CreateGroupModal";
+import TooltipIconButton from "@/components/TooltipIconButton";
 
 /** Self-explanatory (for testing). */
 const forceGetGroupsCrash = false;
@@ -200,14 +201,22 @@ export default function Index() {
         <View style={styles.buttonRow}>
           {/* Smaller Action Buttons - Centered */}
           <View style={{ flexDirection: "row", gap: 10 }}>
-            <PillButton
-              icon={"download"}
+            <TooltipIconButton
+              icon="download"
+              size={30}
+              tooltipText="Fetch Groups"
               onPress={() => getGroups(Globals.user())}
             />
-            <PillButton icon={"trash"} onPress={remove} />
-            <PillButton
-              // icon={"plus"}
-              text={"Create Group"}
+            <TooltipIconButton
+              icon="trash-can-outline"
+              size={30}
+              tooltipText="Clear List"
+              onPress={remove}
+            />
+            <TooltipIconButton
+              icon="plus"
+              size={30}
+              tooltipText="Create Group"
               onPress={() => setCreateGroupVisible(true)}
             />
           </View>

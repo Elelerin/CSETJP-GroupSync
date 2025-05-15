@@ -10,6 +10,7 @@ export default function RegisterScreen() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [password2, setPassword2] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
@@ -60,6 +61,14 @@ export default function RegisterScreen() {
           style={styles.input}
           autoCapitalize="none"
         />
+        <TextInput
+          label="Reenter Password"
+          value={password2}
+          onChangeText={setPassword2}
+          secureTextEntry
+          style={styles.input}
+          autoCapitalize="none"
+        />
 
         <Button
           mode="contained"
@@ -80,41 +89,6 @@ export default function RegisterScreen() {
         </Button>
       </View>
     </View>
-    // <View style={styles.container}>
-    //   <Text style={styles.title}>Create an Account</Text>
-
-    //   <TextInput
-    //     label="Email"
-    //     value={email}
-    //     onChangeText={(text) => setEmail(text.trim())}
-    //     style={styles.input}
-    //     autoCapitalize="none"
-    //   />
-    //   <TextInput
-    //     label="Password"
-    //     value={password}
-    //     onChangeText={setPassword}
-    //     secureTextEntry
-    //     style={styles.input}
-    //   />
-
-    //   <Button
-    //     mode="contained"
-    //     onPress={handleRegister}
-    //     loading={loading}
-    //     style={styles.button}
-    //   >
-    //     {loading ? "Creating Account..." : "Register"}
-    //   </Button>
-
-    //   <Button
-    //     mode="text"
-    //     onPress={() => router.replace("/groups")}
-    //     style={styles.button}
-    //   >
-    //     Back to Login
-    //   </Button>
-    // </View>
   );
 }
 

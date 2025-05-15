@@ -1,7 +1,7 @@
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useLocalSearchParams } from "expo-router";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
-import { Card, IconButton } from "react-native-paper";
+import { Card, IconButton, PaperProvider } from "react-native-paper";
 import * as Tasks from '@/services/tasks';
 import TaskView from "@/components/TaskView";
 import { Dropdown, MultiSelect } from "react-native-element-dropdown";
@@ -11,6 +11,7 @@ import TaskCreationModal from "@/components/TaskCreationModal";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
 import Globals from "@/services/globals";
+import TooltipIconButton from "@/components/TooltipIconButton";
 
 // this is now a property on Globals
 // const UserGroupURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/groupUser";
@@ -160,101 +161,103 @@ export default function GroupHome() {
   const selectedIconColor = useThemeColor("textPrimary");
 
   return (
-    <View style={styles.pageContainer}>
-      <TaskCreationModal modalVisible={modalVisible} setModalVisible={setModalVisible} groupID={ groupID }/>
-      
-      <View style={styles.upperColumnContainer}>
-        <Card mode="contained" style={styles.titleCard}>
-          <Text style={styles.textTitle}>Group {id} name</Text>
-        </Card>
+    <PaperProvider>
+      <View style={styles.pageContainer}>
+        <TaskCreationModal modalVisible={modalVisible} setModalVisible={setModalVisible} groupID={ groupID }/>
+        
+        <View style={styles.upperColumnContainer}>
+          <Card mode="contained" style={styles.titleCard}>
+            <Text style={styles.textTitle}>Group {id} name</Text>
+          </Card>
 
-        {/* sort direction toggle */}
-        <View style={styles.filtersCard}>
-          <IconButton
-            icon={sortAscending ? "sort-ascending" : "sort-descending"}
-            iconColor={useThemeColor("textSecondary")}
-            size={36}
-            onPress={() => setSortAscending(!sortAscending)}
-          />
+          <View style={styles.filtersCard}>
+            {/* new task button */}
+            <TooltipIconButton
+              icon="note-plus"
+              size={30}
+              tooltipText="Add Task"
+              onPress={() => setModalVisible(true)}
+            />
 
-          {/* sort mode menu */}
-          <Dropdown
-            style={dropdownStyles.main}
-            placeholderStyle={dropdownStyles.placeholder}
-            selectedTextStyle={dropdownStyles.selectedText}
-            containerStyle={dropdownStyles.container}
-            itemTextStyle={dropdownStyles.itemText}
-            activeColor="transparent"
-            maxHeight={300}
-            labelField="label"
-            valueField="value"
-            placeholder="None"
-            data={sortModeMenuData}
-            value={sortMode}
-            onChange={item => {
-              setSortMode(item.value);
-            }}
-          />
+            {/* sort direction toggle */}
+            <TooltipIconButton
+              icon={sortAscending ? "sort-ascending" : "sort-descending"}
+              size={30}
+              tooltipText={sortAscending ? "Sort: Ascending" : "Sort: Descending"}
+              onPress={() => setSortAscending(!sortAscending)}
+            />
 
-          {/* filter menu */}
-          <MultiSelect
-            style={multiSelectStyles.main}
-            placeholderStyle={multiSelectStyles.placeholder}
-            containerStyle={multiSelectStyles.container}
-            itemTextStyle={multiSelectStyles.itemText}
-            activeColor="transparent"
-            alwaysRenderSelectedItem
-            labelField="label"
-            valueField="value"
-            data={filterMenuData}
-            value={filters}
-            onChange={item => {
-              setFilters(item)
-            }}
-            // renderItem={renderItem}
-            renderSelectedItem={(item, unSelect) => (
-              <TouchableOpacity onPress={() => unSelect && unSelect(item)}>
-                <View style={multiSelectStyles.selected}>
-                  <Text style={multiSelectStyles.selectedText}>{item.label}</Text>
-                  <MaterialIcons color={selectedIconColor} name="delete" size={20} />
-                </View>
-              </TouchableOpacity>
-            )}
-          />
+            {/* sort mode menu */}
+            <Dropdown
+              style={dropdownStyles.main}
+              placeholderStyle={dropdownStyles.placeholder}
+              selectedTextStyle={dropdownStyles.selectedText}
+              containerStyle={dropdownStyles.container}
+              itemTextStyle={dropdownStyles.itemText}
+              activeColor="transparent"
+              maxHeight={300}
+              labelField="label"
+              valueField="value"
+              placeholder="None"
+              data={sortModeMenuData}
+              value={sortMode}
+              onChange={item => {
+                setSortMode(item.value);
+              }}
+            />
 
-          {/* new task button */}
-          <IconButton
-            icon={"note-plus"}
-            iconColor={useThemeColor("textSecondary")}
-            size={36}
-            onPress={() => { setModalVisible(true); }}
-          />
+            {/* filter menu */}
+            <MultiSelect
+              style={multiSelectStyles.main}
+              placeholderStyle={multiSelectStyles.placeholder}
+              containerStyle={multiSelectStyles.container}
+              itemTextStyle={multiSelectStyles.itemText}
+              activeColor="transparent"
+              alwaysRenderSelectedItem
+              labelField="label"
+              valueField="value"
+              data={filterMenuData}
+              value={filters}
+              onChange={item => {
+                setFilters(item)
+              }}
+              // renderItem={renderItem}
+              renderSelectedItem={(item, unSelect) => (
+                <TouchableOpacity onPress={() => unSelect && unSelect(item)}>
+                  <View style={multiSelectStyles.selected}>
+                    <Text style={multiSelectStyles.selectedText}>{item.label}</Text>
+                    <MaterialIcons color={selectedIconColor} name="delete-outline" size={20} />
+                  </View>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
         </View>
-      </View>
 
-      <View style={styles.lowerColumnContainer}>
-        {/* ysers */}
-        <Card mode="contained" style={styles.usersCard}>
-          <Card.Content>
-            <Text style={styles.textSubtitle}>Users</Text>
+        <View style={styles.lowerColumnContainer}>
+          {/* ysers */}
+          <Card mode="contained" style={styles.usersCard}>
+            <Card.Content>
+              <Text style={styles.textSubtitle}>Users</Text>
+              <FlatList
+                data={users}
+                keyExtractor={(item, index) => index.toString()} // Ensures each item has a unique key
+                renderItem={({ item }) => <Text style={styles.textContent}>{item}</Text>}
+                showsHorizontalScrollIndicator={false}/>
+            </Card.Content>
+          </Card>
+        
+          {/* task list */}
+          <View style={styles.tasksContainer}>
             <FlatList
-              data={users}
-              keyExtractor={(item, index) => index.toString()} // Ensures each item has a unique key
-              renderItem={({ item }) => <Text style={styles.textContent}>{item}</Text>}
+              data={tasks} 
+              // onclick currently does nothing - this will need to be changed eventually
+              renderItem={({item}) => <TaskView task={item} onClick={()=>{}}/>}
               showsHorizontalScrollIndicator={false}/>
-          </Card.Content>
-        </Card>
-      
-        {/* task list */}
-        <View style={styles.tasksContainer}>
-          <FlatList
-            data={tasks} 
-            // onclick currently does nothing - this will need to be changed eventually
-            renderItem={({item}) => <TaskView task={item} onClick={()=>{}}/>}
-            showsHorizontalScrollIndicator={false}/>
+          </View>
         </View>
       </View>
-    </View>
+    </PaperProvider>
   );
 }
 

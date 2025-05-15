@@ -46,6 +46,14 @@ export function useThemeColor(colorName: ThemeColor | LegacyThemeColor |
     }
 }
 
+/**
+ * Returns the full theme object; used for react native paper stuff. This doesn't copy the theme
+ * object, so DON'T MODIFY IT.
+ */
+export function getThemeObject() {
+    return Colors[useColorScheme() ?? "light"];
+}
+
 // original expo useThemeColor()
 // export function useThemeColor(
 //   props: { light?: string; dark?: string },

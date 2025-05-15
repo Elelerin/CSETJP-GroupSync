@@ -8,7 +8,6 @@ import {
   TextInput,
   Button,
   useTheme,
-  RadioButton,
 } from "react-native-paper";
 
 type Props = {

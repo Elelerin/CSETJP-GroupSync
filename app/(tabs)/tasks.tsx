@@ -2,7 +2,6 @@ import { FlatList, View, StyleSheet } from "react-native";
 import { useState } from "react";
 
 import * as Tasks from "@/services/tasks";
-import PillButton from "@/components/PillButton";
 import TaskView from "@/components/TaskView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import TaskCreationModal from "@/components/TaskCreationModal";
@@ -11,6 +10,8 @@ import ErrorMessage from "@/components/ErrorMessage";
 import Globals from "@/services/globals";
 import { Checkbox } from "react-native-paper";
 import * as React from "react";
+import TooltipIconButton from "@/components/TooltipIconButton";
+
 /** Self-explanatory (for testing). */
 const forceGetTasksCrash = false;
 
@@ -65,13 +66,6 @@ export default function Index() {
     selectedTasks.forEach((taskId) => {
       markTaskComplete(taskId.valueOf());
     });
-  }
-
-  function markAllTasksComplete() {
-    //->copilot recommended this one so needs testing
-    setTasks((prev) =>
-      prev.map((task) => ({ ...task, complete: !task.complete }))
-    );
   }
 
   /**
@@ -234,52 +228,47 @@ export default function Index() {
         {/* everything else */}
         <View style={styles.listContainer}>
           <View style={{ flexDirection: "row", gap: 10 }}>
-            <PillButton
-              icon={"download"}
+            <TooltipIconButton
+              icon="download"
+              size={30}
+              tooltipText="Fetch Tasks"
               onPress={() => {
                 console.log("getting tasks...");
                 getTasks(Globals.user());
               }}
             />
-            <PillButton icon={"trash"} onPress={clearTasks} />
-            <PillButton
-              icon={"plus"}
-              onPress={() => {
-                setModalVisible(true);
-              }}
+            <TooltipIconButton
+              icon="trash-can-outline"
+              size={30}
+              tooltipText="Clear List"
+              onPress={clearTasks}
             />
-          </View>
-          <View style={{ marginTop: 10 }}>
-            <PillButton
-              text="Mark Selected Complete"
+            <TooltipIconButton
+              icon="plus"
+              size={30}
+              tooltipText="Create Task"
+              onPress={() => setModalVisible(true)}
+            />
+            <TooltipIconButton
+              icon="checkbox-multiple-blank-outline"
+              size={30}
+              tooltipText="Select all"
               onPress={markSelectedTasksComplete}
             />
-          </View>
-          <View style={{ marginTop: 10 }}>
-            <PillButton
-              text="Mark All Complete"
-              onPress={markAllTasksComplete}
+            <TooltipIconButton
+              icon="check"
+              size={30}
+              tooltipText="Mark Selected Complete"
+              onPress={markSelectedTasksComplete}
             />
-          </View>
-          <View style={{ marginTop: 10 }}>
-            <PillButton
-              text="Delete Selected"
+            <TooltipIconButton
+              icon="trash-can-outline"
+              size={30}
+              tooltipText="Delete Selected"
               onPress={() => {
                 selectedTasks.forEach((taskId) => {
                   deleteTask(taskId.toString());
                 });
-                setSelectedTasks([]);
-              }}
-            />
-          </View>
-          <View style={{ marginTop: 10 }}>
-            <PillButton
-              text="Delete All"
-              onPress={() => {
-                tasks.forEach((task) => {
-                  deleteTask(task.id.toString());
-                });
-                setTasks([]);
                 setSelectedTasks([]);
               }}
             />
