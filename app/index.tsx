@@ -54,6 +54,8 @@ export default function Index() {
           value={email}
           onChangeText={(text) => setEmail(text.trim())}
           style={styles.input}
+          spellCheck={false}
+          autoCorrect={false}
           autoCapitalize="none"
         />
         <TextInput
@@ -63,6 +65,8 @@ export default function Index() {
           secureTextEntry
           style={styles.input}
           autoCapitalize="none"
+          spellCheck={false}
+          autoCorrect={false}
         />
 
         <Button
