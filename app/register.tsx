@@ -1,8 +1,8 @@
 // app/register.jsx
 import { useState } from "react";
-import { View, Alert } from "react-native";
+import { View, Alert, StyleSheet } from "react-native";
 import { Button, Text, TextInput } from "react-native-paper";
-import { useRouter } from "expo-router";
+import { RelativePathString, useRouter } from "expo-router";
 import { registerUser } from "../services/firebaseAuthService";
 
 export default function RegisterScreen() {
@@ -25,10 +25,10 @@ export default function RegisterScreen() {
     try {
       await registerUser(email.trim(), password);
       Alert.alert("Success", "Account created!");
-      router.replace("/groups");
+      router.replace("/groups" as RelativePathString);
     } catch (error) {
       console.error("Registration Error:", error);
-      Alert.alert("Error", error.message);
+      Alert.alert("Error", (error as Error).message);
     } finally {
       setLoading(false);
     }
@@ -81,7 +81,7 @@ export default function RegisterScreen() {
 
         <Button
           mode="outlined"
-          onPress={() => router.push("/")}
+          onPress={() => router.push("/" as RelativePathString)}
           style={[styles.button, styles.whiteButton]}
           labelStyle={{ color: "#fff" }}
         >
@@ -92,7 +92,7 @@ export default function RegisterScreen() {
   );
 }
 
-const styles = {
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
@@ -129,7 +129,7 @@ const styles = {
   whiteButton: {
     borderColor: "#fff",
   },
-};
+});
 
 // const styles = {
 //   container: {
