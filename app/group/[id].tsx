@@ -178,6 +178,7 @@ export default function GroupHome() {
               icon="note-plus"
               size={30}
               tooltipText="Add Task"
+              tooltipPosition="bottom"
               onPress={() => setModalVisible(true)}
             />
 
@@ -186,6 +187,7 @@ export default function GroupHome() {
               icon={sortAscending ? "sort-ascending" : "sort-descending"}
               size={30}
               tooltipText={sortAscending ? "Sort: Ascending" : "Sort: Descending"}
+              tooltipPosition="bottom"
               onPress={() => setSortAscending(!sortAscending)}
             />
 
@@ -237,7 +239,7 @@ export default function GroupHome() {
         </View>
 
         <View style={styles.lowerColumnContainer}>
-          {/* ysers */}
+          {/* users */}
           <Card mode="contained" style={styles.usersCard}>
             <Card.Content>
               <Text style={styles.textSubtitle}>Users</Text>

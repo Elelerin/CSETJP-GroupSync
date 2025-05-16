@@ -1,7 +1,7 @@
 // app/register.jsx
 import { useEffect, useState } from "react";
 import { View, Alert, StyleSheet } from "react-native";
-import { Button, Text, TextInput, useTheme } from "react-native-paper";
+import { Button, Text, TextInput } from "react-native-paper";
 import { RelativePathString, useRouter } from "expo-router";
 import { registerUser } from "../services/firebaseAuthService";
 import { useThemeColor, getThemeObject } from "@/hooks/useThemeColor";

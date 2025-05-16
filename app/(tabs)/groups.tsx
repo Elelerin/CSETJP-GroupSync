@@ -205,18 +205,21 @@ export default function Index() {
               icon="download"
               size={30}
               tooltipText="Fetch Groups"
+              tooltipPosition="bottom"
               onPress={() => getGroups(Globals.user())}
             />
             <TooltipIconButton
               icon="trash-can-outline"
               size={30}
               tooltipText="Clear List"
+              tooltipPosition="bottom"
               onPress={remove}
             />
             <TooltipIconButton
               icon="plus"
               size={30}
               tooltipText="Create Group"
+              tooltipPosition="bottom"
               onPress={() => setCreateGroupVisible(true)}
             />
           </View>

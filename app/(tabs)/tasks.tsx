@@ -232,6 +232,7 @@ export default function Index() {
               icon="download"
               size={30}
               tooltipText="Fetch Tasks"
+              tooltipPosition="bottom"
               onPress={() => {
                 console.log("getting tasks...");
                 getTasks(Globals.user());
@@ -241,30 +242,35 @@ export default function Index() {
               icon="trash-can-outline"
               size={30}
               tooltipText="Clear List"
+              tooltipPosition="bottom"
               onPress={clearTasks}
             />
             <TooltipIconButton
               icon="plus"
               size={30}
               tooltipText="Create Task"
+              tooltipPosition="bottom"
               onPress={() => setModalVisible(true)}
             />
             <TooltipIconButton
               icon="checkbox-multiple-blank-outline"
               size={30}
               tooltipText="Select all"
+              tooltipPosition="bottom"
               onPress={markSelectedTasksComplete}
             />
             <TooltipIconButton
               icon="check"
               size={30}
               tooltipText="Mark Selected Complete"
+              tooltipPosition="bottom"
               onPress={markSelectedTasksComplete}
             />
             <TooltipIconButton
               icon="trash-can-outline"
               size={30}
               tooltipText="Delete Selected"
+              tooltipPosition="bottom"
               onPress={() => {
                 selectedTasks.forEach((taskId) => {
                   deleteTask(taskId.toString());

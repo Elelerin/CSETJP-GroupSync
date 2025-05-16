@@ -1,4 +1,4 @@
-import { View, StyleSheet, Text, GestureResponderEvent } from "react-native";
+import { View, StyleSheet, Text } from "react-native";
 import * as Groups from "@/services/groups";
 import { useThemeColor, getThemeObject } from "@/hooks/useThemeColor";
 import { Link } from "expo-router";
