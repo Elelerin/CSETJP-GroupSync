@@ -30,37 +30,45 @@ export default function GroupView({ group }: Props) {
               params: { id: group.id },
             }}
           >
-            <View style={styles.infoContainer}>
-              <View>
-                <Text style={styles.textTitle}>{group.title}</Text>
-                <Text style={styles.textNumTasks}>{group.numTasks} Tasks</Text>
+            <View style={{
+              width: "100%",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexDirection: "row"
+            }}>
+              <View style={styles.infoContainer}>
+                <View>
+                  <Text style={styles.textTitle}>{group.title}</Text>
+                  <Text style={styles.textNumTasks}>{group.numTasks} Tasks</Text>
+                </View>
+
+                <View style={styles.verticalDivider}></View>
+
+                <View>
+                  <View style={styles.nextTaskRow}>
+                    <Text style={styles.textNextTaskSecondary}>Next Task: </Text>
+                    <Text style={styles.textNextTaskPrimary}>
+                      {group.nextTaskTitle}
+                    </Text>
+                  </View>
+                  <View style={styles.nextTaskRow}>
+                    <Text style={styles.textNextTaskSecondary}>Due: </Text>
+                    <Text style={styles.textNextTaskPrimary}>
+                      {new Date(group.nextTaskDueDate).toLocaleDateString()}
+                    </Text>
+                  </View>
+                </View>
               </View>
 
-              <View style={styles.verticalDivider}></View>
-
-              <View>
-                <View style={styles.nextTaskRow}>
-                  <Text style={styles.textNextTaskSecondary}>Next Task: </Text>
-                  <Text style={styles.textNextTaskPrimary}>
-                    {group.nextTaskTitle}
-                  </Text>
-                </View>
-                <View style={styles.nextTaskRow}>
-                  <Text style={styles.textNextTaskSecondary}>Due: </Text>
-                  <Text style={styles.textNextTaskPrimary}>
-                    {new Date(group.nextTaskDueDate).toLocaleDateString()}
-                  </Text>
-                </View>
-              </View>
+              <TooltipIconButton
+                icon="account-plus"
+                size={32}
+                tooltipText="Add User"
+                tooltipPosition="left"
+                onPress={() => setModalVisible(true)}
+                style={{ alignSelf: "center" }}
+              />
             </View>
-
-            <TooltipIconButton
-              icon="account-plus"
-              size={32}
-              tooltipText="Add User"
-              onPress={() => setModalVisible(true)}
-              style={{ position: "absolute", top: -10, right: -8 }}
-            />
           </Link>
         </Card.Content>
       </Card>
