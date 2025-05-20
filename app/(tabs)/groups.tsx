@@ -33,6 +33,7 @@ export default function Index() {
       backgroundColor: useThemeColor("backgroundPrimary"),
       paddingHorizontal: 20,
       paddingTop: 10,
+      zIndex: 0
     },
     groupsContainer: {
       width: "100%",
@@ -44,6 +45,7 @@ export default function Index() {
       justifyContent: "center",
       width: "100%",
       paddingHorizontal: 10,
+      zIndex: 10
       // marginBottom: 10
     },
   });

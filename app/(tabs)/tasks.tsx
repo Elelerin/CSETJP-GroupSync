@@ -171,10 +171,12 @@ export default function Index() {
       width: "100%",
       paddingHorizontal: 10,
       marginBottom: 10,
+      zIndex: 10
     },
     tasksContainer: {
       width: "100%",
       marginTop: 10,
+      zIndex: 0
     },
   });
 
@@ -257,7 +259,7 @@ export default function Index() {
               size={30}
               tooltipText="Select all"
               tooltipPosition="bottom"
-              onPress={markSelectedTasksComplete}
+              onPress={() => console.log("not implemented :(")}
             />
             <TooltipIconButton
               icon="check"
