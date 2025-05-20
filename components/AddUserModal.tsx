@@ -27,7 +27,7 @@ export default function AddUserModal({ visible, onDismiss, onAddUser }: Props) {
   };
 
   return (
-    <Modal visible={visible} animationType="fade" transparent>
+    <Modal visible={visible} animationType="slide" transparent={true}>
       <View style={styles.centeredView}>
         <View style={[styles.modalView, { backgroundColor, borderColor }]}>
           <Text style={[styles.title, { color: textColor }]}>Add User</Text>
@@ -81,13 +81,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    // backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalView: {
     width: 360,
     borderRadius: 12,
     padding: 20,
-    borderWidth: 2,
+    // borderWidth: 2,
     maxWidth: "90%",
   },
   title: {

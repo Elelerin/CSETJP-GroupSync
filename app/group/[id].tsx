@@ -12,6 +12,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
 import Globals from "@/services/globals";
 import TooltipIconButton from "@/components/TooltipIconButton";
+import AddUserModal from "@/components/AddUserModal";
 
 // this is now a property on Globals
 // const UserGroupURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/groupUser";
@@ -26,6 +27,7 @@ export default function GroupHome() {
   const groupID = Number(id);
   const [modalVisible, setModalVisible] = useState(false);
   const [users, setUsers] = useState<string[]>([]);
+  const [addUserModalVisible, setAddUserModalVisible] = useState(false);
 
   async function getGroupUsers(groupID: Number) : Promise<string[]>{ 
     try {
@@ -166,6 +168,11 @@ export default function GroupHome() {
     <PaperProvider>
       <View style={styles.pageContainer}>
         <TaskCreationModal modalVisible={modalVisible} setModalVisible={setModalVisible} groupID={ groupID }/>
+        <AddUserModal
+          visible={addUserModalVisible}
+          onDismiss={() => setAddUserModalVisible(false)}
+          onAddUser={() => console.log(`Adding user to group....`)}
+        />
         
         <View style={styles.upperColumnContainer}>
           <Card mode="contained" style={styles.titleCard}>
@@ -173,67 +180,76 @@ export default function GroupHome() {
           </Card>
 
           <View style={styles.filtersCard}>
-            {/* new task button */}
+            <View style={{flexDirection: "row", alignItems: "center"}}>
+              {/* new task button */}
+              <TooltipIconButton
+                icon="note-plus"
+                size={30}
+                tooltipText="Add Task"
+                tooltipPosition="bottom"
+                onPress={() => setModalVisible(true)}
+              />
+
+              {/* sort direction toggle */}
+              <TooltipIconButton
+                icon={sortAscending ? "sort-ascending" : "sort-descending"}
+                size={30}
+                tooltipText={sortAscending ? "Sort: Ascending" : "Sort: Descending"}
+                tooltipPosition="bottom"
+                onPress={() => setSortAscending(!sortAscending)}
+              />
+
+              {/* sort mode menu */}
+              <Dropdown
+                style={dropdownStyles.main}
+                placeholderStyle={dropdownStyles.placeholder}
+                selectedTextStyle={dropdownStyles.selectedText}
+                containerStyle={dropdownStyles.container}
+                itemTextStyle={dropdownStyles.itemText}
+                activeColor="transparent"
+                maxHeight={300}
+                labelField="label"
+                valueField="value"
+                placeholder="None"
+                data={sortModeMenuData}
+                value={sortMode}
+                onChange={item => {
+                  setSortMode(item.value);
+                }}
+              />
+
+              {/* filter menu */}
+              <MultiSelect
+                style={multiSelectStyles.main}
+                placeholderStyle={multiSelectStyles.placeholder}
+                containerStyle={multiSelectStyles.container}
+                itemTextStyle={multiSelectStyles.itemText}
+                activeColor="transparent"
+                alwaysRenderSelectedItem
+                labelField="label"
+                valueField="value"
+                data={filterMenuData}
+                value={filters}
+                onChange={item => {
+                  setFilters(item)
+                }}
+                // renderItem={renderItem}
+                renderSelectedItem={(item, unSelect) => (
+                  <TouchableOpacity onPress={() => unSelect && unSelect(item)}>
+                    <View style={multiSelectStyles.selected}>
+                      <Text style={multiSelectStyles.selectedText}>{item.label}</Text>
+                      <MaterialIcons color={selectedIconColor} name="delete-outline" size={20} />
+                    </View>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
             <TooltipIconButton
-              icon="note-plus"
+              icon="account-plus"
               size={30}
-              tooltipText="Add Task"
+              tooltipText="Add User"
               tooltipPosition="bottom"
-              onPress={() => setModalVisible(true)}
-            />
-
-            {/* sort direction toggle */}
-            <TooltipIconButton
-              icon={sortAscending ? "sort-ascending" : "sort-descending"}
-              size={30}
-              tooltipText={sortAscending ? "Sort: Ascending" : "Sort: Descending"}
-              tooltipPosition="bottom"
-              onPress={() => setSortAscending(!sortAscending)}
-            />
-
-            {/* sort mode menu */}
-            <Dropdown
-              style={dropdownStyles.main}
-              placeholderStyle={dropdownStyles.placeholder}
-              selectedTextStyle={dropdownStyles.selectedText}
-              containerStyle={dropdownStyles.container}
-              itemTextStyle={dropdownStyles.itemText}
-              activeColor="transparent"
-              maxHeight={300}
-              labelField="label"
-              valueField="value"
-              placeholder="None"
-              data={sortModeMenuData}
-              value={sortMode}
-              onChange={item => {
-                setSortMode(item.value);
-              }}
-            />
-
-            {/* filter menu */}
-            <MultiSelect
-              style={multiSelectStyles.main}
-              placeholderStyle={multiSelectStyles.placeholder}
-              containerStyle={multiSelectStyles.container}
-              itemTextStyle={multiSelectStyles.itemText}
-              activeColor="transparent"
-              alwaysRenderSelectedItem
-              labelField="label"
-              valueField="value"
-              data={filterMenuData}
-              value={filters}
-              onChange={item => {
-                setFilters(item)
-              }}
-              // renderItem={renderItem}
-              renderSelectedItem={(item, unSelect) => (
-                <TouchableOpacity onPress={() => unSelect && unSelect(item)}>
-                  <View style={multiSelectStyles.selected}>
-                    <Text style={multiSelectStyles.selectedText}>{item.label}</Text>
-                    <MaterialIcons color={selectedIconColor} name="delete-outline" size={20} />
-                  </View>
-                </TouchableOpacity>
-              )}
+              onPress={() => setAddUserModalVisible(true)}
             />
           </View>
         </View>
@@ -302,7 +318,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 20,
     flexDirection: "row",
-    alignItems: "center"
+    alignItems: "center",
+    justifyContent: "space-between"
   },
   multiSelectContainer: {
     flexDirection: "row"
