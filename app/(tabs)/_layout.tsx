@@ -21,6 +21,7 @@ export default function TabLayout() {
           options={{
             title: 'Groups',
             tabBarIcon: ({ color }) => <FontAwesome size={28} name="group" color={color} />,
+            headerShown: false
           }}
         />
         <Tabs.Screen
@@ -28,6 +29,7 @@ export default function TabLayout() {
           options={{
             title: 'Tasks',
             tabBarIcon: ({ color }) => <FontAwesome size={28} name="list" color={color} />,
+            headerShown: false
           }}
         />
         <Tabs.Screen
@@ -35,6 +37,7 @@ export default function TabLayout() {
           options={{
             title: 'Settings',
             tabBarIcon: ({ color }) => <FontAwesome size={28} name="cog" color={color} />,
+            headerShown: false
           }}
         />
       </Tabs>

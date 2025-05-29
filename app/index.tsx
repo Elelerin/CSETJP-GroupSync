@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { View, Alert } from "react-native";
+import { View, Alert, StyleSheet } from "react-native";
 import { Button, Text, TextInput } from "react-native-paper";
-import { Redirect, useRouter } from "expo-router";
-import { onAuthStateChanged } from "firebase/auth";
+import { Redirect, RelativePathString, useRouter } from "expo-router";
+import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "../services/firebaseConfig";
 import { loginUser, registerUser } from "../services/firebaseAuthService";
 import Globals from "@/services/globals"
@@ -11,14 +11,14 @@ import * as React from 'react';
 
 export default function Index() {
   const router = useRouter();
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User>();
   const [loading, setLoading] = useState(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
+    const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u!));
     return () => unsubscribe();
   }, []);
 
@@ -34,10 +34,10 @@ export default function Index() {
     setLoading(true);
     try {
       await loginUser(email.trim(), password);
-      router.push("/groups");
+      router.push("/groups" as RelativePathString);
     } catch (error) {
       console.error("Login Error:", error);
-      Alert.alert("Login failed", error.message);
+      Alert.alert("Login failed", (error as Error).message);
     } finally {
       setLoading(false);
     }
@@ -54,6 +54,8 @@ export default function Index() {
           value={email}
           onChangeText={(text) => setEmail(text.trim())}
           style={styles.input}
+          spellCheck={false}
+          autoCorrect={false}
           autoCapitalize="none"
         />
         <TextInput
@@ -63,6 +65,8 @@ export default function Index() {
           secureTextEntry
           style={styles.input}
           autoCapitalize="none"
+          spellCheck={false}
+          autoCorrect={false}
         />
 
         <Button
@@ -76,7 +80,7 @@ export default function Index() {
 
         <Button
           mode="outlined"
-          onPress={() => router.push("/register")}
+          onPress={() => router.push("/register" as RelativePathString)}
           style={[styles.button, styles.whiteButton]}
           labelStyle={{ color: "#fff" }}
         >
@@ -87,7 +91,7 @@ export default function Index() {
   );
 }
 
-const styles = {
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
@@ -124,4 +128,4 @@ const styles = {
   whiteButton: {
     borderColor: "#fff",
   },
-};
+});

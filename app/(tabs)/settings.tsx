@@ -34,9 +34,9 @@ export default function Settings() {
     username: "JustASideQuestNPC",
     pronouns: "he/him",
     phoneNumber: "(314) 159-2653",
-    birthday: new Date("4/20/1969"),
+    birthday: new Date("1/1/1970"),
     description:
-      "Software engineering student and president of D&D club at Oregon Tech. Plays too much Titanfall and occasionally writes code.",
+      "Software engineering student at Oregon Tech. Occasionally writes code.",
   });
   const router = useRouter(); // for logout page
   const handleLogout = () => {
@@ -202,10 +202,10 @@ export default function Settings() {
           phoneNumber: json.phoneNumber || "(314) 159-2653",
           birthday: json.birthday
             ? new Date(json.birthday)
-            : new Date("4/20/1969"),
+            : new Date("1/1/1970"),
           description:
             json.description ||
-            "Software engineering student and president of D&D club at Oregon Tech. Plays too much Titanfall and occasionally writes code.",
+            "Software engineering student at Oregon Tech. Occasionally writes code.",
         };
         setUserData(mappedAccount);
         console.log(mappedAccount);

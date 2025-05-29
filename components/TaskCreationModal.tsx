@@ -113,7 +113,7 @@ export default function TaskCreationModal({
           </View>
 
           {/* date selection modal */}
-          <PaperProvider theme={paperTheme}>
+          <PaperProvider theme={datePickerTheme}>
             <DatePickerModal
               locale="en"
               mode="single"
@@ -220,6 +220,19 @@ const paperTheme = {
       surfaceVariant: useThemeColor("surfaceVariant"),
       surface: useThemeColor("surface"),
       onSurface: useThemeColor("onSurface")
+    }
+};
+
+const datePickerTheme = {
+    ...MD3DarkTheme, // use the default theme for anything we don't override
+    colors: {
+      ...MD3DarkTheme.colors,
+      primary: '#a548e2',
+      secondary: '#ffffff',
+      onSecondary: '#ffffff',
+      surfaceVariant: '#c3c3c3',
+      surface: '#202020',
+      onSurface: '#c3c3c3'
     }
 };
 

@@ -10,6 +10,7 @@ import { Dropdown } from "react-native-element-dropdown";
 import ErrorMessage from "@/components/ErrorMessage";
 import Globals from "@/services/globals";
 import CreateGroupModal from "@/components/CreateGroupModal";
+import TooltipIconButton from "@/components/TooltipIconButton";
 
 /** Self-explanatory (for testing). */
 const forceGetGroupsCrash = false;
@@ -32,6 +33,7 @@ export default function Index() {
       backgroundColor: useThemeColor("backgroundPrimary"),
       paddingHorizontal: 20,
       paddingTop: 10,
+      zIndex: 0
     },
     groupsContainer: {
       width: "100%",
@@ -43,6 +45,7 @@ export default function Index() {
       justifyContent: "center",
       width: "100%",
       paddingHorizontal: 10,
+      zIndex: 10
       // marginBottom: 10
     },
   });
@@ -200,14 +203,25 @@ export default function Index() {
         <View style={styles.buttonRow}>
           {/* Smaller Action Buttons - Centered */}
           <View style={{ flexDirection: "row", gap: 10 }}>
-            <PillButton
-              icon={"download"}
+            <TooltipIconButton
+              icon="download"
+              size={30}
+              tooltipText="Fetch Groups"
+              tooltipPosition="bottom"
               onPress={() => getGroups(Globals.user())}
             />
-            <PillButton icon={"trash"} onPress={remove} />
-            <PillButton
-              // icon={"plus"}
-              text={"Create Group"}
+            <TooltipIconButton
+              icon="trash-can-outline"
+              size={30}
+              tooltipText="Clear List"
+              tooltipPosition="bottom"
+              onPress={remove}
+            />
+            <TooltipIconButton
+              icon="plus"
+              size={30}
+              tooltipText="Create Group"
+              tooltipPosition="bottom"
               onPress={() => setCreateGroupVisible(true)}
             />
           </View>
