@@ -56,7 +56,16 @@ export default function Index() {
   function markTaskComplete(taskId: number) {
     setTasks((prev) =>
       prev.map((task) =>
-        task.id === taskId ? { ...task, complete: !task.complete } : task
+        task.id === taskId ? { ...task, complete: true } : task
+      )
+    );
+    toggleTaskCompletion(taskId.toString());
+  }
+
+  function markTaskIncomplete(taskId: number) {
+    setTasks((prev) =>
+      prev.map((task) =>
+        task.id === taskId ? { ...task, complete: false } : task
       )
     );
     toggleTaskCompletion(taskId.toString());
@@ -65,6 +74,12 @@ export default function Index() {
   function markSelectedTasksComplete() {
     selectedTasks.forEach((taskId) => {
       markTaskComplete(taskId.valueOf());
+    });
+  }
+
+  function markSelectedTasksIncomplete() {
+    selectedTasks.forEach((taskId) => {
+      markTaskIncomplete(taskId.valueOf());
     });
   }
 
@@ -213,10 +228,6 @@ export default function Index() {
     },
   });
 
-  function addToSelectedList(item: Tasks.Task): Tasks.Task {
-    throw new Error("Function not implemented.");
-  }
-
   //Return render of tasks page
   return (
     <View style={{ flex: 1 }}>
@@ -254,19 +265,26 @@ export default function Index() {
               tooltipPosition="bottom"
               onPress={() => setModalVisible(true)}
             />
-            <TooltipIconButton
+            {/* <TooltipIconButton
               icon="checkbox-multiple-blank-outline"
               size={30}
               tooltipText="Select all"
               tooltipPosition="bottom"
               onPress={() => console.log("not implemented :(")}
-            />
+            /> */}
             <TooltipIconButton
-              icon="check"
+              icon="checkbox-marked-outline"
               size={30}
               tooltipText="Mark Selected Complete"
               tooltipPosition="bottom"
               onPress={markSelectedTasksComplete}
+            />
+            <TooltipIconButton
+              icon="checkbox-blank-off-outline"
+              size={30}
+              tooltipText="Mark Selected Incomplete"
+              tooltipPosition="bottom"
+              onPress={markSelectedTasksIncomplete}
             />
             <TooltipIconButton
               icon="trash-can-outline"

@@ -1,19 +1,20 @@
 import React, { useState } from "react";
 import * as Tasks from "@/services/tasks";
-import { View, StyleSheet, Text } from "react-native";
+import { View, StyleSheet, Text, StyleProp, ViewStyle } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Card } from "react-native-paper";
 
 type Props = {
   task: Tasks.Task;
   onClick: () => void;
+  style?: StyleProp<ViewStyle>;
 };
 
-export default function TaskView({ task, onClick }: Props) {
+export default function TaskView({ task, onClick, style }: Props) {
   // const [checked, setChecked] = useState(false); ->doesn't seem to be used here
 
   return (
-    <Card mode="contained" style={styles.boxContainer}>
+    <Card mode="contained" style={[styles.boxContainer, style]}>
       <Card.Content>
         <View style={styles.titleRow}>
           <Text

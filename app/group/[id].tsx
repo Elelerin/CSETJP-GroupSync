@@ -191,16 +191,16 @@ export default function GroupHome() {
               />
 
               {/* sort direction toggle */}
-              <TooltipIconButton
+              {/* <TooltipIconButton
                 icon={sortAscending ? "sort-ascending" : "sort-descending"}
                 size={30}
                 tooltipText={sortAscending ? "Sort: Ascending" : "Sort: Descending"}
                 tooltipPosition="bottom"
                 onPress={() => setSortAscending(!sortAscending)}
-              />
+              /> */}
 
               {/* sort mode menu */}
-              <Dropdown
+              {/* <Dropdown
                 style={dropdownStyles.main}
                 placeholderStyle={dropdownStyles.placeholder}
                 selectedTextStyle={dropdownStyles.selectedText}
@@ -216,10 +216,10 @@ export default function GroupHome() {
                 onChange={item => {
                   setSortMode(item.value);
                 }}
-              />
+              /> */}
 
               {/* filter menu */}
-              <MultiSelect
+              {/* <MultiSelect
                 style={multiSelectStyles.main}
                 placeholderStyle={multiSelectStyles.placeholder}
                 containerStyle={multiSelectStyles.container}
@@ -242,7 +242,7 @@ export default function GroupHome() {
                     </View>
                   </TouchableOpacity>
                 )}
-              />
+              /> */}
             </View>
             <TooltipIconButton
               icon="account-plus"
@@ -272,7 +272,9 @@ export default function GroupHome() {
             <FlatList
               data={tasks} 
               // onclick currently does nothing - this will need to be changed eventually
-              renderItem={({item}) => <TaskView task={item} onClick={()=>{}}/>}
+              renderItem={
+                ({item}) => <TaskView task={item} style={{ width: "100%" }} onClick={()=>{}}/>
+              }
               showsHorizontalScrollIndicator={false}/>
           </View>
         </View>

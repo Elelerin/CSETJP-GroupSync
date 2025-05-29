@@ -47,8 +47,7 @@ export default function TaskCreationModal({
   );
 
   // for limiting the date selector
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
+  const today = new Date();
 
   return (
     <Modal animationType="slide" transparent={true} visible={modalVisible}>
@@ -120,7 +119,7 @@ export default function TaskCreationModal({
               label="Select Due Date"
               visible={dateSelectorOpen}
               date={dueDate}
-              validRange={{ startDate: yesterday }}
+              validRange={{ startDate: today }}
               onDismiss={onDateSelectorDismiss}
               onConfirm={onDateSelectorConfirm}
             />
