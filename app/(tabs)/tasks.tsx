@@ -23,31 +23,16 @@ export default function Index() {
   const [databaseError, setDatabaseError] = useState<boolean>(false);
 
   //Sort modes and their associated sorting functions
-  const sortModes: { [key: string]: (a: Tasks.Task, b: Tasks.Task) => number } =
-    {
-      name: (a, b) => a.title.localeCompare(b.title),
-      date: (a, b) =>
-        new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime(),
-      size: (a, b) =>
-        (a.description.length ?? 0) - (b.description?.length ?? 0),
-    };
-  // moved to a function so it can be re-called whenever the sort mode changes
-  function sortTasks() {
-    // this fallback *should* be impossible
-    return [...tasks].sort(sortModes[sortBy] ?? ((a, b) => 0));
-  }
+  const sortModes: { [key: string]: (a: Tasks.Task, b: Tasks.Task) => number } = {
+    name: (a, b) => a.title.localeCompare(b.title),
+    date: (a, b) => new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime(),
+    // size: (a, b) => (a.description.length ?? 0) - (b.description?.length ?? 0),
+  };
 
   // sort mode menu stuff
   const sortModeMenuData = Object.keys(sortModes).map((i) => {
     return { label: `Sort by ${i}`, value: i };
   });
-
-  const sortedTasks = sortTasks();
-
-  const onLoad = async () => {
-    getTasks(Globals.user());
-    setTasks(await Tasks.getTasks()); // typescript says this doesn't exist??
-  };
 
   function clearTasks() {
     setTasks([]);
@@ -117,8 +102,8 @@ export default function Index() {
       const json = await response.json();
       let gotTasks: Tasks.Task[] = json.map(parseTask);
 
-      setTasks([...gotTasks]);
       setDatabaseError(false);
+      return [...gotTasks];
     } catch (err: any) {
       console.error("Error occurred:", err.message || err);
     }
@@ -185,8 +170,10 @@ export default function Index() {
       justifyContent: "center",
       width: "100%",
       paddingHorizontal: 10,
-      marginBottom: 10,
-      zIndex: 10
+      // marginBottom: 10,
+      zIndex: 10,
+      height: 70,
+      paddingTop: 10
     },
     tasksContainer: {
       width: "100%",
@@ -198,8 +185,8 @@ export default function Index() {
   const dropdownStyles = StyleSheet.create({
     main: {
       marginHorizontal: 12,
-      marginTop: 14,
-      marginBottom: 18,
+      marginTop: 3,
+      marginBottom: 15,
       height: 50,
       borderBottomColor: useThemeColor("highlight"),
       borderBottomWidth: 2,
@@ -246,9 +233,10 @@ export default function Index() {
               size={30}
               tooltipText="Fetch Tasks"
               tooltipPosition="bottom"
-              onPress={() => {
+              onPress={async () => {
                 console.log("getting tasks...");
-                getTasks(Globals.user());
+                const t = await getTasks(Globals.user());
+                setTasks(t!.toSorted(sortModes.name));
               }}
             />
             <TooltipIconButton
@@ -316,8 +304,8 @@ export default function Index() {
               data={sortModeMenuData}
               value={sortBy}
               onChange={(item) => {
-                setSortBy(item.value);
-                console.log(`Sort tasks by ${item.value}`);
+                console.log(`sorting by ${item.value}`);
+                setTasks(tasks.toSorted(sortModes[item.value]));
               }}
             />
           </View>
@@ -326,7 +314,7 @@ export default function Index() {
         {/* main task list */}
         <FlatList
           style={styles.tasksContainer}
-          data={sortedTasks}
+          data={tasks}
           renderItem={({ item }) => (
             <View
               style={{

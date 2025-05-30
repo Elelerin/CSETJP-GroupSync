@@ -45,14 +45,15 @@ export default function Index() {
       justifyContent: "center",
       width: "100%",
       paddingHorizontal: 10,
-      zIndex: 10
+      zIndex: 10,
+      height: 80
       // marginBottom: 10
     },
   });
   const dropdownStyles = StyleSheet.create({
     main: {
       marginHorizontal: 12,
-      marginTop: 14,
+      marginTop: 10,
       marginBottom: 18,
       height: 50,
       borderBottomColor: useThemeColor("highlight"),
@@ -83,11 +84,9 @@ export default function Index() {
   });
 
   // sort modes and their associated sorting functions
-  const sortModes: {
-    [key: string]: (a: Groups.Group, b: Groups.Group) => number;
-  } = {
+  const sortModes: { [key: string]: (a: Groups.Group, b: Groups.Group) => number } = {
     name: (a, b) => a.title.localeCompare(b.title),
-    date: (a, b) => 0, // TODO: replace this with an actual sorting function
+    // date: (a, b) => 0, // TODO: replace this with an actual sorting function
     size: (a, b) => (a.description.length ?? 0) - (b.description?.length ?? 0),
   };
   // moved to a function so it can be re-called whenever the sort mode changes
@@ -228,7 +227,7 @@ export default function Index() {
 
           {/* Sort By Button - Aligned Right */}
           <View style={{ marginLeft: "auto" }}>
-            <Dropdown
+            {/* <Dropdown
               style={dropdownStyles.main}
               placeholderStyle={dropdownStyles.placeholder}
               selectedTextStyle={dropdownStyles.selectedText}
@@ -245,7 +244,7 @@ export default function Index() {
                 setSortBy(item.value);
                 console.log(`Sort groups by ${item.value}`);
               }}
-            />
+            /> */}
           </View>
         </View>
         <FlatList
