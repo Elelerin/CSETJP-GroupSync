@@ -20,6 +20,7 @@ export default function GroupHome() {
   const { id } = useLocalSearchParams();
   const groupID = Number(id);
   const [modalVisible, setModalVisible] = useState(false);
+  const [addUserModalVisible, setAddUserModalVisible] = useState(false);
   const [users, setUsers] = useState<string[]>([]);
   const [tasks, setTasks] = useState<Tasks.Task[]>([]);
 
@@ -40,10 +41,12 @@ export default function GroupHome() {
 
   async function getGroupTasks(groupID: Number) : Promise<string[]>{ 
     try {
+      console.log("getting tasks");
       const response = await fetch(Globals.groupTaskURL, {
         method : 'GET',
+        mode: "cors",
         headers : {
-          'usergroupgroup' : groupID.toString()
+          'groupTaskGroup' : groupID.toString()
         }
       });
 
@@ -51,9 +54,11 @@ export default function GroupHome() {
         throw new Error("Group Users Retrieval error");
       }
       const json = await response.json();
+      console.log(json);
       let gotTasks: Tasks.Task[] = json.map(parseTask);
 
       setTasks([...gotTasks]);
+      console.log(gotTasks); 
     } catch {
 
     }
@@ -90,6 +95,7 @@ export default function GroupHome() {
       const fetchUsers = async () => {
         console.log("TESTING");
         getGroupUsers(groupID);
+        getGroupTasks(groupID);
         console.log(users);
       };
 
