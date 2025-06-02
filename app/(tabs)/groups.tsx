@@ -1,5 +1,5 @@
 import { FlatList, View, StyleSheet } from "react-native";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import * as Groups from "@/services/groups";
 import * as Tasks from "@/services/tasks";
@@ -11,6 +11,7 @@ import ErrorMessage from "@/components/ErrorMessage";
 import Globals from "@/services/globals";
 import CreateGroupModal from "@/components/CreateGroupModal";
 import TooltipIconButton from "@/components/TooltipIconButton";
+import { useFocusEffect } from "@react-navigation/native";
 
 /** Self-explanatory (for testing). */
 const forceGetGroupsCrash = false;
@@ -188,6 +189,13 @@ export default function Index() {
     // there's also an "icon" property but it defaults to true
   });
 
+  useEffect(() => {
+    // hacky iife because useEffect doesn't work with async functions
+    (async () => {
+      getGroups(await Globals.user());
+    })();
+  }, []);
+
   console.log("page: groups");
 
   // Return render of groups page
@@ -202,7 +210,7 @@ export default function Index() {
         <View style={styles.buttonRow}>
           {/* Smaller Action Buttons - Centered */}
           <View style={{ flexDirection: "row", gap: 10 }}>
-            <TooltipIconButton
+            {/* <TooltipIconButton
               icon="download"
               size={30}
               tooltipText="Fetch Groups"
@@ -215,6 +223,16 @@ export default function Index() {
               tooltipText="Clear List"
               tooltipPosition="bottom"
               onPress={remove}
+            /> */}
+            <TooltipIconButton
+              icon="reload"
+              size={30}
+              tooltipText="Refresh List"
+              tooltipPosition="bottom"
+              onPress={async () => {
+                setGroups([]);
+                await getGroups(await Globals.user());
+              }}
             />
             <TooltipIconButton
               icon="plus"

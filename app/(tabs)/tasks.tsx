@@ -1,5 +1,5 @@
 import { FlatList, View, StyleSheet } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import * as Tasks from "@/services/tasks";
 import TaskView from "@/components/TaskView";
@@ -215,6 +215,14 @@ export default function Index() {
     },
   });
 
+  useEffect(() => {
+    (async () => {
+      console.log("getting tasks...");
+      const t = await getTasks(await Globals.user());
+      setTasks(t!.toSorted(sortModes.name));
+    })();
+  }, []);
+
   //Return render of tasks page
   return (
     <View style={{ flex: 1 }}>
@@ -228,7 +236,7 @@ export default function Index() {
         {/* everything else */}
         <View style={styles.listContainer}>
           <View style={{ flexDirection: "row", gap: 10 }}>
-            <TooltipIconButton
+            {/* <TooltipIconButton
               icon="download"
               size={30}
               tooltipText="Fetch Tasks"
@@ -245,6 +253,18 @@ export default function Index() {
               tooltipText="Clear List"
               tooltipPosition="bottom"
               onPress={clearTasks}
+            /> */}
+            <TooltipIconButton
+              icon="reload"
+              size={30}
+              tooltipText="Refresh List"
+              tooltipPosition="bottom"
+              onPress={async () => {
+                setTasks([]);
+                console.log("getting tasks...");
+                const t = await getTasks(await Globals.user());
+                setTasks(t!.toSorted(sortModes.name));
+              }}
             />
             <TooltipIconButton
               icon="plus"
