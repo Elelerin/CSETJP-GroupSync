@@ -235,7 +235,7 @@ export default function Index() {
               tooltipPosition="bottom"
               onPress={async () => {
                 console.log("getting tasks...");
-                const t = await getTasks(Globals.user());
+                const t = await getTasks(await Globals.user());
                 setTasks(t!.toSorted(sortModes.name));
               }}
             />

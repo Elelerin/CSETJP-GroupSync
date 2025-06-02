@@ -51,7 +51,7 @@ export default function Settings() {
   useFocusEffect(
     useCallback(() => {
       const fetchUsers = async () => {
-        getUser(Globals.user());
+        getUser(await Globals.user());
       };
 
       fetchUsers();

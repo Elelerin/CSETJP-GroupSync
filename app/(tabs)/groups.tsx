@@ -207,7 +207,7 @@ export default function Index() {
               size={30}
               tooltipText="Fetch Groups"
               tooltipPosition="bottom"
-              onPress={() => getGroups(Globals.user())}
+              onPress={async () => getGroups(await Globals.user())}
             />
             <TooltipIconButton
               icon="trash-can-outline"
