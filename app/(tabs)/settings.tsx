@@ -14,6 +14,7 @@ import MultiStyledText, {
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
 import { syncUserToDatabase } from "@/services/registerUser";
+import ChangeAccountInfoModal from "@/components/ChangeAccountInfoModal";
 
 interface AccountInfo {
   displayName: string; // the display name is (eventually) configurable in the settings
@@ -28,8 +29,9 @@ interface AccountInfo {
 export default function Settings() {
   const [isModalVisible, setModalVisible] = useState(false); // for change password modal
   const [isPreferencesVisible, setPreferencesVisible] = useState(false); // for preferences modal
+  const [infoModalVisible, setInfoModalVisible] = useState(false);
 
-  const [userData, setUserData] = useState<AccountInfo | null>({
+  const [userData, setUserData] = useState<AccountInfo>({
     displayName: "Joe Williams",
     username: "JustASideQuestNPC",
     pronouns: "he/him",
@@ -49,7 +51,7 @@ export default function Settings() {
   useFocusEffect(
     useCallback(() => {
       const fetchUsers = async () => {
-        getUser(Globals.user());
+        getUser(await Globals.user());
       };
 
       fetchUsers();
@@ -59,37 +61,38 @@ export default function Settings() {
   );
 
   // create an element for the sub line
-  let subLineContent: (MultiStyledTextItem | MultiStyledTextDivider)[] = [];
+  let sublineContentBuffer: (MultiStyledTextItem | MultiStyledTextDivider)[] = [];
   if (userData && userData.pronouns && userData.pronouns !== "") {
-    subLineContent.push({
+    sublineContentBuffer.push({
       type: "text",
       content: userData.pronouns,
       style: infoStyles.subLineInfo,
     });
   }
   if (userData && userData.birthday) {
-    subLineContent.push({
+    sublineContentBuffer.push({
       type: "text",
       content: userData?.birthday?.toLocaleDateString() || "",
       style: infoStyles.subLineInfo,
     });
   }
   if (userData && userData.phoneNumber && userData.phoneNumber !== "") {
-    subLineContent.push({
+    sublineContentBuffer.push({
       type: "text",
       content: userData.phoneNumber,
       style: infoStyles.subLineInfo,
     });
   }
-  if (subLineContent.length > 0) {
+  if (sublineContentBuffer.length > 0) {
     const divider: MultiStyledTextDivider = {
       type: "divider",
       width: 2,
       color: useThemeColor("highlight"),
       margin: 5,
     };
-    subLineContent = subLineContent.flatMap((i) => [divider, i]).slice(1);
+    sublineContentBuffer = sublineContentBuffer.flatMap((i) => [divider, i]).slice(1);
   }
+  const [sublineContent, setSublineContent] = useState(sublineContentBuffer);
 
   return (
     <View style={containerStyles.page}>
@@ -102,7 +105,7 @@ export default function Settings() {
             <Text style={infoStyles.username}>@{userData.username}</Text>
           )}
           <MultiStyledText
-            content={subLineContent}
+            content={sublineContent}
             topLevelStyle={infoStyles.subLine}
           />
           {userData && userData.description != null ? (
@@ -139,6 +142,17 @@ export default function Settings() {
           </Button>
         </Card>
 
+        {/* <Card mode="outlined" style={settingsStyles.card}>
+          <Button
+            mode="contained"
+            buttonColor={useThemeColor("backgroundSecondary")}
+            textColor="white"
+            onPress={() => setInfoModalVisible(true)}
+          >
+            Account Info
+          </Button>
+        </Card> */}
+
         <Card mode="outlined" style={settingsStyles.card}>
           <Button
             mode="contained"
@@ -168,6 +182,58 @@ export default function Settings() {
         <ChangePreferencesModal
           visible={isPreferencesVisible}
           onDismiss={() => setPreferencesVisible(false)}
+        />
+        <ChangeAccountInfoModal
+          modalVisible={infoModalVisible}
+          setModalVisible={setInfoModalVisible}
+          account={userData}
+          onSubmission={(newAccountInfo) => {
+            setUserData(() => {
+              return {
+                ...userData,
+                displayName: newAccountInfo.displayName,
+                username: newAccountInfo.username,
+                pronouns: newAccountInfo.pronouns,
+                phoneNumber: newAccountInfo.phoneNumber,
+                birthday: newAccountInfo.birthday
+              }
+            });
+
+            const sublineContentBuffer: (MultiStyledTextItem | MultiStyledTextDivider)[] = [];
+            if (userData && userData.pronouns && userData.pronouns !== "") {
+              sublineContentBuffer.push({
+                type: "text",
+                content: userData.pronouns,
+                style: infoStyles.subLineInfo,
+              });
+            }
+            if (userData && userData.birthday) {
+              sublineContentBuffer.push({
+                type: "text",
+                content: userData?.birthday?.toLocaleDateString() || "",
+                style: infoStyles.subLineInfo,
+              });
+            }
+            if (userData && userData.phoneNumber && userData.phoneNumber !== "") {
+              sublineContentBuffer.push({
+                type: "text",
+                content: userData.phoneNumber,
+                style: infoStyles.subLineInfo,
+              });
+            }
+            if (sublineContentBuffer.length > 0) {
+              const divider: MultiStyledTextDivider = {
+                type: "divider",
+                width: 2,
+                color: useThemeColor("highlight"),
+                margin: 5,
+              };
+              setSublineContent(sublineContentBuffer.flatMap((i) => [divider, i]).slice(1));
+            }
+            else {
+              setSublineContent([]);
+            }
+          }}
         />
       </View>
     </View>

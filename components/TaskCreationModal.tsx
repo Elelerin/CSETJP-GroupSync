@@ -47,8 +47,7 @@ export default function TaskCreationModal({
   );
 
   // for limiting the date selector
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
+  const today = new Date();
 
   return (
     <Modal animationType="slide" transparent={true} visible={modalVisible}>
@@ -120,7 +119,7 @@ export default function TaskCreationModal({
               label="Select Due Date"
               visible={dateSelectorOpen}
               date={dueDate}
-              validRange={{ startDate: yesterday }}
+              validRange={{ startDate: today }}
               onDismiss={onDateSelectorDismiss}
               onConfirm={onDateSelectorConfirm}
             />
@@ -140,7 +139,7 @@ export default function TaskCreationModal({
               iconColor={useThemeColor("highlight")}
               theme={paperTheme}
               size={36}
-              onPress={() => {
+              onPress={async () => {
                 const taskToAdd: Tasks.Task = {
                   title: taskName,
                   id: 0,
@@ -155,7 +154,7 @@ export default function TaskCreationModal({
                   // REGISTER NORMAL TASK TO GROUP
                 } else {
                   // REGISTER NORMAL TASK TO USER
-                  registerTask(taskToAdd, Globals.user());
+                  registerTask(taskToAdd, await Globals.user());
                 }
 
                 setModalVisible(false);

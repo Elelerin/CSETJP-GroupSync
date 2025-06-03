@@ -26,7 +26,7 @@ export default function Index() {
   
   const handleSubmit = async () => {
     console.log("handleSubmit");
-    Globals.setUser("Wdd2FIDVF5b6EfLLbO5xGS6JhWM2");
+    await Globals.setUser("Wdd2FIDVF5b6EfLLbO5xGS6JhWM2");
     if (!email || !password) {
       return Alert.alert("Missing Info", "Please enter email and password.");
     }

@@ -16,18 +16,55 @@ import AddUserModal from "@/components/AddUserModal";
 
 // this is now a property on Globals
 // const UserGroupURL = "https://bxgjv0771m.execute-api.us-east-2.amazonaws.com/groupsync/groupUser";
-
-/**
- * Gets list of users in database as an array of userIDs
- * Will change to be DISPLAYNAMES, but that's all backend stuff. For now, if this is loaded in
- * then you won't need to change anything when I push it. 
- */
 export default function GroupHome() {
   const { id } = useLocalSearchParams();
   const groupID = Number(id);
   const [modalVisible, setModalVisible] = useState(false);
-  const [users, setUsers] = useState<string[]>([]);
   const [addUserModalVisible, setAddUserModalVisible] = useState(false);
+  const [users, setUsers] = useState<string[]>([]);
+  const [tasks, setTasks] = useState<Tasks.Task[]>([]);
+
+  function parseTask(taskToParse: any) {
+    console.log(taskToParse);
+    const taskToAdd = {
+      title: taskToParse[1],
+      id: taskToParse[0],
+      description: taskToParse[2],
+
+      dueDate: taskToParse[4],
+      complete: taskToParse[5],
+    };
+    console.log(taskToAdd);
+
+    return taskToAdd;
+  }
+
+  async function getGroupTasks(groupID: Number) : Promise<string[]>{ 
+    try {
+      console.log("getting tasks");
+      const response = await fetch(Globals.groupTaskURL, {
+        method : 'GET',
+        mode: "cors",
+        headers : {
+          'groupTaskGroup' : groupID.toString()
+        }
+      });
+
+      if(!response.ok){
+        throw new Error("Group Users Retrieval error");
+      }
+      const json = await response.json();
+      console.log(json);
+      let gotTasks: Tasks.Task[] = json.map(parseTask);
+
+      setTasks([...gotTasks]);
+      console.log(gotTasks); 
+    } catch {
+
+    }
+    throw console.error();
+    
+  }
 
   async function getGroupUsers(groupID: Number) : Promise<string[]>{ 
     try {
@@ -58,6 +95,7 @@ export default function GroupHome() {
       const fetchUsers = async () => {
         console.log("TESTING");
         getGroupUsers(groupID);
+        getGroupTasks(groupID);
         console.log(users);
       };
 
@@ -67,87 +105,20 @@ export default function GroupHome() {
     }, [groupID])
   );
 
-  const tasks: Tasks.Task[] = [
-    {
-      id: 1,
-      title: "Water plants",
-      description: "Water the plants in the foyer. The spider plant needs two cups of water.",
-      dueDate: new Date("2024-11-26"),
-      complete: false,
-    },
-    {
-      id: 2,
-      title: "Buy holiday gifts",
-      description: "Peter wants a novelty spoon. Maria wants a go kart. Chet wants a portrait of his dog.",
-      dueDate: new Date("2024-12-17"),
-      complete: false,
-    },
-    {
-      id: 3,
-      title: "Hire minions",
-      description: "Consider increasing pay and giving them a health plan this time.",
-      dueDate: new Date("2025-1-18"),
-      complete: false,
-    },
-    {
-      id: 4,
-      title: "Find lair location",
-      description: "A volcano island looks cool and even includes its own natural power source.",
-      dueDate: new Date("2025-3-31"),
-      complete: false,
-    },
-    {
-      id: 5,
-      title: "Pay taxes",
-      description: "Not even supervillains mess with the IRS.",
-      dueDate: new Date("2025-4-15"),
-      complete: false,
-    },
-    {
-      id: 6,
-      title: "Water plants",
-      description: "Water the plants in the foyer. The spider plant needs two cups of water.",
-      dueDate: new Date("2024-11-26"),
-      complete: false,
-    },
-    {
-      id: 7,
-      title: "Buy holiday gifts",
-      description: "Peter wants a novelty spoon. Maria wants a go kart. Chet wants a portrait of his dog.",
-      dueDate: new Date("2024-12-17"),
-      complete: false,
-    },
-    {
-      id: 8,
-      title: "Hire minions",
-      description: "Consider increasing pay and giving them a health plan this time.",
-      dueDate: new Date("2025-1-18"),
-      complete: false,
-    },
-    {
-      id: 9,
-      title: "Find lair location",
-      description: "A volcano island looks cool and even includes its own natural power source.",
-      dueDate: new Date("2025-3-31"),
-      complete: false,
-    },
-    {
-      id: 0,
-      title: "Pay taxes",
-      description: "Not even supervillains mess with the IRS.",
-      dueDate: new Date("2025-4-15"),
-      complete: false,
-    },
-  ];
 
   // for sorting menus
   const [sortAscending, setSortAscending] = useState(true);
   const [sortMode, setSortMode] = useState<string>();
   const sortModeMenuData = [
-    { label: "Name",          value: "alphabetical" },
-    { label: "Creation Date", value: "creation date" },
-    { label: "Due Date",      value: "due date" }
+    { label: "Name",          value: "name" },
+    // { label: "Creation Date", value: "creation date" },
+    { label: "Due Date",      value: "dueDate" }
   ];
+
+  const sortFunctions: { [key: string]: (a: Tasks.Task, b: Tasks.Task) => number } = {
+    name: (a, b) => a.title.localeCompare(b.title),
+    dueDate: (a, b) => new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime()
+  };
 
   // for filter menu
   const [filters, setFilters] = useState<string[]>([]);
@@ -159,7 +130,6 @@ export default function GroupHome() {
     { label: "Unassigned",         value: "Unassigned" },
   ];
   
-  // required because react native is a PERFECTLY DESIGNED library with NO FLAWS WHATSOEVER
   const selectedIconColor = useThemeColor("textPrimary");
 
   return (
@@ -191,13 +161,13 @@ export default function GroupHome() {
               />
 
               {/* sort direction toggle */}
-              <TooltipIconButton
+              {/* <TooltipIconButton
                 icon={sortAscending ? "sort-ascending" : "sort-descending"}
                 size={30}
                 tooltipText={sortAscending ? "Sort: Ascending" : "Sort: Descending"}
                 tooltipPosition="bottom"
                 onPress={() => setSortAscending(!sortAscending)}
-              />
+              /> */}
 
               {/* sort mode menu */}
               <Dropdown
@@ -215,11 +185,12 @@ export default function GroupHome() {
                 value={sortMode}
                 onChange={item => {
                   setSortMode(item.value);
+                  setTasks(tasks.toSorted(sortFunctions[item.value]));
                 }}
               />
 
               {/* filter menu */}
-              <MultiSelect
+              {/* <MultiSelect
                 style={multiSelectStyles.main}
                 placeholderStyle={multiSelectStyles.placeholder}
                 containerStyle={multiSelectStyles.container}
@@ -242,7 +213,7 @@ export default function GroupHome() {
                     </View>
                   </TouchableOpacity>
                 )}
-              />
+              /> */}
             </View>
             <TooltipIconButton
               icon="account-plus"
@@ -272,7 +243,9 @@ export default function GroupHome() {
             <FlatList
               data={tasks} 
               // onclick currently does nothing - this will need to be changed eventually
-              renderItem={({item}) => <TaskView task={item} onClick={()=>{}}/>}
+              renderItem={
+                ({item}) => <TaskView task={item} style={{ width: "100%" }} onClick={()=>{}}/>
+              }
               showsHorizontalScrollIndicator={false}/>
           </View>
         </View>
